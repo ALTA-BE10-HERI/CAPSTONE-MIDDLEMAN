@@ -1,0 +1,14 @@
+.env example
+
+export DBusername="root"
+export DBpassword="12345"
+export DBhost="localhost"
+export DBport=3306
+export DBname="project3"
+export SECRET="h1d3n"
+export SERVERPORT=8080
+
+export AWS_BUCKET="heribucketbe10"
+export AWS_REGION="us-east-1"
+export S3_SECRET="faHMgove6+JjkhaA09yRd9aBgfERBzj4upIYYbcj"
+export S3_KEY="AKIATFF3RDMYG42NBBND"
