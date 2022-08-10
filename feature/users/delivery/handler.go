@@ -30,16 +30,16 @@ func (uh *userHandler) InsertUser() echo.HandlerFunc {
 		err := c.Bind(&tmp)
 		if err != nil {
 			log.Println("cannot parse data", err)
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseInternalServerError("there is an error in internal server"))
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to bind data, check your input"))
 		}
 
 		dataUser := tmp.ToModel()
 		row, err := uh.userUsecase.AddUser(dataUser)
 		if row == -1 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("please make sure all fields are filled in correctly"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("please make sure all fields are filled in correctly"))
 		}
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your email is already registered"))
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("your email is already registered"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("register success"))
 	}
@@ -51,20 +51,16 @@ func (uh *userHandler) LoginAuth() echo.HandlerFunc {
 		c.Bind(&authData)
 		fromToken, e := uh.userUsecase.Login(authData)
 		if e != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("email or password incorrect"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("email or password incorrect"))
 		}
+
 		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("login success", fromToken))
 	}
 }
 
 func (uh *userHandler) GetProfile() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id, role := _middleware.ExtractData(c)
-
-		if role != "user" {
-			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("not user"))
-		}
-
+		id, _ := _middleware.ExtractData(c)
 		data, err := uh.userUsecase.GetProfile(id)
 
 		if err != nil {
@@ -74,28 +70,23 @@ func (uh *userHandler) GetProfile() echo.HandlerFunc {
 				return c.JSON(http.StatusInternalServerError, err.Error())
 			}
 		}
-		temp := ParseGETProfile(data)
-		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("get data success", temp))
+
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", FromModel(data)))
 	}
 }
 
 func (uh *userHandler) DeleteById() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		idFromToken, role := _middleware.ExtractData(c)
-
-		if role != "user" {
-			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("not user"))
-		}
-
+		idFromToken, _ := _middleware.ExtractData(c)
 		if idFromToken == 0 {
-			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("you dont have access"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("you dont have access"))
 		}
 		row, errDel := uh.userUsecase.DeleteCase(idFromToken)
 		if errDel != nil {
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseInternalServerError("there is an error in internal server"))
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to delete data user"))
 		}
 		if row != 1 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to delete data user"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("failed to delete data user"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success delete data"))
 	}
@@ -104,25 +95,18 @@ func (uh *userHandler) DeleteById() echo.HandlerFunc {
 func (uh *userHandler) UpdateUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var tmp InsertFormat
-		idFromToken, role := _middleware.ExtractData(c)
+		idFromToken, _ := _middleware.ExtractData(c)
 		err := c.Bind(&tmp)
-		if role != "user" {
-			log.Println("not user")
-			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-				"code":    401,
-				"message": "not user",
-			})
-		}
 		if err != nil {
 
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseInternalServerError("failed to bind data, check your input"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("failed to bind data, check your input"))
 		}
 		row, err := uh.userUsecase.UpdateCase(tmp.ToModel(), idFromToken)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input, email already registered"))
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed update data users, cek your input email"))
 		}
 		if row == 0 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed update data users, no data"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("failed update data users, no data"))
 		}
 
 		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success update data"))
