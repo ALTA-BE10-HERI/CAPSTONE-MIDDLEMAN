@@ -1,8 +1,9 @@
 package common
 
 import (
-	"fmt"
+	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -16,20 +17,36 @@ func JWTMiddleware() echo.MiddlewareFunc {
 		SigningKey:    []byte(os.Getenv("SECRET")),
 	})
 }
-func GenerateToken(ID int) (string, error) {
-	claims := jwt.MapClaims{}
-	claims["authorized"] = true
-	claims["userID"] = ID
-	claims["exp"] = time.Now().Add(time.Minute * 180).Unix()
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(os.Getenv("SECRET")))
-}
-func ExtractData(c echo.Context) (int, error) {
-	user := c.Get("user").(*jwt.Token)
-	if user.Valid {
-		claims := user.Claims.(jwt.MapClaims)
-		userId := claims["userID"].(float64)
-		return int(userId), nil
+
+func GenerateToken(ID int, Role string) string {
+	info := jwt.MapClaims{}
+	info["ID"] = ID
+	info["Role"] = Role
+	info["exp"] = time.Now().Add(time.Minute * 180).Unix()
+	auth := jwt.NewWithClaims(jwt.SigningMethodHS256, info)
+	token, err := auth.SignedString([]byte(os.Getenv("SECRET")))
+	if err != nil {
+		log.Fatal("cannot generate key")
+		return ""
 	}
-	return 0, fmt.Errorf("token invalid")
+
+	return token
+}
+
+func ExtractData(c echo.Context) (int, string) {
+	head := c.Request().Header
+	token := strings.Split(head.Get("Authorization"), " ")
+
+	res, _ := jwt.Parse(token[len(token)-1], func(t *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("SECRET")), nil
+	})
+
+	if res.Valid {
+		resClaim := res.Claims.(jwt.MapClaims)
+		parseID := resClaim["ID"].(float64)
+		parseRole := resClaim["Role"].(string)
+		return int(parseID), parseRole
+	}
+
+	return -1, ""
 }

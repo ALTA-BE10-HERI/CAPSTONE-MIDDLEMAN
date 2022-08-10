@@ -57,7 +57,7 @@ func (ud *userData) LoginData(authData user.LoginModel) (data map[string]interfa
 	if errCrypt != nil {
 		return nil, errors.New("password incorrect")
 	}
-	token, _ := common.GenerateToken(int(userData.ID))
+	token := common.GenerateToken(int(userData.ID), userData.Role)
 
 	var dataToken = map[string]interface{}{}
 	dataToken["id"] = int(userData.ID)
@@ -96,6 +96,67 @@ func (ud *userData) UpdateData(data map[string]interface{}, idFromToken int) (ro
 	}
 	if res.RowsAffected != 1 {
 		return 0, errors.New("failed update data")
+	}
+	return int(res.RowsAffected), nil
+}
+
+func (ud *userData) CreateProductData(newProduct domain.ProductUser) domain.ProductUser {
+	var product = FromPU(newProduct)
+	err := ud.db.Create(&product)
+
+	if err.Error != nil {
+		log.Println("cannot create data", err.Error.Error())
+		return domain.ProductUser{}
+	}
+
+	if err.RowsAffected == 0 {
+		log.Println("failed to insert data")
+		return domain.ProductUser{}
+	}
+	return product.ToPU()
+}
+
+func (ud *userData) ReadAllProductData(id int) []domain.ProductUser {
+	var product []ProductUser
+	err := ud.db.Where("id_user = ?", id).Find(&product)
+	if err.Error != nil {
+		log.Println("cannot read data", err.Error.Error())
+		return []domain.ProductUser{}
+	}
+	if err.RowsAffected == 0 {
+		log.Println("data not found")
+		return []domain.ProductUser{}
+	}
+	return ParsePUToArr(product)
+}
+
+func (ud *userData) UpdateProductData(updatedData domain.ProductUser) domain.ProductUser {
+	var products = FromPU(updatedData)
+	err := ud.db.Model(&ProductUser{}).Where("id = ? AND id_user = ?", products.ID, products.IdUser).Updates(products)
+
+	if err.Error != nil {
+		log.Println("cannot update data", err.Error.Error())
+		return domain.ProductUser{}
+	}
+
+	if err.RowsAffected == 0 {
+		log.Println("data not found")
+		return domain.ProductUser{}
+	}
+
+	return products.ToPU()
+}
+
+func (ud *userData) DeleteProductData(productid, id int) (row int, err error) {
+	res := ud.db.Where("id = ? AND id_user = ?", productid, id).Delete(&ProductUser{})
+
+	if res.Error != nil {
+		log.Println("cannot delete data", res.Error.Error())
+		return 0, res.Error
+	}
+	if res.RowsAffected < 1 {
+		log.Println("no data deleted", res.Error.Error())
+		return 0, errors.New("failed to delete data ")
 	}
 	return int(res.RowsAffected), nil
 }

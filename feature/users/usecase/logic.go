@@ -6,6 +6,7 @@ import (
 	"log"
 	"middleman-capstone/domain"
 	user "middleman-capstone/feature/users"
+	"middleman-capstone/feature/users/data"
 
 	_bcrypt "golang.org/x/crypto/bcrypt"
 
@@ -81,4 +82,68 @@ func (uc *userUseCase) UpdateCase(input domain.User, idFromToken int) (row int, 
 	}
 	row, err = uc.userData.UpdateData(userReq, idFromToken)
 	return row, err
+}
+
+func (uc *userUseCase) CreateProduct(newProduct domain.ProductUser, id int) int {
+	var product = data.FromPU(newProduct)
+	validError := uc.validate.Struct(product)
+
+	if validError != nil {
+		log.Println("Validation error : ", validError)
+		return 400
+	}
+
+	product.IdUser = id
+	create := uc.userData.CreateProductData(product.ToPU())
+
+	if create.ID == 0 {
+		log.Println("error after creating data")
+		return 500
+	}
+	return 200
+}
+
+func (uc *userUseCase) ReadAllProduct(id int) ([]domain.ProductUser, int) {
+	product := uc.userData.ReadAllProductData(id)
+	if len(product) == 0 {
+		log.Println("data not found")
+		return nil, 404
+	}
+
+	return product, 200
+}
+
+func (uc *userUseCase) UpdateProduct(updatedData domain.ProductUser, productid, id int) int {
+	var products = data.FromPU(updatedData)
+	products.ID = uint(productid)
+	products.IdUser = id
+
+	if productid == 0 {
+		log.Println("Data not found")
+		return 404
+	}
+
+	update := uc.userData.UpdateProductData(products.ToPU())
+
+	if update.ID == 0 {
+		log.Println("empty data")
+		return 500
+	}
+	return 200
+}
+
+func (uc *userUseCase) DeleteProduct(productid, id int) int {
+	row, err := uc.userData.DeleteProductData(productid, id)
+
+	if err != nil {
+		log.Println("data not found")
+		return 404
+	}
+
+	if row < 1 {
+		log.Println("internal server error")
+		return 500
+	}
+
+	return 200
 }
