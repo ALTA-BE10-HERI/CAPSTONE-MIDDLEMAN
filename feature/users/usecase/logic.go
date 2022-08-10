@@ -112,3 +112,38 @@ func (uc *userUseCase) ReadAllProduct(id int) ([]domain.ProductUser, int) {
 
 	return product, 200
 }
+
+func (uc *userUseCase) UpdateProduct(updatedData domain.ProductUser, productid, id int) int {
+	var products = data.FromPU(updatedData)
+	products.ID = uint(productid)
+	products.IdUser = id
+
+	if productid == 0 {
+		log.Println("Data not found")
+		return 404
+	}
+
+	update := uc.userData.UpdateProductData(products.ToPU())
+
+	if update.ID == 0 {
+		log.Println("empty data")
+		return 500
+	}
+	return 200
+}
+
+func (uc *userUseCase) DeleteProduct(productid, id int) int {
+	row, err := uc.userData.DeleteProductData(productid, id)
+
+	if err != nil {
+		log.Println("data not found")
+		return 404
+	}
+
+	if row < 1 {
+		log.Println("internal server error")
+		return 500
+	}
+
+	return 200
+}

@@ -17,4 +17,6 @@ func RouteUser(e *echo.Echo, du domain.UserHandler) {
 	productuser := e.Group("/userproducts")
 	productuser.POST("", du.Create(), _middleware.JWTMiddleware())
 	productuser.GET("", du.ReadAll(), _middleware.JWTMiddleware())
+	productuser.PUT("/:idproduct", du.Update(), _middleware.JWTMiddleware())
+	productuser.DELETE("/:idproduct", du.Delete(), _middleware.JWTMiddleware())
 }

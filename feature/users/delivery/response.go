@@ -48,20 +48,17 @@ type ProductUser struct {
 
 func (pu *ProductUser) ToPU() domain.ProductUser {
 	return domain.ProductUser{
-		ID:        int(pu.ID),
-		IdUser:    pu.IdUser,
-		Name:      pu.Name,
-		Unit:      pu.Unit,
-		Stock:     pu.Stock,
-		Price:     pu.Price,
-		Image:     pu.Image,
-		CreatedAt: pu.CreatedAt,
+		ID:    int(pu.ID),
+		Name:  pu.Name,
+		Unit:  pu.Unit,
+		Stock: pu.Stock,
+		Price: pu.Price,
+		Image: pu.Image,
 	}
 }
 
 func FromPU(data domain.ProductUser) ProductUser {
 	var res ProductUser
-	res.IdUser = data.IdUser
 	res.Name = data.Name
 	res.Unit = data.Unit
 	res.Stock = data.Stock
@@ -71,10 +68,18 @@ func FromPU(data domain.ProductUser) ProductUser {
 	return res
 }
 
-// func ParsePUToArr(arr []domain.ProductUser) []domain.ProductUser {
-// 	var res []domain.ProductUser
-// 	for _, val := range arr {
-// 		res = append(res, val.FromPU())
-// 	}
-// 	return res
-// }
+func ParsePUToArr(arr []domain.ProductUser) []map[string]interface{} {
+	var arrmap []map[string]interface{}
+	for i := 0; i < len(arr); i++ {
+		var res = map[string]interface{}{}
+		res["id"] = arr[i].ID
+		res["product_name"] = arr[i].Name
+		res["unit"] = arr[i].Unit
+		res["stock"] = arr[i].Stock
+		res["price"] = arr[i].Price
+		res["product_image"] = arr[i].Image
+
+		arrmap = append(arrmap, res)
+	}
+	return arrmap
+}

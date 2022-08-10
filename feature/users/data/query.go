@@ -129,3 +129,34 @@ func (ud *userData) ReadAllProductData(id int) []domain.ProductUser {
 	}
 	return ParsePUToArr(product)
 }
+
+func (ud *userData) UpdateProductData(updatedData domain.ProductUser) domain.ProductUser {
+	var products = FromPU(updatedData)
+	err := ud.db.Model(&ProductUser{}).Where("id = ? AND id_user = ?", products.ID, products.IdUser).Updates(products)
+
+	if err.Error != nil {
+		log.Println("cannot update data", err.Error.Error())
+		return domain.ProductUser{}
+	}
+
+	if err.RowsAffected == 0 {
+		log.Println("data not found")
+		return domain.ProductUser{}
+	}
+
+	return products.ToPU()
+}
+
+func (ud *userData) DeleteProductData(productid, id int) (row int, err error) {
+	res := ud.db.Where("id = ? AND id_user = ?", productid, id).Delete(&ProductUser{})
+
+	if res.Error != nil {
+		log.Println("cannot delete data", res.Error.Error())
+		return 0, res.Error
+	}
+	if res.RowsAffected < 1 {
+		log.Println("no data deleted", res.Error.Error())
+		return 0, errors.New("failed to delete data ")
+	}
+	return int(res.RowsAffected), nil
+}
