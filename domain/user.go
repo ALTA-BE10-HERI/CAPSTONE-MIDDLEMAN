@@ -39,6 +39,8 @@ type UserUseCase interface {
 	UpdateCase(input User, idUser int) (row int, err error)
 	CreateProduct(newProduct ProductUser, idUser int) int
 	ReadAllProduct(id int) ([]ProductUser, int)
+	UpdateProduct(updatedData ProductUser, productid, id int) int
+	DeleteProduct(productid, id int) int
 }
 
 //query
@@ -50,6 +52,8 @@ type UserData interface {
 	UpdateData(data map[string]interface{}, idUser int) (row int, err error)
 	CreateProductData(newProduct ProductUser) ProductUser
 	ReadAllProductData(id int) []ProductUser
+	UpdateProductData(updatedData ProductUser) ProductUser
+	DeleteProductData(productid, id int) (row int, err error)
 }
 
 //handler
@@ -61,4 +65,6 @@ type UserHandler interface {
 	UpdateUser() echo.HandlerFunc
 	Create() echo.HandlerFunc
 	ReadAll() echo.HandlerFunc
+	Update() echo.HandlerFunc
+	Delete() echo.HandlerFunc
 }

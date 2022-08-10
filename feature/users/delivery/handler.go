@@ -8,6 +8,7 @@ import (
 	user "middleman-capstone/feature/users"
 	_helper "middleman-capstone/helper"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -144,7 +145,7 @@ func (uh *userHandler) Create() echo.HandlerFunc {
 			})
 		}
 
-		// file, err := c.FormFile("image")
+		// file, err := c.FormFile("product_image")
 
 		// if err != nil {
 		// 	log.Println(err)
@@ -185,14 +186,15 @@ func (uh *userHandler) ReadAll() echo.HandlerFunc {
 		id, role := common.ExtractData(c)
 
 		if role != "user" {
-			log.Println("not admin")
+			log.Println("not user")
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 				"code":    401,
-				"message": "not admin",
+				"message": "not user",
 			})
 		}
 
 		product, status := uh.userUsecase.ReadAllProduct(id)
+		data := ParsePUToArr(product)
 
 		if status == 404 {
 			return c.JSON(http.StatusNotFound, map[string]interface{}{
@@ -207,6 +209,137 @@ func (uh *userHandler) ReadAll() echo.HandlerFunc {
 			})
 		}
 
-		return c.JSON(http.StatusOK, product)
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"data":    data,
+			"code":    status,
+			"message": "get data success",
+		})
+	}
+}
+
+func (uh *userHandler) Update() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var tmp ProductFormat
+		bind := c.Bind(&tmp)
+
+		qry := map[string]interface{}{}
+		id, role := common.ExtractData(c)
+
+		if bind != nil {
+			log.Println("cant bind")
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    500,
+				"message": "there is an error in internal server",
+			})
+		}
+
+		if role != "user" {
+			log.Println("not user")
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+				"code":    401,
+				"message": "not user",
+			})
+		}
+
+		productid, err := strconv.Atoi(c.Param("idproduct"))
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    400,
+				"message": "wrong input",
+			})
+		}
+
+		if tmp.Name != "" {
+			qry["product_name"] = tmp.Name
+		}
+
+		if tmp.Unit != "" {
+			qry["unit"] = tmp.Unit
+		}
+
+		if tmp.Stock != 0 {
+			qry["stock"] = tmp.Stock
+		}
+
+		if tmp.Price != 0 {
+			qry["price"] = tmp.Price
+		}
+
+		// file, err := c.FormFile("product_image")
+
+		// if err != nil {
+		// 	log.Println(err)
+		// }
+
+		// link := awss3.DoUpload(ah.conn, *file, file.Filename)
+		// tmp.Image = link
+
+		status := uh.userUsecase.UpdateProduct(tmp.ToPU(), productid, id)
+
+		if status == 400 {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    status,
+				"message": "wrong input",
+			})
+		}
+
+		if status == 500 {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    status,
+				"message": "there is an error in internal server",
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"code":    status,
+			"message": "update success",
+		})
+	}
+}
+
+func (uh *userHandler) Delete() echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		cnv, err := strconv.Atoi(c.Param("idproduct"))
+
+		if err != nil {
+			log.Println("cant convert to int", err)
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    500,
+				"message": "cant convert to int",
+			})
+		}
+
+		id, role := common.ExtractData(c)
+
+		if role != "user" {
+			log.Println("not user")
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+				"code":    401,
+				"message": "not user",
+			})
+		}
+
+		status := uh.userUsecase.DeleteProduct(cnv, id)
+
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "data not found",
+			})
+		}
+
+		if status == 500 {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    status,
+				"message": "there is an error in internal server",
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"code":    status,
+			"message": "success delete product",
+		})
 	}
 }

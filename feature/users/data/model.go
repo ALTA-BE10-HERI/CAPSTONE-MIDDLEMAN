@@ -82,6 +82,7 @@ func ParsePUToArr(arr []ProductUser) []domain.ProductUser {
 
 func FromPU(data domain.ProductUser) ProductUser {
 	var res ProductUser
+	res.ID = uint(data.ID)
 	res.IdUser = data.IdUser
 	res.Name = data.Name
 	res.Unit = data.Unit
