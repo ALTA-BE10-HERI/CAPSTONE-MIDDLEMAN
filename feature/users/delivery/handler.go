@@ -298,6 +298,34 @@ func (uh *userHandler) Update() echo.HandlerFunc {
 		// link := awss3.DoUpload(ah.conn, *file, file.Filename)
 		// tmp.Image = link
 
+		fileData, fileInfo, fileErr := c.Request().FormFile("product_image")
+
+		// return err jika missing file
+		if fileErr == http.ErrMissingFile || fileErr != nil {
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to get file"))
+		}
+
+		// cek ekstension file upload
+		extension, err_check_extension := _helper.CheckFileExtension(fileInfo.Filename)
+		if err_check_extension != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("file extension error"))
+		}
+
+		// check file size
+		err_check_size := _helper.CheckFileSize(fileInfo.Size)
+		if err_check_size != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("file size error"))
+		}
+
+		// memberikan nama file
+		fileName := time.Now().Format("2006-01-0215:04:05") + "-s3" + "." + extension
+		url, errUploadImg := _helper.UploadImageToS3(fileName, fileData)
+		if errUploadImg != nil {
+			fmt.Println(errUploadImg)
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to upload file "))
+		}
+
+		tmp.Image = url
 		status := uh.userUsecase.UpdateProduct(tmp.ToPU(), productid, id)
 
 		if status == 400 {
