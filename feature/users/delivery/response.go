@@ -83,3 +83,16 @@ func ParsePUToArr(arr []domain.ProductUser) []map[string]interface{} {
 	}
 	return arrmap
 }
+
+func ParseGETProfile(arr domain.User) []map[string]interface{} {
+	var arrmap []map[string]interface{}
+	var res = map[string]interface{}{}
+	res["id"] = arr.ID
+	res["name"] = arr.Name
+	res["email"] = arr.Email
+	res["phone"] = arr.Phone
+	res["address"] = arr.Address
+
+	arrmap = append(arrmap, res)
+	return arrmap
+}
