@@ -57,7 +57,7 @@ func (ud *userData) LoginData(authData user.LoginModel) (data map[string]interfa
 	if errCrypt != nil {
 		return nil, errors.New("password incorrect")
 	}
-	token, _ := common.GenerateToken(int(userData.ID))
+	token := common.GenerateToken(int(userData.ID), userData.Role)
 
 	var dataToken = map[string]interface{}{}
 	dataToken["id"] = int(userData.ID)
@@ -98,4 +98,34 @@ func (ud *userData) UpdateData(data map[string]interface{}, idFromToken int) (ro
 		return 0, errors.New("failed update data")
 	}
 	return int(res.RowsAffected), nil
+}
+
+func (ud *userData) CreateProductData(newProduct domain.ProductUser) domain.ProductUser {
+	var product = FromPU(newProduct)
+	err := ud.db.Create(&product)
+
+	if err.Error != nil {
+		log.Println("cannot create data", err.Error.Error())
+		return domain.ProductUser{}
+	}
+
+	if err.RowsAffected == 0 {
+		log.Println("failed to insert data")
+		return domain.ProductUser{}
+	}
+	return product.ToPU()
+}
+
+func (ud *userData) ReadAllProductData(id int) []domain.ProductUser {
+	var product []ProductUser
+	err := ud.db.Where("id_user = ?", id).Find(&product)
+	if err.Error != nil {
+		log.Println("cannot read data", err.Error.Error())
+		return []domain.ProductUser{}
+	}
+	if err.RowsAffected == 0 {
+		log.Println("data not found")
+		return []domain.ProductUser{}
+	}
+	return ParsePUToArr(product)
 }

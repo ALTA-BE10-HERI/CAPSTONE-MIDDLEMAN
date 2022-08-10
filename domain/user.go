@@ -19,6 +19,17 @@ type User struct {
 	UpdatedAt time.Time
 }
 
+type ProductUser struct {
+	ID        int
+	IdUser    int
+	Name      string
+	Unit      string
+	Stock     int
+	Price     int
+	Image     string
+	CreatedAt time.Time
+}
+
 //logic
 type UserUseCase interface {
 	AddUser(newUser User) (row int, err error)
@@ -26,6 +37,8 @@ type UserUseCase interface {
 	GetProfile(id int) (User, error)
 	DeleteCase(userID int) (row int, err error)
 	UpdateCase(input User, idUser int) (row int, err error)
+	CreateProduct(newProduct ProductUser, idUser int) int
+	ReadAllProduct(id int) ([]ProductUser, int)
 }
 
 //query
@@ -35,6 +48,8 @@ type UserData interface {
 	GetSpecific(userID int) (User, error)
 	DeleteData(userID int) (row int, err error)
 	UpdateData(data map[string]interface{}, idUser int) (row int, err error)
+	CreateProductData(newProduct ProductUser) ProductUser
+	ReadAllProductData(id int) []ProductUser
 }
 
 //handler
@@ -44,4 +59,6 @@ type UserHandler interface {
 	GetProfile() echo.HandlerFunc
 	DeleteById() echo.HandlerFunc
 	UpdateUser() echo.HandlerFunc
+	Create() echo.HandlerFunc
+	ReadAll() echo.HandlerFunc
 }
