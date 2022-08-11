@@ -45,20 +45,19 @@ func (pd *productData) GetAllProductData(limit, offset int) (data []domain.Produ
 	return ParseProductToArr(dataProduct), nil
 }
 
-func (pd *productData) UpdateProductData(updatedData domain.Product) domain.Product {
-	var product = FromModel(updatedData)
-	result := pd.db.Model(&Product{}).Where("id = ?", product.ID).Updates(product)
+func (pd *productData) UpdateProductData(data map[string]interface{}, idProduct int) (row int, err error) {
+	result := pd.db.Model(&Product{}).Where("id = ?", idProduct).Updates(data)
 	if result.Error != nil {
 		log.Println("cannot update data", result.Error.Error())
-		return domain.Product{}
+		return 0, result.Error
 	}
 
 	if result.RowsAffected == 0 {
 		log.Println("data not found")
-		return domain.Product{}
+		return 0, errors.New("failed update data")
 	}
 
-	return product.ToModel()
+	return int(result.RowsAffected), nil
 }
 
 func (pd *productData) DeleteProductData(idProduct int) (row int, err error) {
