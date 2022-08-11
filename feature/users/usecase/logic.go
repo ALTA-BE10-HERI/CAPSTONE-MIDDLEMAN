@@ -7,6 +7,7 @@ import (
 	"middleman-capstone/domain"
 	user "middleman-capstone/feature/users"
 	"middleman-capstone/feature/users/data"
+	"regexp"
 
 	_bcrypt "golang.org/x/crypto/bcrypt"
 
@@ -27,9 +28,15 @@ func New(ud domain.UserData, v *validator.Validate) domain.UserUseCase {
 }
 
 func (uc *userUseCase) AddUser(newUser domain.User) (row int, err error) {
+	re := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	cekEmail := re.MatchString(newUser.Email)
+	if cekEmail == false {
+		return -2, errors.New("your format email is false")
+	}
 	if newUser.Name == "" || newUser.Email == "" || newUser.Password == "" || newUser.Phone == "" || newUser.Address == "" {
 		return -1, errors.New("please make sure all fields are filled in correctly")
 	}
+
 	row, err = uc.userData.Insert(newUser)
 	return row, err
 }
@@ -100,7 +107,7 @@ func (uc *userUseCase) CreateProduct(newProduct domain.ProductUser, id int) int 
 		log.Println("error after creating data")
 		return 500
 	}
-	return 200
+	return 201
 }
 
 func (uc *userUseCase) ReadAllProduct(id int) ([]domain.ProductUser, int) {
@@ -113,23 +120,32 @@ func (uc *userUseCase) ReadAllProduct(id int) ([]domain.ProductUser, int) {
 	return product, 200
 }
 
-func (uc *userUseCase) UpdateProduct(updatedData domain.ProductUser, productid, id int) int {
-	var products = data.FromPU(updatedData)
-	products.ID = uint(productid)
-	products.IdUser = id
+func (uc *userUseCase) UpdateProduct(updatedData domain.ProductUser, productid, id int) (row int, err error) {
+	qry := map[string]interface{}{}
 
-	if productid == 0 {
-		log.Println("Data not found")
-		return 404
+	if updatedData.Name != "" {
+		qry["name"] = updatedData.Name
 	}
 
-	update := uc.userData.UpdateProductData(products.ToPU())
-
-	if update.ID == 0 {
-		log.Println("empty data")
-		return 500
+	if updatedData.Unit != "" {
+		qry["unit"] = updatedData.Unit
 	}
-	return 200
+
+	if updatedData.Stock != 0 {
+		qry["stock"] = updatedData.Stock
+	}
+
+	if updatedData.Price != 0 {
+		qry["price"] = updatedData.Price
+	}
+
+	if updatedData.Image != "" {
+		qry["image"] = updatedData.Image
+	}
+
+	row, err = uc.userData.UpdateProductData(qry, productid, id)
+
+	return row, err
 }
 
 func (uc *userUseCase) DeleteProduct(productid, id int) int {
@@ -146,4 +162,23 @@ func (uc *userUseCase) DeleteProduct(productid, id int) int {
 	}
 
 	return 200
+}
+
+func (uc *userUseCase) CreateInventory(newRecap domain.InventoryProduct, id int) int {
+	var product = data.FromIP(newRecap)
+	validError := uc.validate.Struct(product)
+
+	if validError != nil {
+		log.Println("Validation error : ", validError)
+		return 400
+	}
+
+	product.IdUser = id
+	create := uc.userData.CreateInventoryData(product.ToIP())
+
+	if create.ID == 0 {
+		log.Println("error after creating data")
+		return 500
+	}
+	return 201
 }
