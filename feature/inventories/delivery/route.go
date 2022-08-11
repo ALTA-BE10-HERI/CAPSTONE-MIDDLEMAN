@@ -1,0 +1,13 @@
+package delivery
+
+import (
+	"middleman-capstone/domain"
+	_middleware "middleman-capstone/feature/common"
+
+	"github.com/labstack/echo/v4"
+)
+
+func RouteInventory(e *echo.Echo, ih domain.InventoryHandler) {
+	inventoryuser := e.Group("/users/inventory")
+	inventoryuser.POST("", ih.Create(), _middleware.JWTMiddleware())
+}
