@@ -41,3 +41,10 @@ func ResponseBadRequest(msg string) map[string]interface{} {
 		"message": msg,
 	}
 }
+
+func ResponseCreate(msg string) map[string]interface{} {
+	return map[string]interface{}{
+		"code":    201,
+		"message": msg,
+	}
+}
