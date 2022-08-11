@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"fmt"
 	"log"
 	"middleman-capstone/domain"
 	"middleman-capstone/feature/common"
@@ -11,6 +12,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -37,10 +39,13 @@ func (uh *userHandler) InsertUser() echo.HandlerFunc {
 		dataUser := tmp.ToModel()
 		row, err := uh.userUsecase.AddUser(dataUser)
 		if row == -1 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("please make sure all fields are filled in correctly"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("please make sure all fields are filled in correctly"))
+		}
+		if row == -2 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format email is wrong"))
 		}
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("your email is already registered"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your email is already registered"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("register success"))
 	}
@@ -136,6 +141,37 @@ func (uh *userHandler) Create() echo.HandlerFunc {
 			})
 		}
 
+		// =================================================================================
+		fileData, fileInfo, fileErr := c.Request().FormFile("product_image")
+
+		// return err jika missing file
+		if fileErr == http.ErrMissingFile || fileErr != nil {
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to get file"))
+		}
+
+		// cek ekstension file upload
+		extension, err_check_extension := _helper.CheckFileExtension(fileInfo.Filename)
+		if err_check_extension != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("file extension error"))
+		}
+
+		// check file size
+		err_check_size := _helper.CheckFileSize(fileInfo.Size)
+		if err_check_size != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("file size error"))
+		}
+
+		// memberikan nama file
+		fileName := time.Now().Format("2006-01-0215:04:05") + "-s3" + "." + extension
+		url, errUploadImg := _helper.UploadImageToS3(fileName, fileData)
+		if errUploadImg != nil {
+			fmt.Println(errUploadImg)
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to upload file "))
+		}
+
+		// =================================================================================
+
+		newProduct.Image = url
 		status := uh.userUsecase.CreateProduct(newProduct.ToPU(), id)
 
 		if status == 400 {
@@ -223,6 +259,35 @@ func (uh *userHandler) Update() echo.HandlerFunc {
 			})
 		}
 
+		fileData, fileInfo, fileErr := c.Request().FormFile("product_image")
+
+		// return err jika missing file
+		if fileErr == http.ErrMissingFile || fileErr != nil {
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to get file"))
+		}
+
+		// cek ekstension file upload
+		extension, err_check_extension := _helper.CheckFileExtension(fileInfo.Filename)
+		if err_check_extension != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("file extension error"))
+		}
+
+		// check file size
+		err_check_size := _helper.CheckFileSize(fileInfo.Size)
+		if err_check_size != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("file size error"))
+		}
+
+		// memberikan nama file
+		fileName := time.Now().Format("2006-01-0215:04:05") + "-s3" + "." + extension
+		url, errUploadImg := _helper.UploadImageToS3(fileName, fileData)
+		if errUploadImg != nil {
+			fmt.Println(errUploadImg)
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to upload file "))
+		}
+
+		tmp.Image = url
+
 		productid, err := strconv.Atoi(c.Param("idproduct"))
 
 		if err != nil {
@@ -287,6 +352,56 @@ func (uh *userHandler) Delete() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"code":    status,
 			"message": "success delete product",
+		})
+	}
+}
+
+func (uh *userHandler) CInventory() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var newInventory InventoryFormat
+		id, role := common.ExtractData(c)
+		bind := c.Bind(&newInventory)
+
+		if bind != nil {
+			log.Println("cant bind")
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    500,
+				"message": "there is an error in internal server",
+			})
+		}
+
+		if role != "user" {
+			log.Println("you dont have access")
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+				"code":    401,
+				"message": "you dont have access",
+			})
+		}
+
+		status := uh.userUsecase.CreateInventory(newInventory.ToIP(), id)
+
+		if status == 400 {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    status,
+				"message": "wrong input",
+			})
+		}
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "data not found",
+			})
+		}
+
+		if status == 500 {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    status,
+				"message": "there is an error in internal server",
+			})
+		}
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"code":    status,
+			"message": "success create product",
 		})
 	}
 }
