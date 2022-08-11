@@ -42,7 +42,7 @@ func (uh *userHandler) InsertUser() echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your email is already registered"))
 		}
-		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("register success"))
+		return c.JSON(http.StatusCreated, _helper.ResponseCreate("register success"))
 	}
 }
 
