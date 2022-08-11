@@ -7,6 +7,7 @@ import (
 	"middleman-capstone/domain"
 	user "middleman-capstone/feature/users"
 	"middleman-capstone/feature/users/data"
+	"regexp"
 
 	_bcrypt "golang.org/x/crypto/bcrypt"
 
@@ -27,9 +28,15 @@ func New(ud domain.UserData, v *validator.Validate) domain.UserUseCase {
 }
 
 func (uc *userUseCase) AddUser(newUser domain.User) (row int, err error) {
+	re := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	cekEmail := re.MatchString(newUser.Email)
+	if cekEmail == false {
+		return -2, errors.New("your format email is false")
+	}
 	if newUser.Name == "" || newUser.Email == "" || newUser.Password == "" || newUser.Phone == "" || newUser.Address == "" {
 		return -1, errors.New("please make sure all fields are filled in correctly")
 	}
+
 	row, err = uc.userData.Insert(newUser)
 	return row, err
 }

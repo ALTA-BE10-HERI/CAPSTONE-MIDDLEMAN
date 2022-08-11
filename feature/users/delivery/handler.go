@@ -38,10 +38,13 @@ func (uh *userHandler) InsertUser() echo.HandlerFunc {
 		dataUser := tmp.ToModel()
 		row, err := uh.userUsecase.AddUser(dataUser)
 		if row == -1 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("please make sure all fields are filled in correctly"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("please make sure all fields are filled in correctly"))
+		}
+		if row == -2 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format email is wrong"))
 		}
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("your email is already registered"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your email is already registered"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("register success"))
 	}
@@ -137,14 +140,6 @@ func (uh *userHandler) Create() echo.HandlerFunc {
 			})
 		}
 
-		// file, err := c.FormFile("product_image")
-
-		// if err != nil {
-		// 	log.Println(err)
-		// }
-
-		// link := awss3.DoUpload(ah.conn, *file, file.Filename)
-		// newproduct.Image = link
 		// =================================================================================
 		fileData, fileInfo, fileErr := c.Request().FormFile("product_image")
 
