@@ -141,7 +141,6 @@ func (uh *userHandler) Create() echo.HandlerFunc {
 			})
 		}
 
-		// =================================================================================
 		fileData, fileInfo, fileErr := c.Request().FormFile("product_image")
 
 		// return err jika missing file
@@ -168,8 +167,6 @@ func (uh *userHandler) Create() echo.HandlerFunc {
 			fmt.Println(errUploadImg)
 			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to upload file "))
 		}
-
-		// =================================================================================
 
 		newProduct.Image = url
 		status := uh.userUsecase.CreateProduct(newProduct.ToPU(), id)
@@ -352,56 +349,6 @@ func (uh *userHandler) Delete() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"code":    status,
 			"message": "success delete product",
-		})
-	}
-}
-
-func (uh *userHandler) CInventory() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		var newInventory InventoryFormat
-		id, role := common.ExtractData(c)
-		bind := c.Bind(&newInventory)
-
-		if bind != nil {
-			log.Println("cant bind")
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    500,
-				"message": "there is an error in internal server",
-			})
-		}
-
-		if role != "user" {
-			log.Println("you dont have access")
-			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-				"code":    401,
-				"message": "you dont have access",
-			})
-		}
-
-		status := uh.userUsecase.CreateInventory(newInventory.ToIP(), id)
-
-		if status == 400 {
-			return c.JSON(http.StatusBadRequest, map[string]interface{}{
-				"code":    status,
-				"message": "wrong input",
-			})
-		}
-		if status == 404 {
-			return c.JSON(http.StatusNotFound, map[string]interface{}{
-				"code":    status,
-				"message": "data not found",
-			})
-		}
-
-		if status == 500 {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    status,
-				"message": "there is an error in internal server",
-			})
-		}
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"code":    status,
-			"message": "success create product",
 		})
 	}
 }
