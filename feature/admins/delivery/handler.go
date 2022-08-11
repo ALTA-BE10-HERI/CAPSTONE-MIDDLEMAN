@@ -228,7 +228,7 @@ func (ph *productHandler) Update() echo.HandlerFunc {
 			qry["price"] = tmp.Price
 		}
 		if tmp.Image != "" {
-			qry["price"] = tmp.Image
+			qry["image"] = tmp.Image
 		}
 
 		status := ph.productUseCase.UpdateProduct(tmp.ToModel(), idProduct)
