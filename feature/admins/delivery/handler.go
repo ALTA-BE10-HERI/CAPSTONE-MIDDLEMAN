@@ -179,43 +179,58 @@ func (ph *productHandler) Update() echo.HandlerFunc {
 			qry["price"] = tmp.Price
 		}
 
-		// file, err := c.FormFile("product_image")
-
-		// if err != nil {
-		// 	log.Println(err)
-		// }
-
-		// link := awss3.DoUpload(ah.conn, *file, file.Filename)
-		// tmp.Image = link
-
 		fileData, fileInfo, fileErr := c.Request().FormFile("product_image")
 
-		// return err jika missing file
-		if fileErr == http.ErrMissingFile || fileErr != nil {
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to get file"))
+		if fileData != nil {
+			// return err jika missing file
+			if fileErr == http.ErrMissingFile || fileErr != nil {
+				return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to get file"))
+			}
+
+			// cek ekstension file upload
+			extension, err_check_extension := _helper.CheckFileExtension(fileInfo.Filename)
+			if err_check_extension != nil {
+				return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("file extension error"))
+			}
+
+			// check file size
+			err_check_size := _helper.CheckFileSize(fileInfo.Size)
+			if err_check_size != nil {
+				return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("file size error"))
+			}
+
+			// memberikan nama file
+			fileName := time.Now().Format("2006-01-0215:04:05") + "-s3" + "." + extension
+			url, errUploadImg := _helper.UploadImageToS3(fileName, fileData)
+			if errUploadImg != nil {
+				fmt.Println(errUploadImg)
+				return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to upload file "))
+			}
+
+			tmp.Image = url
+		} else {
+			tmp.Image = ""
 		}
 
-		// cek ekstension file upload
-		extension, err_check_extension := _helper.CheckFileExtension(fileInfo.Filename)
-		if err_check_extension != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("file extension error"))
+		if tmp.Name != "" {
+			qry["product_name"] = tmp.Name
 		}
 
-		// check file size
-		err_check_size := _helper.CheckFileSize(fileInfo.Size)
-		if err_check_size != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("file size error"))
+		if tmp.Unit != "" {
+			qry["unit"] = tmp.Unit
 		}
 
-		// memberikan nama file
-		fileName := time.Now().Format("2006-01-0215:04:05") + "-s3" + "." + extension
-		url, errUploadImg := _helper.UploadImageToS3(fileName, fileData)
-		if errUploadImg != nil {
-			fmt.Println(errUploadImg)
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to upload file "))
+		if tmp.Stock != 0 {
+			qry["stock"] = tmp.Stock
 		}
 
-		tmp.Image = url
+		if tmp.Price != 0 {
+			qry["price"] = tmp.Price
+		}
+		if tmp.Image != "" {
+			qry["image"] = tmp.Image
+		}
+
 		status := ph.productUseCase.UpdateProduct(tmp.ToModel(), idProduct)
 
 		if status == 400 {

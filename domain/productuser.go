@@ -23,16 +23,17 @@ type ProductUserHandler interface {
 	Update() echo.HandlerFunc
 	Delete() echo.HandlerFunc
 }
-type ProductUserData interface {
-	CreateProductData(newProduct ProductUser) ProductUser
-	ReadAllProductData(id int) []ProductUser
-	UpdateProductData(data map[string]interface{}, productid, id int) (row int, err error)
-	DeleteProductData(productid, id int) (row int, err error)
-}
 
 type ProductUserUseCase interface {
 	CreateProduct(newProduct ProductUser, idUser int) int
 	ReadAllProduct(id int) ([]ProductUser, int)
 	UpdateProduct(updatedData ProductUser, productid, id int) (row int, err error)
 	DeleteProduct(productid, id int) int
+}
+
+type ProductUserData interface {
+	CreateProductData(newProduct ProductUser) ProductUser
+	ReadAllProductData(id int) []ProductUser
+	UpdateProductData(data map[string]interface{}, productid, id int) (row int, err error)
+	DeleteProductData(productid, id int) (row int, err error)
 }

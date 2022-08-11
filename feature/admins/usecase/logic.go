@@ -49,7 +49,7 @@ func (pc *productUseCase) GetAllProduct(limit, offset int) (data []domain.Produc
 func (pc *productUseCase) UpdateProduct(updatedData domain.Product, idProduct int) int {
 	var product = data.FromModel(updatedData)
 	product.ID = uint(idProduct)
-
+	fmt.Println("product", product.ID)
 	if idProduct == 0 {
 		log.Println("Data not found")
 		return 404
