@@ -90,5 +90,5 @@ func (puuc *productUserUseCase) DeleteProduct(productid, id int) int {
 		return 500
 	}
 
-	return 200
+	return 204
 }
