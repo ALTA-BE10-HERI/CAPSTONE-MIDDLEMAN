@@ -68,22 +68,6 @@ func FromPU(data domain.ProductUser) ProductUser {
 	return res
 }
 
-func ParsePUToArr(arr []domain.ProductUser) []map[string]interface{} {
-	var arrmap []map[string]interface{}
-	for i := 0; i < len(arr); i++ {
-		var res = map[string]interface{}{}
-		res["id"] = arr[i].ID
-		res["product_name"] = arr[i].Name
-		res["unit"] = arr[i].Unit
-		res["stock"] = arr[i].Stock
-		res["price"] = arr[i].Price
-		res["product_image"] = arr[i].Image
-
-		arrmap = append(arrmap, res)
-	}
-	return arrmap
-}
-
 func ParseGETProfile(arr domain.User) []map[string]interface{} {
 	var arrmap []map[string]interface{}
 	var res = map[string]interface{}{}

@@ -130,21 +130,20 @@ func (ud *userData) ReadAllProductData(id int) []domain.ProductUser {
 	return ParsePUToArr(product)
 }
 
-func (ud *userData) UpdateProductData(updatedData domain.ProductUser) domain.ProductUser {
-	var products = FromPU(updatedData)
-	err := ud.db.Model(&ProductUser{}).Where("id = ? AND id_user = ?", products.ID, products.IdUser).Updates(products)
+func (ud *userData) UpdateProductData(data map[string]interface{}, productid, id int) (row int, err error) {
+	res := ud.db.Model(&ProductUser{}).Where("id = ? AND id_user = ?", productid, id).Updates(data)
 
-	if err.Error != nil {
-		log.Println("cannot update data", err.Error.Error())
-		return domain.ProductUser{}
+	if res.Error != nil {
+		log.Println("cannot update data", res.Error.Error())
+		return 0, res.Error
 	}
 
-	if err.RowsAffected == 0 {
+	if res.RowsAffected == 0 {
 		log.Println("data not found")
-		return domain.ProductUser{}
+		return 0, errors.New("failed update data")
 	}
 
-	return products.ToPU()
+	return int(res.RowsAffected), nil
 }
 
 func (ud *userData) DeleteProductData(productid, id int) (row int, err error) {
@@ -159,4 +158,45 @@ func (ud *userData) DeleteProductData(productid, id int) (row int, err error) {
 		return 0, errors.New("failed to delete data ")
 	}
 	return int(res.RowsAffected), nil
+}
+
+func (ud *userData) CreateInventoryData(newRecap domain.InventoryProduct) domain.InventoryProduct {
+	var product = FromIP(newRecap)
+	err := ud.db.Create(&product)
+
+	if err.Error != nil {
+		log.Println("cannot create data", err.Error.Error())
+		return domain.InventoryProduct{}
+	}
+
+	if err.RowsAffected == 0 {
+		log.Println("failed to insert data")
+		return domain.InventoryProduct{}
+	}
+	return product.ToIP()
+}
+
+func (ud *userData) StockUpdate(newRecap domain.InventoryProduct) bool {
+	var proder domain.ProductUser
+	res2 := ud.db.Where("name = ?", newRecap.Name).First(&proder)
+
+	if res2.Error != nil {
+		log.Println("Cannot retrieve object", res2.Error.Error())
+		return false
+	}
+
+	updatestock := proder.Stock - newRecap.Qty
+
+	if updatestock > 0 {
+		res3 := ud.db.Model(&ProductUser{}).Where("name = ?", newRecap.Name).Updates(ProductUser{Stock: updatestock})
+		if res3.Error != nil {
+			log.Println("Cannot retrieve object", res3.Error.Error())
+			return false
+		}
+	} else {
+		log.Println("not enough stock")
+		return false
+	}
+
+	return true
 }

@@ -7,6 +7,7 @@ import (
 	"middleman-capstone/feature/common"
 	_middleware "middleman-capstone/feature/common"
 	user "middleman-capstone/feature/users"
+	"middleman-capstone/feature/users/data"
 	_helper "middleman-capstone/helper"
 	"net/http"
 	"strconv"
@@ -133,14 +134,13 @@ func (uh *userHandler) Create() echo.HandlerFunc {
 		}
 
 		if role != "user" {
-			log.Println("not user")
+			log.Println("you dont have access")
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 				"code":    401,
-				"message": "not user",
+				"message": "you dont have access",
 			})
 		}
 
-		// =================================================================================
 		fileData, fileInfo, fileErr := c.Request().FormFile("product_image")
 
 		// return err jika missing file
@@ -167,8 +167,6 @@ func (uh *userHandler) Create() echo.HandlerFunc {
 			fmt.Println(errUploadImg)
 			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to upload file "))
 		}
-
-		// =================================================================================
 
 		newProduct.Image = url
 		status := uh.userUsecase.CreateProduct(newProduct.ToPU(), id)
@@ -204,15 +202,15 @@ func (uh *userHandler) ReadAll() echo.HandlerFunc {
 		id, role := common.ExtractData(c)
 
 		if role != "user" {
-			log.Println("not user")
+			log.Println("you dont have access")
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 				"code":    401,
-				"message": "not user",
+				"message": "you dont have access",
 			})
 		}
 
 		product, status := uh.userUsecase.ReadAllProduct(id)
-		data := ParsePUToArr(product)
+		data := data.ParsePUToArr2(product)
 
 		if status == 404 {
 			return c.JSON(http.StatusNotFound, map[string]interface{}{
@@ -240,7 +238,6 @@ func (uh *userHandler) Update() echo.HandlerFunc {
 		var tmp ProductFormat
 		bind := c.Bind(&tmp)
 
-		qry := map[string]interface{}{}
 		id, role := common.ExtractData(c)
 
 		if bind != nil {
@@ -252,46 +249,12 @@ func (uh *userHandler) Update() echo.HandlerFunc {
 		}
 
 		if role != "user" {
-			log.Println("not user")
+			log.Println("you dont have access")
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 				"code":    401,
-				"message": "not user",
+				"message": "you dont have access",
 			})
 		}
-
-		productid, err := strconv.Atoi(c.Param("idproduct"))
-
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]interface{}{
-				"code":    400,
-				"message": "wrong input",
-			})
-		}
-
-		if tmp.Name != "" {
-			qry["product_name"] = tmp.Name
-		}
-
-		if tmp.Unit != "" {
-			qry["unit"] = tmp.Unit
-		}
-
-		if tmp.Stock != 0 {
-			qry["stock"] = tmp.Stock
-		}
-
-		if tmp.Price != 0 {
-			qry["price"] = tmp.Price
-		}
-
-		// file, err := c.FormFile("product_image")
-
-		// if err != nil {
-		// 	log.Println(err)
-		// }
-
-		// link := awss3.DoUpload(ah.conn, *file, file.Filename)
-		// tmp.Image = link
 
 		fileData, fileInfo, fileErr := c.Request().FormFile("product_image")
 
@@ -321,26 +284,26 @@ func (uh *userHandler) Update() echo.HandlerFunc {
 		}
 
 		tmp.Image = url
-		status := uh.userUsecase.UpdateProduct(tmp.ToPU(), productid, id)
 
-		if status == 400 {
+		productid, err := strconv.Atoi(c.Param("idproduct"))
+
+		if err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
-				"code":    status,
+				"code":    400,
 				"message": "wrong input",
 			})
 		}
 
-		if status == 500 {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    status,
-				"message": "there is an error in internal server",
-			})
+		row, err := uh.userUsecase.UpdateProduct(tmp.ToPU(), productid, id)
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("there is an error in internal server"))
+		}
+		if row == 0 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("wrong input"))
 		}
 
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"code":    status,
-			"message": "update success",
-		})
+		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success update data"))
 	}
 }
 
@@ -360,10 +323,10 @@ func (uh *userHandler) Delete() echo.HandlerFunc {
 		id, role := common.ExtractData(c)
 
 		if role != "user" {
-			log.Println("not user")
+			log.Println("you dont have access")
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 				"code":    401,
-				"message": "not user",
+				"message": "you dont have access",
 			})
 		}
 
@@ -386,6 +349,56 @@ func (uh *userHandler) Delete() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"code":    status,
 			"message": "success delete product",
+		})
+	}
+}
+
+func (uh *userHandler) CInventory() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var newInventory InventoryFormat
+		id, role := common.ExtractData(c)
+		bind := c.Bind(&newInventory)
+
+		if bind != nil {
+			log.Println("cant bind")
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    500,
+				"message": "there is an error in internal server",
+			})
+		}
+
+		if role != "user" {
+			log.Println("you dont have access")
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+				"code":    401,
+				"message": "you dont have access",
+			})
+		}
+
+		status := uh.userUsecase.CreateInventory(newInventory.ToIP(), id)
+
+		if status == 400 {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    status,
+				"message": "wrong input",
+			})
+		}
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "data not found",
+			})
+		}
+
+		if status == 500 {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    status,
+				"message": "there is an error in internal server",
+			})
+		}
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"code":    status,
+			"message": "success create product",
 		})
 	}
 }
