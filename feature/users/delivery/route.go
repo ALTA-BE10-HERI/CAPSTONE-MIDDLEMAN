@@ -13,13 +13,4 @@ func RouteUser(e *echo.Echo, du domain.UserHandler) {
 	e.GET("/users", du.GetProfile(), _middleware.JWTMiddleware())
 	e.DELETE("/users", du.DeleteById(), _middleware.JWTMiddleware())
 	e.PUT("/users", du.UpdateUser(), _middleware.JWTMiddleware())
-
-	productuser := e.Group("/users/products")
-	productuser.POST("", du.Create(), _middleware.JWTMiddleware())
-	productuser.GET("", du.ReadAll(), _middleware.JWTMiddleware())
-	productuser.PUT("/:idproduct", du.Update(), _middleware.JWTMiddleware())
-	productuser.DELETE("/:idproduct", du.Delete(), _middleware.JWTMiddleware())
-
-	inventoryuser := e.Group("/users/inventory")
-	inventoryuser.POST("", du.CInventory(), _middleware.JWTMiddleware())
 }

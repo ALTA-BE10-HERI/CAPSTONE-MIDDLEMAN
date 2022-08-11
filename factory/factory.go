@@ -9,6 +9,14 @@ import (
 	productDelivery "middleman-capstone/feature/admins/delivery"
 	ps "middleman-capstone/feature/admins/usecase"
 
+	pud "middleman-capstone/feature/productusers/data"
+	productUserDelivery "middleman-capstone/feature/productusers/delivery"
+	pus "middleman-capstone/feature/productusers/usecase"
+
+	id "middleman-capstone/feature/inventories/data"
+	inventoryDelivery "middleman-capstone/feature/inventories/delivery"
+	is "middleman-capstone/feature/inventories/usecase"
+
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -27,4 +35,13 @@ func InitFactory(e *echo.Echo, db *gorm.DB) {
 	productHandler := productDelivery.New(productCase)
 	productDelivery.RouteAdmin(e, productHandler)
 
+	productUserData := pud.New(db)
+	productUserCase := pus.New(productUserData, validator)
+	productUserHandler := productUserDelivery.New(productUserCase)
+	productUserDelivery.RouteProductUser(e, productUserHandler)
+
+	inventoryData := id.New(db)
+	inventoryCase := is.New(inventoryData, validator)
+	inventoryHandler := inventoryDelivery.New(inventoryCase)
+	inventoryDelivery.RouteInventory(e, inventoryHandler)
 }
