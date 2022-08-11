@@ -42,18 +42,19 @@ type Product struct {
 
 func (c *Cart) ToDomain() domain.Cart {
 	return domain.Cart{
-		ID:        int(c.ID),
-		Qty:       c.Qty,
-		Status:    c.Status,
-		UserID:    c.UserID,
-		CreatedAt: c.CreatedAt,
-		UpdatedAt: c.UpdatedAt,
-		Product: domain.ProductCart{
-			ID:          int(c.Product.ID),
-			ProductName: c.Product.ProductName,
-			Qty:         c.Product.Qty,
-			Price:       c.Product.Price,
-		},
+		// ID:        int(c.ID),
+		// Qty:       c.Qty,
+		// Status:    c.Status,
+		// UserID:    c.UserID,
+		// CreatedAt: c.CreatedAt,
+		// UpdatedAt: c.UpdatedAt,
+		// Product: domain.ProductCart{
+		// 	ID:          int(c.Product.ID),
+		// 	ProductName: c.Product.ProductName,
+		// 	Qty:         c.Product.Qty,
+		// 	Price:       c.Product.Price,
+		// },
+
 	}
 
 }
