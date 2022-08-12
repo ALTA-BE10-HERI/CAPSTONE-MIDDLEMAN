@@ -77,10 +77,14 @@ func (h *CartHandler) UpdateCart() echo.HandlerFunc {
 		qty := cartReq.Qty
 		row, errUpd := h.cartUseCase.UpdateData(qty, idCart, idFromToken)
 		if errUpd != nil {
-			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("you dont have access"))
+			log.Println("cek : ", errUpd)
+			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("you dont have access sssss"))
 		}
 		if row == 0 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to update data"))
+		}
+		if row == 400 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your cart is payment"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success"))
 	}
