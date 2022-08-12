@@ -104,7 +104,7 @@ func (ph *productHandler) Create() echo.HandlerFunc {
 				"message": "there is an error in internal server",
 			})
 		}
-		return c.JSON(http.StatusOK, map[string]interface{}{
+		return c.JSON(http.StatusCreated, map[string]interface{}{
 			"code":    status,
 			"message": "success adding a product",
 		})
@@ -136,8 +136,6 @@ func (ph *productHandler) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var tmp ProductFormat
 		bind := c.Bind(&tmp)
-
-		qry := map[string]interface{}{}
 		_, role := common.ExtractData(c)
 
 		if bind != nil {
@@ -153,30 +151,6 @@ func (ph *productHandler) Update() echo.HandlerFunc {
 				"code":    401,
 				"message": "you dont have access",
 			})
-		}
-		idProduct, err := strconv.Atoi(c.Param("idproduct"))
-
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]interface{}{
-				"code":    400,
-				"message": "wrong input",
-			})
-		}
-
-		if tmp.Name != "" {
-			qry["product_name"] = tmp.Name
-		}
-
-		if tmp.Unit != "" {
-			qry["unit"] = tmp.Unit
-		}
-
-		if tmp.Stock != 0 {
-			qry["stock"] = tmp.Stock
-		}
-
-		if tmp.Price != 0 {
-			qry["price"] = tmp.Price
 		}
 
 		fileData, fileInfo, fileErr := c.Request().FormFile("product_image")
@@ -211,46 +185,25 @@ func (ph *productHandler) Update() echo.HandlerFunc {
 		} else {
 			tmp.Image = ""
 		}
+		idProduct, err := strconv.Atoi(c.Param("idproduct"))
 
-		if tmp.Name != "" {
-			qry["product_name"] = tmp.Name
-		}
-
-		if tmp.Unit != "" {
-			qry["unit"] = tmp.Unit
-		}
-
-		if tmp.Stock != 0 {
-			qry["stock"] = tmp.Stock
-		}
-
-		if tmp.Price != 0 {
-			qry["price"] = tmp.Price
-		}
-		if tmp.Image != "" {
-			qry["image"] = tmp.Image
-		}
-
-		status := ph.productUseCase.UpdateProduct(tmp.ToModel(), idProduct)
-
-		if status == 400 {
+		if err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
-				"code":    status,
+				"code":    400,
 				"message": "wrong input",
 			})
 		}
 
-		if status == 500 {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    status,
-				"message": "there is an error in internal server",
-			})
+		row, err := ph.productUseCase.UpdateProduct(tmp.ToModel(), idProduct)
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("there is an error in internal server"))
+		}
+		if row == 0 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("wrong input"))
 		}
 
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"code":    status,
-			"message": "update success",
-		})
+		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success update data"))
 	}
 }
 
@@ -292,7 +245,7 @@ func (ph *productHandler) Delete() echo.HandlerFunc {
 			})
 		}
 
-		return c.JSON(http.StatusOK, map[string]interface{}{
+		return c.JSON(http.StatusNoContent, map[string]interface{}{
 			"code":    status,
 			"message": "success delete product",
 		})

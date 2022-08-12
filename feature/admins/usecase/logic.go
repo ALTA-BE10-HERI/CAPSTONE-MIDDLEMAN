@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"fmt"
 	"log"
 	"middleman-capstone/domain"
 	"middleman-capstone/feature/admins/data"
@@ -38,7 +37,7 @@ func (pc *productUseCase) CreateProduct(newProduct domain.Product, idAdmin int) 
 		return 500
 
 	}
-	return 200
+	return 201
 }
 
 func (pc *productUseCase) GetAllProduct(limit, offset int) (data []domain.Product, err error) {
@@ -46,22 +45,32 @@ func (pc *productUseCase) GetAllProduct(limit, offset int) (data []domain.Produc
 	return res, err
 }
 
-func (pc *productUseCase) UpdateProduct(updatedData domain.Product, idProduct int) int {
-	var product = data.FromModel(updatedData)
-	product.ID = uint(idProduct)
-	fmt.Println("product", product.ID)
-	if idProduct == 0 {
-		log.Println("Data not found")
-		return 404
+func (pc *productUseCase) UpdateProduct(updatedData domain.Product, idProduct int) (row int, err error) {
+	qry := map[string]interface{}{}
+
+	if updatedData.Name != "" {
+		qry["name"] = updatedData.Name
 	}
 
-	update := pc.productData.UpdateProductData(product.ToModel())
-	fmt.Println("hasil :", update)
-	if update.ID == 0 {
-		log.Println("empty data")
-		return 500
+	if updatedData.Unit != "" {
+		qry["unit"] = updatedData.Unit
 	}
-	return 200
+
+	if updatedData.Stock != 0 {
+		qry["stock"] = updatedData.Stock
+	}
+
+	if updatedData.Price != 0 {
+		qry["price"] = updatedData.Price
+	}
+
+	if updatedData.Image != "" {
+		qry["image"] = updatedData.Image
+	}
+
+	row, err = pc.productData.UpdateProductData(qry, idProduct)
+
+	return row, err
 }
 
 func (pc *productUseCase) DeleteProduct(idProduct int) int {
@@ -76,5 +85,5 @@ func (pc *productUseCase) DeleteProduct(idProduct int) int {
 		log.Println("internal server error")
 		return 500
 	}
-	return 200
+	return 204
 }

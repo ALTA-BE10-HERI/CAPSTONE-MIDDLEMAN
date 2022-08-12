@@ -17,9 +17,15 @@ import (
 	inventoryDelivery "middleman-capstone/feature/inventories/delivery"
 	is "middleman-capstone/feature/inventories/usecase"
 
+
 	cd "middleman-capstone/feature/carts/data"
 	cartDelivery "middleman-capstone/feature/carts/delivery"
 	cs "middleman-capstone/feature/carts/usecase"
+  
+	iobd "middleman-capstone/feature/inoutbounds/data"
+	inoutboundDelivery "middleman-capstone/feature/inoutbounds/delivery"
+	iobs "middleman-capstone/feature/inoutbounds/usecase"
+
 
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
@@ -49,8 +55,15 @@ func InitFactory(e *echo.Echo, db *gorm.DB) {
 	inventoryHandler := inventoryDelivery.New(inventoryCase)
 	inventoryDelivery.RouteInventory(e, inventoryHandler)
 
+
 	cartData := cd.New(db)
 	cartCase := cs.New(cartData)
 	cartHandler := cartDelivery.New(cartCase)
 	cartDelivery.RouteCart(e, cartHandler)
+
+	inoutboundData := iobd.New(db)
+	inoutboundCase := iobs.New(inoutboundData, validator)
+	inoutboundHandler := inoutboundDelivery.New(inoutboundCase)
+	inoutboundDelivery.RouteInOutBound(e, inoutboundHandler)
+
 }
