@@ -25,7 +25,7 @@ type ProductUserHandler interface {
 }
 
 type ProductUserUseCase interface {
-	CreateProduct(newProduct ProductUser, idUser int) int
+	CreateProduct(newProduct ProductUser, id int) int
 	ReadAllProduct(id int) ([]ProductUser, int)
 	UpdateProduct(updatedData ProductUser, productid, id int) (row int, err error)
 	DeleteProduct(productid, id int) int

@@ -21,7 +21,7 @@ type Product struct {
 type ProductUseCase interface {
 	CreateProduct(newProduct Product, idAdmin int) int
 	GetAllProduct(limit, offset int) (data []Product, err error)
-	UpdateProduct(updatedData Product, idProduct int) int
+	UpdateProduct(updatedData Product, idProduct int) (row int, err error)
 	DeleteProduct(productid int) int
 }
 
@@ -29,7 +29,7 @@ type ProductUseCase interface {
 type ProductData interface {
 	CreateProductData(newProduct Product) Product
 	GetAllProductData(limit, offset int) (data []Product, err error)
-	UpdateProductData(updatedData Product) Product
+	UpdateProductData(data map[string]interface{}, idProduct int) (row int, err error)
 	DeleteProductData(productid int) (row int, err error)
 }
 
