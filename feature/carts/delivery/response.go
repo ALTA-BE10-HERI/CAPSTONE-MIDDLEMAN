@@ -3,11 +3,11 @@ package delivery
 import "middleman-capstone/domain"
 
 type Cart struct {
-	ID         int `json:"id"`
-	Qty        int `json:"qty"`
-	TotalPrice int `json:"totalprice"`
-	UserID     int `json:"user_id"`
-	Product    Product
+	ID       int `json:"id"`
+	Qty      int `json:"qty"`
+	Subtotal int `json:"subtotal"`
+	UserID   int `json:"user_id"`
+	Product  Product
 }
 
 type Product struct {
@@ -21,7 +21,7 @@ type Product struct {
 
 func FromModel(data domain.Cart) Cart {
 	return Cart{
-		TotalPrice: data.TotalPrice,
+		Subtotal: data.Subtotal,
 		Product: Product{
 			ID:           data.Product.ID,
 			ProductName:  data.Product.ProductName,
@@ -30,4 +30,11 @@ func FromModel(data domain.Cart) Cart {
 			Qty:          data.Product.Qty,
 		},
 	}
+}
+func FromModelList(data []domain.Cart) []Cart {
+	result := []Cart{}
+	for key := range data {
+		result = append(result, FromModel(data[key]))
+	}
+	return result
 }

@@ -7,16 +7,16 @@ import (
 )
 
 type Cart struct {
-	ID         int
-	Qty        int
-	Status     string
-	TotalPrice int
-	UserID     int
-	ProductID  int
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	Product    ProductCart
-	User       UserCart
+	ID        int
+	Qty       int
+	Status    string
+	Subtotal  int
+	UserID    int
+	ProductID int
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Product   ProductCart
+	User      UserCart
 }
 
 type ProductCart struct {
@@ -43,16 +43,17 @@ type CartUseCase interface {
 	GetAllData(limit, offset, idFromToken int) (data []Cart, err error)
 	CreateData(data Cart) (row int, err error)
 	UpdateData(qty, idCart, idFromToken int) (row int, err error)
-	// DeleteData(idProd, idFromToken int) (row int, err error)
+	DeleteData(idProd, idFromToken int) (row int, err error)
 }
 
 //usecase
 type ChartData interface {
+	GetPriceProduct(id int) (price int, err error)
 	InsertData(data Cart) (row int, err error)
 	SelectData(limit, offset, idFromToken int) (data []Cart, err error)
 	CheckCart(idProd, idFromToken int) (isExist bool, idCart, qty int, err error)
 	UpdateDataDB(qty, idCart, idFromToken int) (row int, err error)
-	// DeleteDataDB(idProd, idFromToken int) (row int, err error)
+	DeleteDataDB(idProd, idFromToken int) (row int, err error)
 }
 
 type CartHandler interface {

@@ -48,9 +48,9 @@ func (cd *cartData) CheckCart(idProd, idFromToken int) (isExist bool, idCart, qt
 	return true, int(dataCart.ID), int(dataCart.Qty), nil
 }
 
-func (cd *cartData) UpdateDataDB(stock, idCart, idFromToken int) (row int, err error) {
+func (cd *cartData) UpdateDataDB(qty, idCart, idFromToken int) (row int, err error) {
 	dataCart := Cart{}
-	idCheck := cd.db.First(&dataCart, idCart)
+	idCheck := cd.db.Preload("Product").First(&dataCart, idCart)
 	if idCheck.Error != nil {
 		return 0, idCheck.Error
 	}
@@ -58,7 +58,7 @@ func (cd *cartData) UpdateDataDB(stock, idCart, idFromToken int) (row int, err e
 		log.Println("cek ", dataCart.UserID)
 		return -1, errors.New("you don't have access")
 	}
-	result := cd.db.Model(&Cart{}).Where("id = ?", idCart).Update("stock", stock)
+	result := cd.db.Model(&Cart{}).Where("id = ?", idCart).Where("status = ?", "Pending").Updates(map[string]interface{}{"qty": qty, "subtotal": qty * dataCart.Product.Price})
 
 	if result.Error != nil {
 		return 0, result.Error
@@ -67,4 +67,31 @@ func (cd *cartData) UpdateDataDB(stock, idCart, idFromToken int) (row int, err e
 		return 0, errors.New("failed to update data")
 	}
 	return int(result.RowsAffected), nil
+}
+func (cd *cartData) DeleteDataDB(idCart, idFromToken int) (row int, err error) {
+	dataCart := Cart{}
+	idCheck := cd.db.First(&dataCart, idCart)
+	if idCheck.Error != nil {
+		return 0, idCheck.Error
+	}
+	if idFromToken != dataCart.UserID {
+		return -1, errors.New("you don't have access")
+	}
+	result := cd.db.Delete(&Cart{}, idCart)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	if result.RowsAffected != 1 {
+		return 0, errors.New("failed to delete data")
+	}
+	return int(result.RowsAffected), nil
+}
+
+func (cd *cartData) GetPriceProduct(idProduct int) (price int, err error) {
+	var tmp Product
+	res := cd.db.Where("id = ?", idProduct).First(&tmp)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return tmp.Price, nil
 }

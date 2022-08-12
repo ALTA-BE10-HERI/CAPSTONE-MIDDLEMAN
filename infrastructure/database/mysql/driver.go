@@ -6,6 +6,7 @@ import (
 	"middleman-capstone/config"
 
 	adminData "middleman-capstone/feature/admins/data"
+	cartData "middleman-capstone/feature/carts/data"
 	inventoryData "middleman-capstone/feature/inventories/data"
 	productuserData "middleman-capstone/feature/productusers/data"
 	userData "middleman-capstone/feature/users/data"
@@ -30,6 +31,11 @@ func InitDB(cfg *config.AppConfig) *gorm.DB {
 }
 
 func MigrateData(db *gorm.DB) {
-	db.AutoMigrate(userData.User{}, productuserData.ProductUser{}, adminData.Product{}, inventoryData.InventoryProduct{})
+	db.AutoMigrate(userData.User{},
+		productuserData.ProductUser{},
+		adminData.Product{},
+		inventoryData.InventoryProduct{},
+		cartData.Cart{},
+	)
 
 }

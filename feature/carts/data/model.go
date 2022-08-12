@@ -34,6 +34,7 @@ type Product struct {
 	Status       string
 	ProductName  string
 	ProductImage string
+	Unit         string
 	Price        int
 	UserID       int
 	Cart         []Cart `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -42,19 +43,21 @@ type Product struct {
 
 func (c *Cart) ToDomain() domain.Cart {
 	return domain.Cart{
-		// ID:        int(c.ID),
-		// Qty:       c.Qty,
-		// Status:    c.Status,
-		// UserID:    c.UserID,
-		// CreatedAt: c.CreatedAt,
-		// UpdatedAt: c.UpdatedAt,
-		// Product: domain.ProductCart{
-		// 	ID:          int(c.Product.ID),
-		// 	ProductName: c.Product.ProductName,
-		// 	Qty:         c.Product.Qty,
-		// 	Price:       c.Product.Price,
-		// },
-
+		ID:        int(c.ID),
+		Qty:       c.Qty,
+		Status:    c.Status,
+		UserID:    c.UserID,
+		Subtotal:  c.Subtotal,
+		CreatedAt: c.CreatedAt,
+		UpdatedAt: c.UpdatedAt,
+		Product: domain.ProductCart{
+			ID:           int(c.Product.ID),
+			ProductName:  c.Product.ProductName,
+			Unit:         c.Product.Unit,
+			Qty:          c.Product.Qty,
+			Price:        c.Product.Price,
+			ProductImage: c.Product.ProductImage,
+		},
 	}
 
 }
@@ -72,5 +75,6 @@ func FromDomain(data domain.Cart) Cart {
 	res.Status = data.Status
 	res.UserID = data.UserID
 	res.ProductID = data.Product.ID
+	res.Subtotal = data.Subtotal
 	return res
 }

@@ -17,6 +17,10 @@ import (
 	inventoryDelivery "middleman-capstone/feature/inventories/delivery"
 	is "middleman-capstone/feature/inventories/usecase"
 
+	cd "middleman-capstone/feature/carts/data"
+	cartDelivery "middleman-capstone/feature/carts/delivery"
+	cs "middleman-capstone/feature/carts/usecase"
+
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -44,4 +48,9 @@ func InitFactory(e *echo.Echo, db *gorm.DB) {
 	inventoryCase := is.New(inventoryData, validator)
 	inventoryHandler := inventoryDelivery.New(inventoryCase)
 	inventoryDelivery.RouteInventory(e, inventoryHandler)
+
+	cartData := cd.New(db)
+	cartCase := cs.New(cartData)
+	cartHandler := cartDelivery.New(cartCase)
+	cartDelivery.RouteCart(e, cartHandler)
 }
