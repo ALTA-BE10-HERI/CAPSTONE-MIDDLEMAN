@@ -7,22 +7,23 @@ import (
 )
 
 type Cart struct {
-	ID        int
-	Qty       int
-	Status    string
-	Subtotal  int
-	UserID    int
-	ProductID int
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Product   ProductCart
-	User      UserCart
+	ID         int
+	Qty        int
+	Status     string
+	Subtotal   int
+	Grandtotal int
+	UserID     int
+	ProductID  int
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	Product    ProductCart
+	User       UserCart
 }
 
 type ProductCart struct {
 	ID           int
 	ProductName  string
-	Qty          int
+	Stock        int
 	Unit         string
 	Price        int
 	ProductImage string
@@ -40,7 +41,7 @@ type UserCart struct {
 }
 
 type CartUseCase interface {
-	GetAllData(limit, offset, idFromToken int) (data []Cart, err error)
+	GetAllData(limit, offset, idFromToken int) (data []Cart, total int, err error)
 	CreateData(data Cart) (row int, err error)
 	UpdateData(qty, idCart, idFromToken int) (row int, err error)
 	DeleteData(idProd, idFromToken int) (row int, err error)

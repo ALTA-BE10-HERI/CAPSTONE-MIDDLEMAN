@@ -30,15 +30,15 @@ type User struct {
 
 type Product struct {
 	gorm.Model
-	Qty          int
-	Status       string
-	ProductName  string
-	ProductImage string
-	Unit         string
-	Price        int
-	UserID       int
-	Cart         []Cart `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	User         User
+	Stock  int
+	Status string
+	Name   string
+	Image  string
+	Unit   string
+	Price  int
+	UserID int
+	Cart   []Cart `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	User   User
 }
 
 func (c *Cart) ToDomain() domain.Cart {
@@ -52,11 +52,11 @@ func (c *Cart) ToDomain() domain.Cart {
 		UpdatedAt: c.UpdatedAt,
 		Product: domain.ProductCart{
 			ID:           int(c.Product.ID),
-			ProductName:  c.Product.ProductName,
+			ProductName:  c.Product.Name,
 			Unit:         c.Product.Unit,
-			Qty:          c.Product.Qty,
+			Stock:        c.Product.Stock,
 			Price:        c.Product.Price,
-			ProductImage: c.Product.ProductImage,
+			ProductImage: c.Product.Image,
 		},
 	}
 
