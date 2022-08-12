@@ -27,12 +27,15 @@ func (ch *CartHandler) GetAll() echo.HandlerFunc {
 		limitint, _ := strconv.Atoi(limit)
 		offsetint, _ := strconv.Atoi(offset)
 		idFromToken, _ := _middleware.ExtractData(c)
-		result, err := ch.cartUseCase.GetAllData(limitint, offsetint, idFromToken)
+		result, total, err := ch.cartUseCase.GetAllData(limitint, offsetint, idFromToken)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get all data"))
 		}
-
-		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", FromModelList(result)))
+		var data = map[string]interface{}{
+			"data":        FromModelList(result),
+			"grand_total": total,
+		}
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", data))
 	}
 }
 func (ch *CartHandler) PostCart() echo.HandlerFunc {
@@ -49,13 +52,12 @@ func (ch *CartHandler) PostCart() echo.HandlerFunc {
 		dataCart.Status = "Pending"
 		dataCart.UserID = idFromToken
 
-		log.Println("cart qty :", cartReq.Qty)
 		row, errCreate := ch.cartUseCase.CreateData(dataCart)
 		if row == -1 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("please make sure all fields are filled in correctly"))
 		}
 		if errCreate != nil {
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to add to cart"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to add to cart"))
 		}
 
 		return c.JSON(http.StatusCreated, _helper.ResponseCreate("success"))
@@ -70,15 +72,19 @@ func (h *CartHandler) UpdateCart() echo.HandlerFunc {
 		err := c.Bind(&cartReq)
 
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("failed to bind data, check your input"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to bind data, check your input"))
 		}
 		qty := cartReq.Qty
 		row, errUpd := h.cartUseCase.UpdateData(qty, idCart, idFromToken)
 		if errUpd != nil {
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("you dont have access"))
+			log.Println("cek : ", errUpd)
+			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("you dont have access sssss"))
 		}
 		if row == 0 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("failed to update data"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to update data"))
+		}
+		if row == 400 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your cart is payment"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success"))
 	}
@@ -91,7 +97,7 @@ func (h *CartHandler) DeleteCart() echo.HandlerFunc {
 		row, errDel := h.cartUseCase.DeleteData(idProd, idFromToken)
 		if errDel != nil {
 			log.Println("cek", errDel)
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("you dont have access"))
+			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("you dont have access"))
 		}
 		if row != 1 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("failed to delete data user"))

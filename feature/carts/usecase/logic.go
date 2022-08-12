@@ -14,12 +14,13 @@ func New(pd domain.ChartData) domain.CartUseCase {
 		cartData: pd,
 	}
 }
-func (uc *cartUseCase) GetAllData(limit, offset, idFromToken int) (data []domain.Cart, err error) {
+func (uc *cartUseCase) GetAllData(limit, offset, idFromToken int) (data []domain.Cart, total int, err error) {
 	data, err = uc.cartData.SelectData(limit, offset, idFromToken)
-	for k, v := range data {
-		data[k].Subtotal = v.Qty * v.Product.Price
+	subTotal := 0
+	for _, v := range data {
+		subTotal += v.Subtotal
 	}
-	return data, err
+	return data, subTotal, err
 }
 
 func (uc *cartUseCase) CreateData(data domain.Cart) (row int, err error) {
