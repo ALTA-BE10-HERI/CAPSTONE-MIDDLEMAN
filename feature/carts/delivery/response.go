@@ -16,7 +16,7 @@ type Product struct {
 	ProductImage string `json:"product_image"`
 	Price        int    `json:"price"`
 	Unit         string `json:"unit"`
-	Qty          int    `json:"qty"`
+	Stock        int    `json:"stock"`
 }
 
 func FromModel(data domain.Cart) Cart {
@@ -31,7 +31,7 @@ func FromModel(data domain.Cart) Cart {
 			ProductImage: data.Product.ProductImage,
 			Price:        data.Product.Price,
 			Unit:         data.Product.Unit,
-			Qty:          data.Product.Stock,
+			Stock:        data.Product.Stock,
 		},
 	}
 }

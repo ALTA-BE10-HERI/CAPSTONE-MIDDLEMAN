@@ -51,10 +51,6 @@ func (cd *cartData) CheckCart(idProd, idFromToken int) (isExist bool, idCart, qt
 func (cd *cartData) UpdateDataDB(qty, idCart, idFromToken int) (row int, err error) {
 	dataCart := Cart{}
 	idCheck := cd.db.Preload("Product").First(&dataCart, idCart)
-	cekStatus := cd.db.Where("status = ?", "Pending")
-	if cekStatus.Error == nil {
-		return 400, cekStatus.Error
-	}
 	if idCheck.Error != nil {
 		return 0, idCheck.Error
 	}
@@ -97,4 +93,20 @@ func (cd *cartData) GetPriceProduct(idProduct int) (price int, err error) {
 		return 0, res.Error
 	}
 	return tmp.Price, nil
+}
+func (cd *cartData) GetStockProduct(idProduct int) (stok int, err error) {
+	var tmp Product
+	res := cd.db.Where("id = ?", idProduct).First(&tmp)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return tmp.Stock, nil
+}
+func (cd *cartData) GetQtyProductCart(idCart int) (stok int, err error) {
+	var tmp Cart
+	res := cd.db.Where("id = ?", idCart).First(&tmp)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return tmp.Qty, nil
 }
