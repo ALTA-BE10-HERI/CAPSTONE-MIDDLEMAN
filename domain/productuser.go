@@ -14,6 +14,7 @@ type ProductUser struct {
 	Stock     int
 	Price     int
 	Image     string
+	Reff      int
 	CreatedAt time.Time
 }
 
