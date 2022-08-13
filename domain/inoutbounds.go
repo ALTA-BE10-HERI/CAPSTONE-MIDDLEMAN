@@ -19,12 +19,14 @@ type InOutBoundHandler interface {
 	Add() echo.HandlerFunc
 	ReadAll() echo.HandlerFunc
 	Update() echo.HandlerFunc
+	Delete() echo.HandlerFunc
 }
 
 type InOutBoundUseCase interface {
 	AddEntry(newProduct InOutBounds, id int, role string) (InOutBounds, int)
 	ReadEntry(id int, role string) ([]InOutBounds, int)
 	UpdateEntry(updatedData InOutBounds, productid, id int, role string) (InOutBounds, int)
+	DeleteEntry(productid, id int, role string) int
 }
 
 type InOutBoundData interface {
@@ -39,4 +41,6 @@ type InOutBoundData interface {
 	UpdateEntryUserData(idproduct int, id int) InOutBounds
 	UpdateQtyUserData(updatedData InOutBounds) InOutBounds
 	UpdateQtyAdminData(updatedData InOutBounds) InOutBounds
+	DeleteEntryUserData(productid, id int) (row int, err error)
+	DeleteEntryAdminData(Productid int) (row int, err error)
 }

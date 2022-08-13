@@ -3,11 +3,11 @@ package delivery
 import "middleman-capstone/domain"
 
 type InsertFormat struct {
-	Name     string `json:"name" form:"name" validate:"required"`
-	Email    string `json:"email" form:"email" gorm:"unique" validate:"required,email"`
+	Name     string `json:"name" form:"name" validate:"required,min=2"`
+	Email    string `json:"email" form:"email" gorm:"unique" validate:"required"`
 	Password string `json:"password" form:"password" validate:"required"`
 	Address  string `json:"address" form:"address" validate:"required"`
-	Phone    string `json:"phone" form:"phone" validate:"required"`
+	Phone    string `json:"phone" form:"phone" validate:"required,min=10"`
 	Role     string `gorm:"default:user"`
 }
 

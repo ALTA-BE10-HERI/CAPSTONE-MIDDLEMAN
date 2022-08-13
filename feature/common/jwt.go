@@ -22,7 +22,7 @@ func GenerateToken(ID int, Role string) string {
 	info := jwt.MapClaims{}
 	info["ID"] = ID
 	info["Role"] = Role
-	info["exp"] = time.Now().Add(time.Minute * 180).Unix()
+	info["exp"] = time.Now().Add(time.Hour * 24 * 1).Unix()
 	auth := jwt.NewWithClaims(jwt.SigningMethodHS256, info)
 	token, err := auth.SignedString([]byte(os.Getenv("SECRET")))
 	if err != nil {

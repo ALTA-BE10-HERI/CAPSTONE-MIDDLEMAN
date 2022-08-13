@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
 
@@ -26,6 +27,12 @@ func (uh *userHandler) InsertUser() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var tmp InsertFormat
 		err := c.Bind(&tmp)
+
+		validate := validator.New()
+		if errValidate := validate.Struct(tmp); errValidate != nil {
+			return errValidate
+		}
+
 		if err != nil {
 			log.Println("cannot parse data", err)
 			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed to bind data, check your input"))
@@ -36,14 +43,8 @@ func (uh *userHandler) InsertUser() echo.HandlerFunc {
 		if row == -1 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("please make sure all fields are filled in correctly"))
 		}
-		if row == 400 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format email is wrong"))
-		}
-		if row == 401 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format phone is wrong"))
-		}
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your email is already registered"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your email or handphone number is already registered"))
 		}
 		return c.JSON(http.StatusCreated, _helper.ResponseCreate("register success"))
 	}
@@ -105,11 +106,8 @@ func (uh *userHandler) UpdateUser() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to bind data, check your input"))
 		}
 		row, _ := uh.userUsecase.UpdateCase(tmp.ToModel(), idFromToken)
-		// if err != nil {
-		// 	return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed update data users, cek your input email"))
-		// }
 		if row == 0 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("failed update data users, no data"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed update data users, your email already registerd"))
 		}
 		if row == 404 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("nothing to update data"))
