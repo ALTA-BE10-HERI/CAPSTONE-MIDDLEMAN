@@ -6,24 +6,20 @@ import (
 )
 
 type User struct {
-	ID       int
-	Name     string
-	Email    string
-	Password string
-	Phone    string
-	Address  string
-	Role     string
+	ID      int    `json:"id"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+	Address string `json:"address"`
 }
 
 func FromModel(data domain.User) User {
 	return User{
-		ID:       data.ID,
-		Name:     data.Name,
-		Email:    data.Email,
-		Password: data.Password,
-		Phone:    data.Phone,
-		Address:  data.Address,
-		Role:     data.Role,
+		ID:      data.ID,
+		Name:    data.Name,
+		Email:   data.Email,
+		Phone:   data.Phone,
+		Address: data.Address,
 	}
 }
 
