@@ -37,7 +37,7 @@ func (pc *productUseCase) CreateProduct(newProduct domain.Product, idAdmin int) 
 		return 500
 
 	}
-	return 200
+	return 201
 }
 
 func (pc *productUseCase) GetAllProduct(limit, offset int) (data []domain.Product, err error) {
@@ -85,5 +85,5 @@ func (pc *productUseCase) DeleteProduct(idProduct int) int {
 		log.Println("internal server error")
 		return 500
 	}
-	return 200
+	return 204
 }

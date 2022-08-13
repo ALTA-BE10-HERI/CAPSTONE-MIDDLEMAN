@@ -104,7 +104,7 @@ func (ph *productHandler) Create() echo.HandlerFunc {
 				"message": "there is an error in internal server",
 			})
 		}
-		return c.JSON(http.StatusOK, map[string]interface{}{
+		return c.JSON(http.StatusCreated, map[string]interface{}{
 			"code":    status,
 			"message": "success adding a product",
 		})
@@ -245,7 +245,7 @@ func (ph *productHandler) Delete() echo.HandlerFunc {
 			})
 		}
 
-		return c.JSON(http.StatusOK, map[string]interface{}{
+		return c.JSON(http.StatusNoContent, map[string]interface{}{
 			"code":    status,
 			"message": "success delete product",
 		})
