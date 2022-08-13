@@ -52,12 +52,15 @@ func (ch *CartHandler) PostCart() echo.HandlerFunc {
 		dataCart.Status = "Pending"
 		dataCart.UserID = idFromToken
 
-		row, errCreate := ch.cartUseCase.CreateData(dataCart)
+		row, _ := ch.cartUseCase.CreateData(dataCart)
 		if row == -1 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("please make sure all fields are filled in correctly"))
 		}
-		if errCreate != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to add to cart"))
+		// if errCreate != nil {
+		// 	return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to add to cart"))
+		// }
+		if row == 400 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("qty exceeds product stock"))
 		}
 
 		return c.JSON(http.StatusCreated, _helper.ResponseCreate("success"))
