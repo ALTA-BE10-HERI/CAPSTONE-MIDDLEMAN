@@ -36,8 +36,11 @@ func (uh *userHandler) InsertUser() echo.HandlerFunc {
 		if row == -1 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("please make sure all fields are filled in correctly"))
 		}
-		if row == -2 {
+		if row == 400 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format email is wrong"))
+		}
+		if row == 401 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format phone is wrong"))
 		}
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your email is already registered"))
