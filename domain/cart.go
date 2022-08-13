@@ -50,6 +50,8 @@ type CartUseCase interface {
 //usecase
 type ChartData interface {
 	GetPriceProduct(id int) (price int, err error)
+	GetStockProduct(idProduct int) (stok int, err error)
+	GetQtyProductCart(idProduct int) (stok int, err error)
 	InsertData(data Cart) (row int, err error)
 	SelectData(limit, offset, idFromToken int) (data []Cart, err error)
 	CheckCart(idProd, idFromToken int) (isExist bool, idCart, qty int, err error)

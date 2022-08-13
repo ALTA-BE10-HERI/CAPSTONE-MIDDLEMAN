@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"log"
 	"middleman-capstone/domain"
 )
 
@@ -27,9 +28,20 @@ func (uc *cartUseCase) CreateData(data domain.Cart) (row int, err error) {
 	if data.Qty == 0 || data.Product.ID == 0 {
 		return -1, errors.New("please make sure all fields are filled in correctly")
 	}
+	productStock, _ := uc.cartData.GetStockProduct(data.Product.ID)
+	// cekStock := data.Qty >= productStock
+	log.Println("qty : ", data.Qty, "stok :", productStock)
+	if data.Qty > productStock {
+		return 400, errors.New("qty exceeds product stock")
+	}
 	productPrice, _ := uc.cartData.GetPriceProduct(data.Product.ID)
 	isExist, idCart, Qty, _ := uc.cartData.CheckCart(data.Product.ID, data.UserID)
 	if isExist {
+		cekCurrentQty, _ := uc.cartData.GetQtyProductCart(idCart)
+		// log.Println("cek id :", idCart)
+		if (cekCurrentQty + data.Qty) > productStock {
+			return 400, errors.New("qty exceeds product stock")
+		}
 		data.Subtotal = productPrice * Qty
 		row, err = uc.cartData.UpdateDataDB(Qty+data.Qty, idCart, data.UserID)
 	} else {
