@@ -75,7 +75,7 @@ func (uh *userHandler) GetProfile() echo.HandlerFunc {
 			}
 		}
 
-		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", FromModel(data)))
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("get data success", FromModel(data)))
 	}
 }
 
