@@ -4,6 +4,7 @@ import (
 	"log"
 	"middleman-capstone/domain"
 	"middleman-capstone/feature/common"
+	"middleman-capstone/feature/inoutbounds/data"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -22,7 +23,7 @@ func New(iobuc domain.InOutBoundUseCase) domain.InOutBoundHandler {
 func (iobh *inoutboundHandler) Add() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var newProduct CartFormat
-		id, _ := common.ExtractData(c)
+		id, role := common.ExtractData(c)
 		bind := c.Bind(&newProduct)
 
 		if bind != nil {
@@ -33,7 +34,9 @@ func (iobh *inoutboundHandler) Add() echo.HandlerFunc {
 			})
 		}
 
-		status := iobh.inoutboundUseCase.AddEntry(newProduct.ToModel(), id)
+		cart, status := iobh.inoutboundUseCase.AddEntry(newProduct.ToModel(), id, role)
+
+		data := data.ParseIOBToArr3(cart)
 
 		if status == 400 {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
@@ -48,9 +51,46 @@ func (iobh *inoutboundHandler) Add() echo.HandlerFunc {
 				"message": "there is an error in internal server",
 			})
 		}
-		return c.JSON(http.StatusOK, map[string]interface{}{
+
+		if status == 403 {
+			return c.JSON(http.StatusForbidden, map[string]interface{}{
+				"code":    status,
+				"message": "forbidden",
+			})
+		}
+
+		return c.JSON(http.StatusCreated, map[string]interface{}{
 			"code":    status,
 			"message": "success create product",
+			"data":    data,
+		})
+	}
+}
+
+func (iobh *inoutboundHandler) ReadAll() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, role := common.ExtractData(c)
+
+		cart, status := iobh.inoutboundUseCase.ReadEntry(id, role)
+		data := data.ParseIOBToArr2(cart)
+
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "data not found",
+			})
+		}
+		if status == 500 {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    status,
+				"message": "there is an error in internal server",
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"data":    data,
+			"code":    status,
+			"message": "get data success",
 		})
 	}
 }

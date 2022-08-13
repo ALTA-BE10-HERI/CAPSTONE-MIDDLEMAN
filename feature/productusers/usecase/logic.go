@@ -50,6 +50,10 @@ func (puuc *productUserUseCase) ReadAllProduct(id int) ([]domain.ProductUser, in
 }
 
 func (puuc *productUserUseCase) UpdateProduct(updatedData domain.ProductUser, productid, id int) (row int, err error) {
+
+	if updatedData.Name == "" && updatedData.Unit == "" && updatedData.Stock == 0 && updatedData.Price == 0 && updatedData.Image == "" {
+		return 0, err
+	}
 	qry := map[string]interface{}{}
 
 	if updatedData.Name != "" {

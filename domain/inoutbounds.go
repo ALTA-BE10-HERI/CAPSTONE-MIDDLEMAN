@@ -11,18 +11,29 @@ type InOutBounds struct {
 	Name      string
 	Unit      string
 	Qty       int
+	Role      string
 }
 
 type InOutBoundHandler interface {
 	Add() echo.HandlerFunc
+	ReadAll() echo.HandlerFunc
+	// Update() echo.HandlerFunc
 }
 
 type InOutBoundUseCase interface {
-	AddEntry(newProduct InOutBounds, id int) int
+	AddEntry(newProduct InOutBounds, id int, role string) (InOutBounds, int)
+	ReadEntry(id int, role string) ([]InOutBounds, int)
+	// UpdateEntry(updatedData InOutBounds, productid, id int) (InOutBounds, err error)
 }
 
 type InOutBoundData interface {
 	AddEntryData(newProduct InOutBounds) InOutBounds
-	CekEntry(newProduct InOutBounds) (cek bool, idcart, qty int)
-	UpdateQty(idcart int, qty int) (row int, err error)
+	CekUserEntry(newProduct InOutBounds) (cek bool, idcart, qty int)
+	CekOwnerEntry(newProduct InOutBounds) (cek bool)
+	CekAdminEntry(newProduct InOutBounds) (cek bool, idcart, qty int)
+	UpdateQty(idcart int, qty int) InOutBounds
+	ReadEntryUserData(id int) []InOutBounds
+	ReadEntryAdminData(role string) []InOutBounds
+	UpdateEntryAdminData(idproduct int) InOutBounds
+	UpdateEntryUserData(idproduct int, id int) InOutBounds
 }

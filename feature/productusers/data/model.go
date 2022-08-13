@@ -14,6 +14,7 @@ type ProductUser struct {
 	Stock  int    `json:"stock" form:"stock" validate:"required"`
 	Price  int    `json:"price" form:"price" validate:"required"`
 	Image  string `json:"product_image" form:"product_image"`
+	Reff   int
 }
 
 func (pu *ProductUser) ToPU() domain.ProductUser {
