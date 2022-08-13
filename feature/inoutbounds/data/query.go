@@ -182,3 +182,81 @@ func (ioub *inoutboundData) ReadEntryUserData(id int) []domain.InOutBounds {
 	}
 	return ParseIOBToArr(cart)
 }
+
+func (ioub *inoutboundData) UpdateQtyAdminData(updatedData domain.InOutBounds) domain.InOutBounds {
+	var cart InOutBounds
+
+	res := ioub.db.Model(&InOutBounds{}).Where("id_product = ? AND role = ?", updatedData.IdProduct, updatedData.Role).Update("qty", updatedData.Qty)
+
+	if res.Error != nil {
+		log.Println("cannot update data", res.Error.Error())
+		return domain.InOutBounds{}
+	}
+
+	if res.RowsAffected == 0 {
+		log.Println("data not found")
+		return domain.InOutBounds{}
+	}
+
+	res0 := ioub.db.Model(&InOutBounds{}).Where("id_product = ? AND role = ?", updatedData.IdProduct, updatedData.Role).First(&cart)
+
+	if res0.Error != nil {
+		log.Println("cannot read data", res0.Error.Error())
+		return domain.InOutBounds{}
+	}
+
+	if res0.RowsAffected == 0 {
+		log.Println("failed read data")
+		return domain.InOutBounds{}
+	}
+
+	return cart.ToIOB()
+}
+
+func (ioub *inoutboundData) UpdateQtyUserData(updatedData domain.InOutBounds) domain.InOutBounds {
+	var cart InOutBounds
+	var stock domain.ProductUser
+
+	res1 := ioub.db.Model(&domain.ProductUser{}).Where("id = ? AND id_user = ?", updatedData.IdProduct, updatedData.IdUser).First(&stock)
+	if res1.Error != nil {
+		log.Println("cannot update data", res1.Error.Error())
+		return domain.InOutBounds{}
+	}
+
+	if res1.RowsAffected == 0 {
+		log.Println("data not found")
+		return domain.InOutBounds{}
+	}
+
+	if stock.Stock < updatedData.Qty {
+		log.Println("insufficient stock")
+		cart.Note = "insufficient stock"
+		return cart.ToIOB()
+	}
+
+	res := ioub.db.Model(&InOutBounds{}).Where("id_product = ? AND id_user = ?", updatedData.IdProduct, updatedData.IdUser).Update("qty", updatedData.Qty)
+
+	if res.Error != nil {
+		log.Println("cannot update data", res.Error.Error())
+		return domain.InOutBounds{}
+	}
+
+	if res.RowsAffected == 0 {
+		log.Println("data not found")
+		return domain.InOutBounds{}
+	}
+
+	res0 := ioub.db.Model(&InOutBounds{}).Where("id_product = ? AND id_user = ?", updatedData.IdProduct, updatedData.IdUser).First(&cart)
+
+	if res0.Error != nil {
+		log.Println("cannot read data", res0.Error.Error())
+		return domain.InOutBounds{}
+	}
+
+	if res0.RowsAffected == 0 {
+		log.Println("failed read data")
+		return domain.InOutBounds{}
+	}
+
+	return cart.ToIOB()
+}
