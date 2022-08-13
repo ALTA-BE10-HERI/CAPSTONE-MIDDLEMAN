@@ -12,3 +12,14 @@ export AWS_BUCKET="heribucketbe10"
 export AWS_REGION="us-east-1"
 export S3_SECRET="faHMgove6+JjkhaA09yRd9aBgfERBzj4upIYYbcj"
 export S3_KEY="AKIATFF3RDMYG42NBBND"
+
+fotmat phone number
+
+Phone: 1(234)5678901x1234       :true
+Phone: (+351) 282 43 50 50      :true
+Phone: 90191919908              :true
+Phone: 555-8909                 :true
+Phone: 001 6867684              :true
+Phone: 001 6867684x1            :true
+Phone: 1 (234) 567-8901         :true
+Phone: 1-234-567-8901 ext1234   :true

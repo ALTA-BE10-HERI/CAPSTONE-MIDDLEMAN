@@ -27,11 +27,18 @@ func New(ud domain.UserData, v *validator.Validate) domain.UserUseCase {
 }
 
 func (uc *userUseCase) AddUser(newUser domain.User) (row int, err error) {
-	re := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-	cekEmail := re.MatchString(newUser.Email)
+	emailFormat := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	cekEmail := emailFormat.MatchString(newUser.Email)
 	if cekEmail == false {
-		return -2, errors.New("your format email is false")
+		return 400, errors.New("your format email is false")
 	}
+	phoneFormat := regexp.MustCompile(`^(?:(?:\(?(?:00|\+)([1-4]\d\d|[1-9]\d?)\)?)?[\-\.\ \\\/]?)?((?:\(?\d{1,}\)?[\-\.\ \\\/]?){0,})(?:[\-\.\ \\\/]?(?:#|ext\.?|extension|x)[\-\.\ \\\/]?(\d+))?$`)
+	cekPhone := phoneFormat.MatchString(newUser.Phone)
+	if cekPhone == false {
+		log.Println("cek phone", newUser.Phone)
+		return 401, errors.New("your format phone is false")
+	}
+
 	if newUser.Name == "" || newUser.Email == "" || newUser.Password == "" || newUser.Phone == "" || newUser.Address == "" {
 		return -1, errors.New("please make sure all fields are filled in correctly")
 	}
