@@ -93,6 +93,20 @@ func (uc *userUseCase) UpdateCase(input domain.User, idFromToken int) (row int, 
 		}
 		userReq["password"] = string(passwordHashed)
 	}
+	if input.Name == "" && input.Email == "" && input.Phone == "" && input.Address == "" {
+		return 404, err
+	}
+	emailFormat := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	cekEmail := emailFormat.MatchString(input.Email)
+	if cekEmail == false {
+		return 400, errors.New("your format email is false")
+	}
+	phoneFormat := regexp.MustCompile(`^(?:(?:\(?(?:00|\+)([1-4]\d\d|[1-9]\d?)\)?)?[\-\.\ \\\/]?)?((?:\(?\d{1,}\)?[\-\.\ \\\/]?){0,})(?:[\-\.\ \\\/]?(?:#|ext\.?|extension|x)[\-\.\ \\\/]?(\d+))?$`)
+	cekPhone := phoneFormat.MatchString(input.Phone)
+	if cekPhone == false {
+		log.Println("cek phone", input.Phone)
+		return 401, errors.New("your format phone is false")
+	}
 	row, err = uc.userData.UpdateData(userReq, idFromToken)
 	return row, err
 }
