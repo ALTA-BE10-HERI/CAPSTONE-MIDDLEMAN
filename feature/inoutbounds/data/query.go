@@ -1,6 +1,7 @@
 package data
 
 import (
+	"errors"
 	"log"
 	"middleman-capstone/domain"
 
@@ -98,9 +99,9 @@ func (iobd *inoutboundData) UpdateQty(idcart, qty int) domain.InOutBounds {
 	return cart.ToIOB()
 }
 
-func (ioub *inoutboundData) UpdateEntryAdminData(productid int) domain.InOutBounds {
+func (iobd *inoutboundData) UpdateEntryAdminData(productid int) domain.InOutBounds {
 	var cart InOutBounds
-	res0 := ioub.db.Model(&InOutBounds{}).Select("products.id, products.name, products.unit, in_out_bounds.qty").Joins("left join products on products.id = in_out_bounds.id_product").Where("in_out_bounds.id_product = ?", productid).First(&cart)
+	res0 := iobd.db.Model(&InOutBounds{}).Select("products.id, products.name, products.unit, in_out_bounds.qty").Joins("left join products on products.id = in_out_bounds.id_product").Where("in_out_bounds.id_product = ?", productid).First(&cart)
 
 	if res0.Error != nil {
 		log.Println("cannot read data", res0.Error.Error())
@@ -112,7 +113,7 @@ func (ioub *inoutboundData) UpdateEntryAdminData(productid int) domain.InOutBoun
 		return domain.InOutBounds{}
 	}
 
-	res := ioub.db.Model(&InOutBounds{}).Where("id_product = ? AND role = ?", productid, "admin").Updates(cart)
+	res := iobd.db.Model(&InOutBounds{}).Where("id_product = ? AND role = ?", productid, "admin").Updates(cart)
 
 	if res.Error != nil {
 		log.Println("cannot update data", res.Error.Error())
@@ -127,9 +128,9 @@ func (ioub *inoutboundData) UpdateEntryAdminData(productid int) domain.InOutBoun
 	return cart.ToIOB()
 }
 
-func (ioub *inoutboundData) UpdateEntryUserData(productid int, id int) domain.InOutBounds {
+func (iobd *inoutboundData) UpdateEntryUserData(productid int, id int) domain.InOutBounds {
 	var cart InOutBounds
-	res0 := ioub.db.Model(&InOutBounds{}).Select("product_users.id, product_users.name, product_users.unit, in_out_bounds.qty").Joins("left join product_users on product_users.id = in_out_bounds.id_product").Where("in_out_bounds.id_product = ? AND in_out_bounds.id_user = ?", productid, id).First(&cart)
+	res0 := iobd.db.Model(&InOutBounds{}).Select("product_users.id, product_users.name, product_users.unit, in_out_bounds.qty").Joins("left join product_users on product_users.id = in_out_bounds.id_product").Where("in_out_bounds.id_product = ? AND in_out_bounds.id_user = ?", productid, id).First(&cart)
 
 	if res0.Error != nil {
 		log.Println("cannot read data", res0.Error.Error())
@@ -141,7 +142,7 @@ func (ioub *inoutboundData) UpdateEntryUserData(productid int, id int) domain.In
 		return domain.InOutBounds{}
 	}
 
-	res := ioub.db.Model(&InOutBounds{}).Where("id_product = ? AND id_user = ?", productid, id).Updates(cart)
+	res := iobd.db.Model(&InOutBounds{}).Where("id_product = ? AND id_user = ?", productid, id).Updates(cart)
 
 	if res.Error != nil {
 		log.Println("cannot update data", res.Error.Error())
@@ -155,9 +156,9 @@ func (ioub *inoutboundData) UpdateEntryUserData(productid int, id int) domain.In
 
 	return cart.ToIOB()
 }
-func (ioub *inoutboundData) ReadEntryAdminData(role string) []domain.InOutBounds {
+func (iobd *inoutboundData) ReadEntryAdminData(role string) []domain.InOutBounds {
 	var cart []InOutBounds
-	err := ioub.db.Model(&InOutBounds{}).Where("in_out_bounds.role = ?", role).Find(&cart)
+	err := iobd.db.Model(&InOutBounds{}).Where("in_out_bounds.role = ?", role).Find(&cart)
 	if err.Error != nil {
 		log.Println("cannot read data", err.Error.Error())
 		return []domain.InOutBounds{}
@@ -169,9 +170,9 @@ func (ioub *inoutboundData) ReadEntryAdminData(role string) []domain.InOutBounds
 	return ParseIOBToArr(cart)
 }
 
-func (ioub *inoutboundData) ReadEntryUserData(id int) []domain.InOutBounds {
+func (iobd *inoutboundData) ReadEntryUserData(id int) []domain.InOutBounds {
 	var cart []InOutBounds
-	err := ioub.db.Model(&InOutBounds{}).Where("in_out_bounds.id_user = ?", id).Find(&cart)
+	err := iobd.db.Model(&InOutBounds{}).Where("in_out_bounds.id_user = ?", id).Find(&cart)
 	if err.Error != nil {
 		log.Println("cannot read data", err.Error.Error())
 		return []domain.InOutBounds{}
@@ -183,10 +184,10 @@ func (ioub *inoutboundData) ReadEntryUserData(id int) []domain.InOutBounds {
 	return ParseIOBToArr(cart)
 }
 
-func (ioub *inoutboundData) UpdateQtyAdminData(updatedData domain.InOutBounds) domain.InOutBounds {
+func (iobd *inoutboundData) UpdateQtyAdminData(updatedData domain.InOutBounds) domain.InOutBounds {
 	var cart InOutBounds
 
-	res := ioub.db.Model(&InOutBounds{}).Where("id_product = ? AND role = ?", updatedData.IdProduct, updatedData.Role).Update("qty", updatedData.Qty)
+	res := iobd.db.Model(&InOutBounds{}).Where("id_product = ? AND role = ?", updatedData.IdProduct, updatedData.Role).Update("qty", updatedData.Qty)
 
 	if res.Error != nil {
 		log.Println("cannot update data", res.Error.Error())
@@ -198,7 +199,7 @@ func (ioub *inoutboundData) UpdateQtyAdminData(updatedData domain.InOutBounds) d
 		return domain.InOutBounds{}
 	}
 
-	res0 := ioub.db.Model(&InOutBounds{}).Where("id_product = ? AND role = ?", updatedData.IdProduct, updatedData.Role).First(&cart)
+	res0 := iobd.db.Model(&InOutBounds{}).Where("id_product = ? AND role = ?", updatedData.IdProduct, updatedData.Role).First(&cart)
 
 	if res0.Error != nil {
 		log.Println("cannot read data", res0.Error.Error())
@@ -213,11 +214,11 @@ func (ioub *inoutboundData) UpdateQtyAdminData(updatedData domain.InOutBounds) d
 	return cart.ToIOB()
 }
 
-func (ioub *inoutboundData) UpdateQtyUserData(updatedData domain.InOutBounds) domain.InOutBounds {
+func (iobd *inoutboundData) UpdateQtyUserData(updatedData domain.InOutBounds) domain.InOutBounds {
 	var cart InOutBounds
 	var stock domain.ProductUser
 
-	res1 := ioub.db.Model(&domain.ProductUser{}).Where("id = ? AND id_user = ?", updatedData.IdProduct, updatedData.IdUser).First(&stock)
+	res1 := iobd.db.Model(&domain.ProductUser{}).Where("id = ? AND id_user = ?", updatedData.IdProduct, updatedData.IdUser).First(&stock)
 	if res1.Error != nil {
 		log.Println("cannot update data", res1.Error.Error())
 		return domain.InOutBounds{}
@@ -234,7 +235,7 @@ func (ioub *inoutboundData) UpdateQtyUserData(updatedData domain.InOutBounds) do
 		return cart.ToIOB()
 	}
 
-	res := ioub.db.Model(&InOutBounds{}).Where("id_product = ? AND id_user = ?", updatedData.IdProduct, updatedData.IdUser).Update("qty", updatedData.Qty)
+	res := iobd.db.Model(&InOutBounds{}).Where("id_product = ? AND id_user = ?", updatedData.IdProduct, updatedData.IdUser).Update("qty", updatedData.Qty)
 
 	if res.Error != nil {
 		log.Println("cannot update data", res.Error.Error())
@@ -246,7 +247,7 @@ func (ioub *inoutboundData) UpdateQtyUserData(updatedData domain.InOutBounds) do
 		return domain.InOutBounds{}
 	}
 
-	res0 := ioub.db.Model(&InOutBounds{}).Where("id_product = ? AND id_user = ?", updatedData.IdProduct, updatedData.IdUser).First(&cart)
+	res0 := iobd.db.Model(&InOutBounds{}).Where("id_product = ? AND id_user = ?", updatedData.IdProduct, updatedData.IdUser).First(&cart)
 
 	if res0.Error != nil {
 		log.Println("cannot read data", res0.Error.Error())
@@ -259,4 +260,32 @@ func (ioub *inoutboundData) UpdateQtyUserData(updatedData domain.InOutBounds) do
 	}
 
 	return cart.ToIOB()
+}
+
+func (iobd *inoutboundData) DeleteEntryUserData(productid, id int) (row int, err error) {
+	res := iobd.db.Where("id_product = ? AND id_user = ?", productid, id).Delete(&InOutBounds{})
+
+	if res.Error != nil {
+		log.Println("cannot delete data", res.Error.Error())
+		return 0, res.Error
+	}
+	if res.RowsAffected < 1 {
+		log.Println("no data deleted", res.Error.Error())
+		return 0, errors.New("failed to delete data ")
+	}
+	return int(res.RowsAffected), nil
+}
+
+func (iobd *inoutboundData) DeleteEntryAdminData(productid int) (row int, err error) {
+	res := iobd.db.Where("id_product = ? AND role = ?", productid, "admin").Delete(&InOutBounds{})
+
+	if res.Error != nil {
+		log.Println("cannot delete data", res.Error.Error())
+		return 0, res.Error
+	}
+	if res.RowsAffected < 1 {
+		log.Println("no data deleted", res.Error.Error())
+		return 0, errors.New("failed to delete data ")
+	}
+	return int(res.RowsAffected), nil
 }
