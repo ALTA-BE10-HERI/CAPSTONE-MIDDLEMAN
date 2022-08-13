@@ -36,8 +36,11 @@ func (uh *userHandler) InsertUser() echo.HandlerFunc {
 		if row == -1 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("please make sure all fields are filled in correctly"))
 		}
-		if row == -2 {
+		if row == 400 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format email is wrong"))
+		}
+		if row == 401 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format phone is wrong"))
 		}
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your email is already registered"))
@@ -72,7 +75,7 @@ func (uh *userHandler) GetProfile() echo.HandlerFunc {
 			}
 		}
 
-		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", FromModel(data)))
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("get data success", FromModel(data)))
 	}
 }
 
@@ -99,17 +102,24 @@ func (uh *userHandler) UpdateUser() echo.HandlerFunc {
 		idFromToken, _ := _middleware.ExtractData(c)
 		err := c.Bind(&tmp)
 		if err != nil {
-
-			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("failed to bind data, check your input"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to bind data, check your input"))
 		}
-		row, err := uh.userUsecase.UpdateCase(tmp.ToModel(), idFromToken)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed update data users, cek your input email"))
-		}
+		row, _ := uh.userUsecase.UpdateCase(tmp.ToModel(), idFromToken)
+		// if err != nil {
+		// 	return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("failed update data users, cek your input email"))
+		// }
 		if row == 0 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("failed update data users, no data"))
 		}
-
+		if row == 404 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("nothing to update data"))
+		}
+		if row == 401 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format phone is wrong"))
+		}
+		if row == 400 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format email is wrong"))
+		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success update data"))
 	}
 }
