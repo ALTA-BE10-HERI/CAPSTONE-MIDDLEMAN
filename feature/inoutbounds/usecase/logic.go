@@ -135,3 +135,33 @@ func (iobuc *inoutboundUseCase) UpdateEntry(updatedData domain.InOutBounds, prod
 		return cart, 200
 	}
 }
+
+func (iobuc *inoutboundUseCase) DeleteEntry(productid, id int, role string) int {
+
+	if role == "admin" {
+		row, err := iobuc.inoutboundData.DeleteEntryAdminData(productid)
+		if err != nil {
+			log.Println("data not found")
+			return 404
+		}
+		if row < 1 {
+			log.Println("internal server error")
+			return 500
+		}
+		return 204
+	} else {
+		row, err := iobuc.inoutboundData.DeleteEntryUserData(productid, id)
+
+		if err != nil {
+			log.Println("data not found")
+			return 404
+		}
+
+		if row < 1 {
+			log.Println("internal server error")
+			return 500
+		}
+
+		return 204
+	}
+}

@@ -151,3 +151,41 @@ func (iobh *inoutboundHandler) Update() echo.HandlerFunc {
 		})
 	}
 }
+
+func (iobh *inoutboundHandler) Delete() echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		cnv, err := strconv.Atoi(c.Param("idproduct"))
+
+		if err != nil {
+			log.Println("cant convert to int", err)
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    500,
+				"message": "cant convert to int",
+			})
+		}
+
+		id, role := common.ExtractData(c)
+
+		status := iobh.inoutboundUseCase.DeleteEntry(cnv, id, role)
+
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "data not found",
+			})
+		}
+
+		if status == 500 {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    status,
+				"message": "there is an error in internal server",
+			})
+		}
+
+		return c.JSON(http.StatusNoContent, map[string]interface{}{
+			"code":    status,
+			"message": "success delete product",
+		})
+	}
+}
