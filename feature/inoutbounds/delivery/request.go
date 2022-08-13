@@ -13,3 +13,13 @@ func (cf *CartFormat) ToModel() domain.InOutBounds {
 		Qty:       cf.Qty,
 	}
 }
+
+type CartFormat2 struct {
+	Qty int `json:"qty" form:"qty" validate:"required"`
+}
+
+func (cf *CartFormat2) ToModel2() domain.InOutBounds {
+	return domain.InOutBounds{
+		Qty: cf.Qty,
+	}
+}

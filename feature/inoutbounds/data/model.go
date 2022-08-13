@@ -14,6 +14,7 @@ type InOutBounds struct {
 	Unit      string `json:"unit" form:"unit"`
 	Qty       int    `json:"qty" form:"qty" validate:"required"`
 	Role      string
+	Note      string
 }
 
 func (iob *InOutBounds) ToIOB() domain.InOutBounds {
@@ -25,6 +26,7 @@ func (iob *InOutBounds) ToIOB() domain.InOutBounds {
 		Unit:      iob.Unit,
 		Qty:       iob.Qty,
 		Role:      iob.Role,
+		Note:      iob.Note,
 	}
 }
 

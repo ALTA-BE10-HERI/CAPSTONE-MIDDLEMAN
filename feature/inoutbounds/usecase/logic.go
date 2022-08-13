@@ -104,3 +104,34 @@ func (iobuc *inoutboundUseCase) ReadEntry(id int, role string) ([]domain.InOutBo
 		}
 	}
 }
+
+func (iobuc *inoutboundUseCase) UpdateEntry(updatedData domain.InOutBounds, productid, id int, role string) (domain.InOutBounds, int) {
+
+	if updatedData.Qty == 0 {
+		return domain.InOutBounds{}, 400
+	}
+
+	updatedData.IdUser = id
+	updatedData.IdProduct = productid
+	updatedData.Role = role
+
+	if updatedData.Role == "admin" {
+		cart := iobuc.inoutboundData.UpdateQtyAdminData(updatedData)
+		if cart.ID == 0 {
+			log.Println("Empty Data")
+			return domain.InOutBounds{}, 404
+		}
+		return cart, 200
+	} else {
+		cart := iobuc.inoutboundData.UpdateQtyUserData(updatedData)
+		if cart.Note == "insufficient stok" {
+			log.Println("insufficient stock")
+			return domain.InOutBounds{}, 400
+		}
+		if cart.ID == 0 {
+			log.Println("Empty Data")
+			return domain.InOutBounds{}, 404
+		}
+		return cart, 200
+	}
+}
