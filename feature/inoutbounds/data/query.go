@@ -1,7 +1,6 @@
 package data
 
 import (
-	"errors"
 	"log"
 	"middleman-capstone/domain"
 
@@ -158,7 +157,7 @@ func (iobd *inoutboundData) UpdateEntryUserData(productid int, id int) domain.In
 }
 func (iobd *inoutboundData) ReadEntryAdminData(role string) []domain.InOutBounds {
 	var cart []InOutBounds
-	err := iobd.db.Model(&InOutBounds{}).Where("in_out_bounds.role = ?", role).Find(&cart)
+	err := iobd.db.Model(&InOutBounds{}).Where("role = ? AND qty > ?", role, 0).Find(&cart)
 	if err.Error != nil {
 		log.Println("cannot read data", err.Error.Error())
 		return []domain.InOutBounds{}
@@ -172,7 +171,7 @@ func (iobd *inoutboundData) ReadEntryAdminData(role string) []domain.InOutBounds
 
 func (iobd *inoutboundData) ReadEntryUserData(id int) []domain.InOutBounds {
 	var cart []InOutBounds
-	err := iobd.db.Model(&InOutBounds{}).Where("in_out_bounds.id_user = ?", id).Find(&cart)
+	err := iobd.db.Model(&InOutBounds{}).Where("id_user = ? AND qty > ?", id, 0).Find(&cart)
 	if err.Error != nil {
 		log.Println("cannot read data", err.Error.Error())
 		return []domain.InOutBounds{}
@@ -262,30 +261,30 @@ func (iobd *inoutboundData) UpdateQtyUserData(updatedData domain.InOutBounds) do
 	return cart.ToIOB()
 }
 
-func (iobd *inoutboundData) DeleteEntryUserData(productid, id int) (row int, err error) {
-	res := iobd.db.Where("id_product = ? AND id_user = ?", productid, id).Delete(&InOutBounds{})
+func (iobd *inoutboundData) DeleteEntryUserData(productid, id int) (err string) {
+	res := iobd.db.Unscoped().Where("id_product = ? AND id_user = ?", productid, id).Delete(&InOutBounds{})
 
 	if res.Error != nil {
-		log.Println("cannot delete data", res.Error.Error())
-		return 0, res.Error
+		log.Println("cannot delete data")
+		return "cannot delete data"
 	}
 	if res.RowsAffected < 1 {
-		log.Println("no data deleted", res.Error.Error())
-		return 0, errors.New("failed to delete data ")
+		log.Println("no data deleted")
+		return "no data deleted"
 	}
-	return int(res.RowsAffected), nil
+	return ""
 }
 
-func (iobd *inoutboundData) DeleteEntryAdminData(productid int) (row int, err error) {
-	res := iobd.db.Where("id_product = ? AND role = ?", productid, "admin").Delete(&InOutBounds{})
+func (iobd *inoutboundData) DeleteEntryAdminData(productid int) (err string) {
+	res := iobd.db.Unscoped().Where("id_product = ? AND role = ?", productid, "admin").Delete(&InOutBounds{})
 
 	if res.Error != nil {
-		log.Println("cannot delete data", res.Error.Error())
-		return 0, res.Error
+		log.Println("cannot delete data")
+		return "cannot delete data"
 	}
 	if res.RowsAffected < 1 {
-		log.Println("no data deleted", res.Error.Error())
-		return 0, errors.New("failed to delete data ")
+		log.Println("no data deleted")
+		return "no data deleted"
 	}
-	return int(res.RowsAffected), nil
+	return ""
 }

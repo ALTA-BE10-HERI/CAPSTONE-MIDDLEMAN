@@ -41,6 +41,6 @@ type InOutBoundData interface {
 	UpdateEntryUserData(idproduct int, id int) InOutBounds
 	UpdateQtyUserData(updatedData InOutBounds) InOutBounds
 	UpdateQtyAdminData(updatedData InOutBounds) InOutBounds
-	DeleteEntryUserData(productid, id int) (row int, err error)
-	DeleteEntryAdminData(Productid int) (row int, err error)
+	DeleteEntryUserData(productid, id int) (err string)
+	DeleteEntryAdminData(Productid int) (err string)
 }

@@ -32,9 +32,9 @@ func (puh *productUserHandler) Create() echo.HandlerFunc {
 
 		if bind != nil {
 			log.Println("cant bind")
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    500,
-				"message": "there is an error in internal server",
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    400,
+				"message": "wrong input",
 			})
 		}
 
@@ -143,15 +143,15 @@ func (puh *productUserHandler) Update() echo.HandlerFunc {
 		var tmp ProductFormat
 		bind := c.Bind(&tmp)
 
-		id, role := common.ExtractData(c)
-
 		if bind != nil {
 			log.Println("cant bind")
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    500,
-				"message": "there is an error in internal server",
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    400,
+				"message": "wrong input",
 			})
 		}
+
+		id, role := common.ExtractData(c)
 
 		if role != "user" {
 			log.Println("you dont have access")
@@ -193,6 +193,7 @@ func (puh *productUserHandler) Update() echo.HandlerFunc {
 		} else {
 			tmp.Image = ""
 		}
+
 		productid, err := strconv.Atoi(c.Param("idproduct"))
 
 		if err != nil {
@@ -254,7 +255,7 @@ func (puh *productUserHandler) Delete() echo.HandlerFunc {
 			})
 		}
 
-		return c.JSON(http.StatusOK, map[string]interface{}{
+		return c.JSON(http.StatusNoContent, map[string]interface{}{
 			"code":    status,
 			"message": "success delete product",
 		})
