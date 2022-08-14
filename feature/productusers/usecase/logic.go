@@ -82,17 +82,14 @@ func (puuc *productUserUseCase) UpdateProduct(updatedData domain.ProductUser, pr
 }
 
 func (puuc *productUserUseCase) DeleteProduct(productid, id int) int {
-	row, err := puuc.productUserData.DeleteProductData(productid, id)
-
-	if err != nil {
-		log.Println("data not found")
-		return 404
-	}
-
-	if row < 1 {
+	err := puuc.productUserData.DeleteProductData(productid, id)
+	if err == "cannot delete data" {
 		log.Println("internal server error")
 		return 500
 	}
-
+	if err == "no data deleted" {
+		log.Println("data not found")
+		return 404
+	}
 	return 204
 }

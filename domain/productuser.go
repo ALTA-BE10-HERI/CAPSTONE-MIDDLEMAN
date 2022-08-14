@@ -36,5 +36,5 @@ type ProductUserData interface {
 	CreateProductData(newProduct ProductUser) ProductUser
 	ReadAllProductData(id int) []ProductUser
 	UpdateProductData(data map[string]interface{}, productid, id int) (row int, err error)
-	DeleteProductData(productid, id int) (row int, err error)
+	DeleteProductData(productid, id int) (err string)
 }
