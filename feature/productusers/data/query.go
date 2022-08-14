@@ -64,16 +64,16 @@ func (pud *productUserData) UpdateProductData(data map[string]interface{}, produ
 	return int(res.RowsAffected), nil
 }
 
-func (pud *productUserData) DeleteProductData(productid, id int) (row int, err error) {
+func (pud *productUserData) DeleteProductData(productid, id int) (err string) {
 	res := pud.db.Where("id = ? AND id_user = ?", productid, id).Delete(&ProductUser{})
 
 	if res.Error != nil {
-		log.Println("cannot delete data", res.Error.Error())
-		return 0, res.Error
+		log.Println("cannot delete data")
+		return "cannot delete data"
 	}
 	if res.RowsAffected < 1 {
-		log.Println("no data deleted", res.Error.Error())
-		return 0, errors.New("failed to delete data ")
+		log.Println("no data deleted")
+		return "no data deleted"
 	}
-	return int(res.RowsAffected), nil
+	return ""
 }

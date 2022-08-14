@@ -79,7 +79,7 @@ func (iobuc *inoutboundUseCase) AddEntry(newProduct domain.InOutBounds, id int, 
 				return create2, 201
 			}
 		} else {
-			return domain.InOutBounds{}, 403
+			return domain.InOutBounds{}, 404
 		}
 	}
 }
@@ -139,29 +139,26 @@ func (iobuc *inoutboundUseCase) UpdateEntry(updatedData domain.InOutBounds, prod
 func (iobuc *inoutboundUseCase) DeleteEntry(productid, id int, role string) int {
 
 	if role == "admin" {
-		row, err := iobuc.inoutboundData.DeleteEntryAdminData(productid)
-		if err != nil {
-			log.Println("data not found")
-			return 404
-		}
-		if row < 1 {
+		err := iobuc.inoutboundData.DeleteEntryAdminData(productid)
+		if err == "cannot delete data" {
 			log.Println("internal server error")
 			return 500
+		}
+		if err == "no data deleted" {
+			log.Println("data not found")
+			return 404
 		}
 		return 204
 	} else {
-		row, err := iobuc.inoutboundData.DeleteEntryUserData(productid, id)
-
-		if err != nil {
-			log.Println("data not found")
-			return 404
-		}
-
-		if row < 1 {
+		err := iobuc.inoutboundData.DeleteEntryUserData(productid, id)
+		if err == "cannot delete data" {
 			log.Println("internal server error")
 			return 500
 		}
-
+		if err == "no data deleted" {
+			log.Println("data not found")
+			return 404
+		}
 		return 204
 	}
 }

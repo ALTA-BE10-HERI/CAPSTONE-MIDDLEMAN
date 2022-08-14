@@ -29,9 +29,9 @@ func (iobh *inoutboundHandler) Add() echo.HandlerFunc {
 
 		if bind != nil {
 			log.Println("cant bind")
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    500,
-				"message": "there is an error in internal server",
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    400,
+				"message": "wrong input",
 			})
 		}
 
@@ -53,10 +53,10 @@ func (iobh *inoutboundHandler) Add() echo.HandlerFunc {
 			})
 		}
 
-		if status == 403 {
-			return c.JSON(http.StatusForbidden, map[string]interface{}{
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
 				"code":    status,
-				"message": "forbidden",
+				"message": "data not found",
 			})
 		}
 
@@ -105,18 +105,18 @@ func (iobh *inoutboundHandler) Update() echo.HandlerFunc {
 
 		if bind != nil {
 			log.Println("cant bind")
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    500,
-				"message": "there is an error in internal server",
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    400,
+				"message": "wrong input",
 			})
 		}
 
 		productid, err := strconv.Atoi(c.Param("idproduct"))
 
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]interface{}{
-				"code":    400,
-				"message": "wrong input",
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    404,
+				"message": "data not found",
 			})
 		}
 
@@ -147,7 +147,7 @@ func (iobh *inoutboundHandler) Update() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"data":    data,
 			"code":    status,
-			"message": "get data success",
+			"message": "success update quantity",
 		})
 	}
 }
@@ -159,9 +159,9 @@ func (iobh *inoutboundHandler) Delete() echo.HandlerFunc {
 
 		if err != nil {
 			log.Println("cant convert to int", err)
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    500,
-				"message": "cant convert to int",
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    404,
+				"message": "data not found",
 			})
 		}
 
