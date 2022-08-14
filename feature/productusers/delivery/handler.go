@@ -74,7 +74,8 @@ func (puh *productUserHandler) Create() echo.HandlerFunc {
 		}
 
 		newProduct.Image = url
-		status := puh.productUserUseCase.CreateProduct(newProduct.ToPU(), id)
+		product, status := puh.productUserUseCase.CreateProduct(newProduct.ToPU(), id)
+		data := data.ParsePUToArr3(product)
 
 		if status == 400 {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
@@ -98,6 +99,7 @@ func (puh *productUserHandler) Create() echo.HandlerFunc {
 		return c.JSON(http.StatusCreated, map[string]interface{}{
 			"code":    status,
 			"message": "success create product",
+			"data":    data,
 		})
 	}
 }
@@ -203,16 +205,34 @@ func (puh *productUserHandler) Update() echo.HandlerFunc {
 			})
 		}
 
-		row, err := puh.productUserUseCase.UpdateProduct(tmp.ToPU(), productid, id)
+		products, status := puh.productUserUseCase.UpdateProduct(tmp.ToPU(), productid, id)
+		data := data.ParsePUToArr3(products)
 
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, _helper.ResponseFailed("there is an error in internal server"))
-		}
-		if row == 0 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("wrong input"))
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "data not found",
+			})
 		}
 
-		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success update data"))
+		if status == 400 {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    status,
+				"message": "insufficient stock",
+			})
+		}
+
+		if status == 500 {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    status,
+				"message": "there is an error in internal server",
+			})
+		}
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"data":    data,
+			"code":    status,
+			"message": "success update data",
+		})
 	}
 }
 
