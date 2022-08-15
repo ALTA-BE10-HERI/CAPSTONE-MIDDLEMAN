@@ -87,3 +87,8 @@ func (pc *productUseCase) DeleteProduct(idProduct int) int {
 	}
 	return 204
 }
+func (pc *productUseCase) SearchRestoBusiness(search string) (result []domain.Product, err error) {
+	response, err := pc.productData.SearchRestoData(search)
+
+	return response, err
+}

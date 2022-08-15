@@ -14,4 +14,5 @@ func RouteAdmin(e *echo.Echo, dp domain.ProductHandler) {
 	admin.POST("", dp.Create(), _middleware.JWTMiddleware())
 	admin.PUT("/:idproduct", dp.Update(), _middleware.JWTMiddleware())
 	admin.DELETE("/:idproduct", dp.Delete(), _middleware.JWTMiddleware())
+	admin.GET("/products/search", dp.Search())
 }
