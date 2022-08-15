@@ -118,6 +118,9 @@ func (uh *userHandler) UpdateUser() echo.HandlerFunc {
 		if row == 400 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format email is wrong"))
 		}
+		if row <= 10 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("phone minimum format 10 characters"))
+		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success update data"))
 	}
 }
