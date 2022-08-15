@@ -107,10 +107,6 @@ func (uc *userUseCase) UpdateCase(input domain.User, idFromToken int) (row int, 
 		log.Println("cek phone", input.Phone)
 		return 401, errors.New("your format phone is false")
 	}
-	cek := len(input.Phone)
-	if cek < 10 {
-		return cek, errors.New("phone minimum format 10 characters")
-	}
 	row, err = uc.userData.UpdateData(userReq, idFromToken)
 	return row, err
 }

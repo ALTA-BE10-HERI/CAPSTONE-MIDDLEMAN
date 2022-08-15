@@ -49,3 +49,11 @@ func FromModel(data domain.Product) Product {
 	res.CreatedAt = data.CreatedAt
 	return res
 }
+func toModelList(data []Product) []domain.Product {
+	res := []domain.Product{}
+
+	for key := range data {
+		res = append(res, data[key].ToModel())
+	}
+	return res
+}

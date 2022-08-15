@@ -261,3 +261,17 @@ func (puh *productUserHandler) Delete() echo.HandlerFunc {
 		})
 	}
 }
+
+func (puh *productUserHandler) Search() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		search := c.QueryParam("productname")
+
+		res, err := puh.productUserUseCase.SearchRestoBusiness(search)
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to search data"))
+		}
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", res))
+	}
+
+}

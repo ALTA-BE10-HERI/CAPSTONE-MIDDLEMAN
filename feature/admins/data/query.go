@@ -73,3 +73,14 @@ func (pd *productData) DeleteProductData(idProduct int) (row int, err error) {
 	}
 	return int(result.RowsAffected), nil
 }
+
+func (pd *productData) SearchRestoData(search string) (result []domain.Product, err error) {
+	var dataProduct []Product
+
+	res := pd.db.Where("name like ?", "%"+search+"%").Find(&dataProduct)
+
+	if res.Error != nil {
+		return []domain.Product{}, res.Error
+	}
+	return toModelList(dataProduct), nil
+}

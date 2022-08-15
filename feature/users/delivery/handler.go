@@ -105,9 +105,13 @@ func (uh *userHandler) UpdateUser() echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to bind data, check your input"))
 		}
+		validate := validator.New()
+		if errValidate := validate.Struct(tmp); errValidate != nil {
+			return errValidate
+		}
 		row, _ := uh.userUsecase.UpdateCase(tmp.ToModel(), idFromToken)
 		if row == 0 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed update data users, your email already registerd"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed update data users, your email or phone already registerd"))
 		}
 		if row == 404 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("nothing to update data"))
@@ -117,9 +121,6 @@ func (uh *userHandler) UpdateUser() echo.HandlerFunc {
 		}
 		if row == 400 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your format email is wrong"))
-		}
-		if row <= 10 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("phone minimum format 10 characters"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success update data"))
 	}
