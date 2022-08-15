@@ -66,3 +66,12 @@ func ParsePUToArr2(arr []domain.ProductUser) []map[string]interface{} {
 	}
 	return arrmap
 }
+
+func toModelList(data []ProductUser) []domain.ProductUser {
+	res := []domain.ProductUser{}
+
+	for key := range data {
+		res = append(res, data[key].ToPU())
+	}
+	return res
+}
