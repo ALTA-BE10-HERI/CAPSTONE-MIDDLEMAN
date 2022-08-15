@@ -125,7 +125,7 @@ func (ph *productHandler) GetAll() echo.HandlerFunc {
 			})
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{
-			"data":    result,
+			"data":    ParsePUToArr2(result),
 			"code":    200,
 			"message": "get data success",
 		})
