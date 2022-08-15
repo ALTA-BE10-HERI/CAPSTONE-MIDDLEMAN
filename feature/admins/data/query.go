@@ -37,7 +37,7 @@ func (pd *productData) CreateProductData(newProduct domain.Product) domain.Produ
 
 func (pd *productData) GetAllProductData(limit, offset int) (data []domain.Product, err error) {
 	dataProduct := []Product{}
-	res := pd.db.Model(&Product{}).Find(&dataProduct)
+	res := pd.db.Model(&Product{}).Limit(limit).Offset(offset).Find(&dataProduct)
 	if res.Error != nil {
 		return []domain.Product{}, nil
 	}
