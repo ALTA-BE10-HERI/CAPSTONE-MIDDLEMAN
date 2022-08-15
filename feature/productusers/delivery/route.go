@@ -13,5 +13,5 @@ func RouteProductUser(e *echo.Echo, puh domain.ProductUserHandler) {
 	productuser.GET("", puh.ReadAll(), _middleware.JWTMiddleware())
 	productuser.PUT("/:idproduct", puh.Update(), _middleware.JWTMiddleware())
 	productuser.DELETE("/:idproduct", puh.Delete(), _middleware.JWTMiddleware())
-	productuser.GET("/search-productuser", puh.Search())
+	productuser.GET("", puh.Search())
 }

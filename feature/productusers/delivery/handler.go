@@ -264,7 +264,7 @@ func (puh *productUserHandler) Delete() echo.HandlerFunc {
 
 func (puh *productUserHandler) Search() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		search := c.QueryParam("search")
+		search := c.QueryParam("productname")
 
 		res, err := puh.productUserUseCase.SearchRestoBusiness(search)
 

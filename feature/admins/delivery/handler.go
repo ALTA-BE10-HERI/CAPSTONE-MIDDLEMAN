@@ -255,7 +255,7 @@ func (ph *productHandler) Delete() echo.HandlerFunc {
 
 func (puh *productHandler) Search() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		search := c.QueryParam("search")
+		search := c.QueryParam("productname")
 		res, err := puh.productUseCase.SearchRestoBusiness(search)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to search data"))
