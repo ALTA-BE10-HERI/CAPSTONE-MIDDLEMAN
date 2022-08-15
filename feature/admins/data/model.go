@@ -9,11 +9,11 @@ import (
 type Product struct {
 	gorm.Model
 	IdAdmin int
-	Name    string `json:"product_name" form:"product_name" validate:"required"`
+	Name    string `json:"product_name" form:"product_name" validate:"required" gorm:"unique"`
 	Unit    string `json:"unit" form:"unit" validate:"required"`
 	Stock   int    `json:"stock" form:"stock" validate:"required"`
 	Price   int    `json:"price" form:"price" validate:"required"`
-	Image   string `json:"product_image" form:"product_image"`
+	Image   string `json:"product_image" form:"product_image" validate:"required"`
 }
 
 func (p *Product) ToModel() domain.Product {
