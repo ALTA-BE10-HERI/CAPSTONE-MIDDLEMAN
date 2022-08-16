@@ -67,6 +67,18 @@ func ParsePUToArr2(arr []domain.ProductUser) []map[string]interface{} {
 	return arrmap
 }
 
+func ParsePUToArr3(arr domain.ProductUser) map[string]interface{} {
+	var res = map[string]interface{}{}
+	res["id"] = arr.ID
+	res["product_name"] = arr.Name
+	res["unit"] = arr.Unit
+	res["stock"] = arr.Stock
+	res["price"] = arr.Price
+	res["product_image"] = arr.Image
+
+	return res
+}
+
 func toModelList(data []ProductUser) []domain.ProductUser {
 	res := []domain.ProductUser{}
 

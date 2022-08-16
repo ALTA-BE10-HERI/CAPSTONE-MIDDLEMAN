@@ -1,17 +1,30 @@
 package delivery
 
-import "middleman-capstone/domain"
+import (
+	"middleman-capstone/domain"
+)
 
+type InputFormat struct {
+	Items []InventoryFormat
+}
 type InventoryFormat struct {
-	Name string `json:"product_name" form:"product_name" validate:"required"`
-	Qty  int    `json:"qty" form:"qty" validate:"required"`
-	Unit string `json:"unit" form:"unit" validate:"required"`
+	IdProduct int    `json:"product_id" form:"product_id" validate:"required"`
+	Qty       int    `json:"qty" form:"qty" validate:"required"`
+	Unit      string `json:"unit" form:"unit" validate:"required"`
 }
 
-func (inf *InventoryFormat) ToIP() domain.InventoryProduct {
+func ParseIFToArr(arr []InventoryFormat) []domain.InventoryProduct {
+	var res []domain.InventoryProduct
+	for _, val := range arr {
+		res = append(res, val.ToIF())
+	}
+	return res
+}
+
+func (pf *InventoryFormat) ToIF() domain.InventoryProduct {
 	return domain.InventoryProduct{
-		Name: inf.Name,
-		Qty:  inf.Qty,
-		Unit: inf.Unit,
+		IdProduct: pf.IdProduct,
+		Qty:       pf.Qty,
+		Unit:      pf.Unit,
 	}
 }

@@ -17,6 +17,7 @@ func New(db *gorm.DB) domain.InOutBoundData {
 	}
 }
 
+// create cart if product not exist in cart
 func (iobd *inoutboundData) AddEntryData(newProduct domain.InOutBounds) domain.InOutBounds {
 	var cart = FromIOB(newProduct)
 
@@ -34,6 +35,7 @@ func (iobd *inoutboundData) AddEntryData(newProduct domain.InOutBounds) domain.I
 	return cart.ToIOB()
 }
 
+// check if product exist in cart (user)
 func (iobd *inoutboundData) CekUserEntry(newProduct domain.InOutBounds) (cek bool, idcart, qty int) {
 	var cart InOutBounds
 	err := iobd.db.Model(&InOutBounds{}).Where("id_product = ? AND id_user = ?", newProduct.IdProduct, newProduct.IdUser).First(&cart)
@@ -45,6 +47,7 @@ func (iobd *inoutboundData) CekUserEntry(newProduct domain.InOutBounds) (cek boo
 	return true, int(cart.ID), int(cart.Qty)
 }
 
+// check if product owned by this id user
 func (iobd *inoutboundData) CekOwnerEntry(newProduct domain.InOutBounds) (cek bool) {
 	var cart domain.ProductUser
 	err := iobd.db.Model(&domain.ProductUser{}).Where("id = ? AND id_user = ?", newProduct.IdProduct, newProduct.IdUser).First(&cart)
@@ -61,6 +64,7 @@ func (iobd *inoutboundData) CekOwnerEntry(newProduct domain.InOutBounds) (cek bo
 	return true
 }
 
+// check if product exist in cart (admin)
 func (iobd *inoutboundData) CekAdminEntry(newProduct domain.InOutBounds) (cek bool, idcart, qty int) {
 	var cart InOutBounds
 	err := iobd.db.Model(&InOutBounds{}).Where("id_product = ? AND role = ?", newProduct.IdProduct, "admin").First(&cart)
@@ -72,6 +76,7 @@ func (iobd *inoutboundData) CekAdminEntry(newProduct domain.InOutBounds) (cek bo
 	return true, int(cart.ID), int(cart.Qty)
 }
 
+// update qty of product in cart if cart already exist and read the result for respon body
 func (iobd *inoutboundData) UpdateQty(idcart, qty int) domain.InOutBounds {
 	var cart InOutBounds
 	res := iobd.db.Model(&InOutBounds{}).Where("id = ?", idcart).Update("qty", qty)
@@ -98,6 +103,7 @@ func (iobd *inoutboundData) UpdateQty(idcart, qty int) domain.InOutBounds {
 	return cart.ToIOB()
 }
 
+// update data in cart coz input only product id and qty from product_users tabel
 func (iobd *inoutboundData) UpdateEntryAdminData(productid int) domain.InOutBounds {
 	var cart InOutBounds
 	res0 := iobd.db.Model(&InOutBounds{}).Select("products.id, products.name, products.unit, in_out_bounds.qty").Joins("left join products on products.id = in_out_bounds.id_product").Where("in_out_bounds.id_product = ?", productid).First(&cart)
@@ -127,6 +133,7 @@ func (iobd *inoutboundData) UpdateEntryAdminData(productid int) domain.InOutBoun
 	return cart.ToIOB()
 }
 
+// update data from cart coz input only product id and qty from product tabel
 func (iobd *inoutboundData) UpdateEntryUserData(productid int, id int) domain.InOutBounds {
 	var cart InOutBounds
 	res0 := iobd.db.Model(&InOutBounds{}).Select("product_users.id, product_users.name, product_users.unit, in_out_bounds.qty").Joins("left join product_users on product_users.id = in_out_bounds.id_product").Where("in_out_bounds.id_product = ? AND in_out_bounds.id_user = ?", productid, id).First(&cart)
@@ -155,6 +162,8 @@ func (iobd *inoutboundData) UpdateEntryUserData(productid int, id int) domain.In
 
 	return cart.ToIOB()
 }
+
+// read cart data by admin
 func (iobd *inoutboundData) ReadEntryAdminData(role string) []domain.InOutBounds {
 	var cart []InOutBounds
 	err := iobd.db.Model(&InOutBounds{}).Where("role = ? AND qty > ?", role, 0).Find(&cart)
@@ -169,6 +178,7 @@ func (iobd *inoutboundData) ReadEntryAdminData(role string) []domain.InOutBounds
 	return ParseIOBToArr(cart)
 }
 
+// read cart data user by id_users
 func (iobd *inoutboundData) ReadEntryUserData(id int) []domain.InOutBounds {
 	var cart []InOutBounds
 	err := iobd.db.Model(&InOutBounds{}).Where("id_user = ? AND qty > ?", id, 0).Find(&cart)
@@ -183,6 +193,7 @@ func (iobd *inoutboundData) ReadEntryUserData(id int) []domain.InOutBounds {
 	return ParseIOBToArr(cart)
 }
 
+//update qty in cart
 func (iobd *inoutboundData) UpdateQtyAdminData(updatedData domain.InOutBounds) domain.InOutBounds {
 	var cart InOutBounds
 
@@ -213,6 +224,7 @@ func (iobd *inoutboundData) UpdateQtyAdminData(updatedData domain.InOutBounds) d
 	return cart.ToIOB()
 }
 
+//update qty in cart
 func (iobd *inoutboundData) UpdateQtyUserData(updatedData domain.InOutBounds) domain.InOutBounds {
 	var cart InOutBounds
 	var stock domain.ProductUser
