@@ -1,7 +1,6 @@
 package data
 
 import (
-	"fmt"
 	"log"
 	"middleman-capstone/domain"
 
@@ -36,24 +35,22 @@ func (ind *inventoryData) CreateUserInventoryData(newRecap []domain.InventoryPro
 }
 
 func (ind *inventoryData) CekStock(newRecap []domain.InventoryProduct, id int) bool {
-	// var product = FromIP3(newRecap)
+	var product = FromIP3(newRecap)
 	something := []InventoryProduct{}
-	// res2 := ind.db.Model(&InventoryProduct{}).Select("inventory_products.id_user, inventory_products.id_product, product_users.name, inventory_products.qty, inventory_products.unit, product_users.stock").Joins("left join product_users on product_users.id_user = inventory_products.id_user").Where("inventory_products.id_product = ?", []product.id_product).Find(&product)
-	res2 := ind.db.Preload("ProductUser").Find(&something, newRecap)
-	fmt.Println("product", something)
-	if res2.Error != nil {
-		log.Println("Cannot retrieve object", res2.Error.Error())
-		return false
+	for _, val := range product {
+		res2 := ind.db.Model(&InventoryProduct{}).Select("inventory_products.id_user, inventory_products.id_product, product_users.name, inventory_products.qty, inventory_products.unit, product_users.stock").Joins("left join product_users on product_users.id = inventory_products.id_product").Where("id_product = ?", val.IdProduct).First(&something)
+		if res2.Error != nil {
+			log.Println("Cannot retrieve object", res2.Error.Error())
+			return false
+		}
+		for _, value := range something {
+			res3 := ind.db.Model(&domain.ProductUser{}).Where("id = ?", value.IdProduct)
+			if res3.Error != nil {
+				log.Println("Cannot retrieve object", res2.Error.Error())
+				return false
+			}
+		}
 	}
-	// for i := 0; i < len(product); i++ {
-	// 	// 	res2 := ind.db.Select("product_users.name, product_users.stock").Joins("left join product_users on product_users.id_user = inventory_products.id_user").Where("inventory_products.id_product = ?", product[i].IdProduct).Updates(&product[i])
-	// 	res2 := ind.db.Model(&InventoryProduct{}).Select("product_users.name, product_users.stock").Joins("left join product_users on product_users.id_user = inventory_products.id_user").Where("inventory_products.id_product = ?", product[i].IdProduct).Updates(product)
-	// 	fmt.Println("product", product)
-	// 	if res2.Error != nil {
-	// 		log.Println("Cannot retrieve object", res2.Error.Error())
-	// 		return false
-	// 	}
-	// }
 
 	return true
 }
