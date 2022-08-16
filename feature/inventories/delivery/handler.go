@@ -21,7 +21,7 @@ func New(iuc domain.InventoryUseCase) domain.InventoryHandler {
 
 func (ih *inventoryHandler) Create() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var newInventory InventoryFormat
+		var newInventory InputFormat
 		id, role := common.ExtractData(c)
 		bind := c.Bind(&newInventory)
 
@@ -41,7 +41,7 @@ func (ih *inventoryHandler) Create() echo.HandlerFunc {
 			})
 		}
 
-		status := ih.inventoryUseCase.CreateInventory(newInventory.ToIP(), id)
+		status := ih.inventoryUseCase.CreateUserInventory(ParseIFToArr(newInventory.Items), id)
 
 		if status == 400 {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{

@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"log"
 	"middleman-capstone/domain"
 
@@ -17,43 +18,42 @@ func New(db *gorm.DB) domain.InventoryData {
 	}
 }
 
-func (ind *inventoryData) CreateInventoryData(newRecap domain.InventoryProduct) domain.InventoryProduct {
-	var product = FromIP(newRecap)
-	err := ind.db.Create(&product)
+// func (ind *inventoryData) CreateUserInventoryData(newRecap domain.InventoryProduct) domain.InventoryProduct {
+func (ind *inventoryData) CreateUserInventoryData(newRecap []domain.InventoryProduct, id int, gen string) []domain.InventoryProduct {
+	var product = FromIP2(newRecap, id)
+	err := ind.db.Create(product)
 
 	if err.Error != nil {
 		log.Println("cannot create data", err.Error.Error())
-		return domain.InventoryProduct{}
+		return []domain.InventoryProduct{}
 	}
 
 	if err.RowsAffected == 0 {
 		log.Println("failed to insert data")
-		return domain.InventoryProduct{}
+		return []domain.InventoryProduct{}
 	}
-	return product.ToIP()
+	return ParseIPToArr(product)
 }
 
-func (ind *inventoryData) StockUpdate(newRecap domain.InventoryProduct) bool {
-	var proder domain.ProductUser
-	res2 := ind.db.Where("name = ?", newRecap.Name).First(&proder)
-
+func (ind *inventoryData) CekStock(newRecap []domain.InventoryProduct, id int) bool {
+	// var product = FromIP3(newRecap)
+	something := []InventoryProduct{}
+	// res2 := ind.db.Model(&InventoryProduct{}).Select("inventory_products.id_user, inventory_products.id_product, product_users.name, inventory_products.qty, inventory_products.unit, product_users.stock").Joins("left join product_users on product_users.id_user = inventory_products.id_user").Where("inventory_products.id_product = ?", []product.id_product).Find(&product)
+	res2 := ind.db.Preload("ProductUser").Find(&something, newRecap)
+	fmt.Println("product", something)
 	if res2.Error != nil {
 		log.Println("Cannot retrieve object", res2.Error.Error())
 		return false
 	}
-
-	updatestock := proder.Stock - newRecap.Qty
-
-	if updatestock > 0 {
-		res3 := ind.db.Model(domain.ProductUser{}).Where("name = ?", newRecap.Name).Updates(domain.ProductUser{Stock: updatestock})
-		if res3.Error != nil {
-			log.Println("Cannot retrieve object", res3.Error.Error())
-			return false
-		}
-	} else {
-		log.Println("not enough stock")
-		return false
-	}
+	// for i := 0; i < len(product); i++ {
+	// 	// 	res2 := ind.db.Select("product_users.name, product_users.stock").Joins("left join product_users on product_users.id_user = inventory_products.id_user").Where("inventory_products.id_product = ?", product[i].IdProduct).Updates(&product[i])
+	// 	res2 := ind.db.Model(&InventoryProduct{}).Select("product_users.name, product_users.stock").Joins("left join product_users on product_users.id_user = inventory_products.id_user").Where("inventory_products.id_product = ?", product[i].IdProduct).Updates(product)
+	// 	fmt.Println("product", product)
+	// 	if res2.Error != nil {
+	// 		log.Println("Cannot retrieve object", res2.Error.Error())
+	// 		return false
+	// 	}
+	// }
 
 	return true
 }

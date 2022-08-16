@@ -3,7 +3,8 @@ package usecase
 import (
 	"log"
 	"middleman-capstone/domain"
-	"middleman-capstone/feature/inventories/data"
+	"strconv"
+	"time"
 
 	"github.com/go-playground/validator"
 )
@@ -20,21 +21,26 @@ func New(ind domain.InventoryData, v *validator.Validate) domain.InventoryUseCas
 	}
 }
 
-func (iuc *inventoryUseCase) CreateInventory(newRecap domain.InventoryProduct, id int) int {
-	var product = data.FromIP(newRecap)
-	validError := iuc.validate.Struct(product)
-
+func (iuc *inventoryUseCase) CreateUserInventory(newRecap []domain.InventoryProduct, id int) int {
+	orderIDGenerate := strconv.FormatInt(time.Now().Unix(), 10)
+	validError := iuc.validate.Var(newRecap, "gt=0")
 	if validError != nil {
 		log.Println("Validation error : ", validError)
 		return 400
 	}
 
-	product.IdUser = id
-	create := iuc.inventoryData.CreateInventoryData(product.ToIP())
+	create := iuc.inventoryData.CreateUserInventoryData(newRecap, id, orderIDGenerate)
 
-	if create.ID == 0 {
-		log.Println("error after creating data")
-		return 500
+	if len(create) == 0 {
+		log.Println("data not found")
+		return 404
 	}
+
+	stok := iuc.inventoryData.CekStock(newRecap, id)
+	if !stok {
+		log.Println("insufficient amount")
+		return 404
+	}
+
 	return 201
 }

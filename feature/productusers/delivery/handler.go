@@ -228,6 +228,7 @@ func (puh *productUserHandler) Update() echo.HandlerFunc {
 				"message": "there is an error in internal server",
 			})
 		}
+
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"data":    data,
 			"code":    status,
