@@ -42,7 +42,7 @@ type UserCart struct {
 type CartUseCase interface {
 	GetAllData(limit, offset, idFromToken int) (data []Cart, total int, err error)
 	CreateData(data Cart) (row int, err error)
-	UpdateData(qty, idCart, idFromToken int) (row int, err error)
+	UpdateData(qty, idProd, idFromToken int) (row int, err error)
 	DeleteData(idProd, idFromToken int) (row int, err error)
 }
 
@@ -54,7 +54,7 @@ type ChartData interface {
 	InsertData(data Cart) (row int, err error)
 	SelectData(limit, offset, idFromToken int) (data []Cart, err error)
 	CheckCart(idProd, idFromToken int) (isExist bool, idCart, qty int, err error)
-	UpdateDataDB(qty, idCart, idFromToken int) (row int, err error)
+	UpdateDataDB(qty, idProd, idFromToken int) (row int, err error)
 	DeleteDataDB(idProd, idFromToken int) (row int, err error)
 }
 

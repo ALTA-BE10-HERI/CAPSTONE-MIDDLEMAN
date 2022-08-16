@@ -48,9 +48,9 @@ func (cd *cartData) CheckCart(idProd, idFromToken int) (isExist bool, idCart, qt
 	return true, int(dataCart.ID), int(dataCart.Qty), nil
 }
 
-func (cd *cartData) UpdateDataDB(qty, idCart, idFromToken int) (row int, err error) {
+func (cd *cartData) UpdateDataDB(qty, idProd, idFromToken int) (row int, err error) {
 	dataCart := Cart{}
-	idCheck := cd.db.Preload("Product").First(&dataCart, idCart)
+	idCheck := cd.db.Preload("Product").First(&dataCart, "user_id = ? AND product_id = ? ", idFromToken, idProd)
 	if idCheck.Error != nil {
 		return 0, idCheck.Error
 	}
@@ -58,7 +58,7 @@ func (cd *cartData) UpdateDataDB(qty, idCart, idFromToken int) (row int, err err
 		log.Println("cek ", dataCart.UserID)
 		return -1, errors.New("you don't have access")
 	}
-	result := cd.db.Model(&Cart{}).Where("id = ?", idCart).Updates(map[string]interface{}{"qty": qty, "subtotal": qty * dataCart.Product.Price})
+	result := cd.db.Model(&Cart{}).Where("user_id = ? AND product_id = ? ", idFromToken, idProd).Updates(map[string]interface{}{"qty": qty, "subtotal": qty * dataCart.Product.Price})
 	if result.Error != nil {
 		return 0, result.Error
 	}
