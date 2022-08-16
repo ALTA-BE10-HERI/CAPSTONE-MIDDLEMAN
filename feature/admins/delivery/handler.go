@@ -257,10 +257,11 @@ func (puh *productHandler) Search() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		search := c.QueryParam("productname")
 		res, err := puh.productUseCase.SearchRestoBusiness(search)
+		dares := ParsePUToArr2(res)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to search data"))
 		}
-		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", res))
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", dares))
 	}
 
 }
