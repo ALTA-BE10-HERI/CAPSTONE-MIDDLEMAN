@@ -45,7 +45,7 @@ func (iuc *inventoryUseCase) CreateUserDetailInventory(newRecap []domain.Invento
 		return 500
 	}
 
-	updatestok := iuc.inventoryData.RekapStock(newRecap, id)
+	updatestok := iuc.inventoryData.RekapStock(newRecap, id, outboundIDGenerate)
 	if !updatestok {
 		log.Println("insufficient amount")
 		return 404

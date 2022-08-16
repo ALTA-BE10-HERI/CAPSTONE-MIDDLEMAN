@@ -67,16 +67,16 @@ func (ind *inventoryData) CreateUserDetailInventoryData(newRecap []domain.Invent
 	return ParseIPToArr(product)
 }
 
-func (ind *inventoryData) RekapStock(newRecap []domain.InventoryProduct, id int) bool {
+func (ind *inventoryData) RekapStock(newRecap []domain.InventoryProduct, id int, gen string) bool {
 	var product = FromIP3(newRecap)
 	something := InventoryProduct{}
 	for _, val := range product {
-		res2 := ind.db.Model(&InventoryProduct{}).Select("inventory_products.id_user, inventory_products.id_product, product_users.name, inventory_products.qty, inventory_products.unit, product_users.stock").Joins("left join product_users on product_users.id = inventory_products.id_product").Where("id_product = ?", val.IdProduct).First(&something)
+		res2 := ind.db.Model(&InventoryProduct{}).Select("inventory_products.id_user, inventory_products.id_product, product_users.name, inventory_products.qty, inventory_products.unit, product_users.stock").Joins("left join product_users on product_users.id = inventory_products.id_product").Where("id_product = ? AND idip = ?", val.IdProduct, gen).First(&something)
 		if res2.Error != nil {
 			log.Println("Cannot retrieve object", res2.Error.Error())
 			return false
 		}
-		res3 := ind.db.Model(&InventoryProduct{}).Where("id_product = ? AND id_user = ?", val.IdProduct, id).Updates(&something)
+		res3 := ind.db.Model(&InventoryProduct{}).Where("id_product = ? AND id_user = ? AND idip = ?", val.IdProduct, id, gen).Updates(&something)
 		if res3.Error != nil {
 			log.Println("Cannot retrieve object", res2.Error.Error())
 			return false
