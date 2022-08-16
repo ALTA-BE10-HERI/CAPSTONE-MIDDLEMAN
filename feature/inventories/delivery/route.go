@@ -10,4 +10,5 @@ import (
 func RouteInventory(e *echo.Echo, ih domain.InventoryHandler) {
 	inventoryuser := e.Group("/users/inventory")
 	inventoryuser.POST("", ih.Create(), _middleware.JWTMiddleware())
+	inventoryuser.GET("/:idoutbound", ih.ReadUser(), _middleware.JWTMiddleware())
 }

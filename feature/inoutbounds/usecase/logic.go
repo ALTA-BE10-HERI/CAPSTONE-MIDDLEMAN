@@ -90,7 +90,7 @@ func (iobuc *inoutboundUseCase) ReadEntry(id int, role string) ([]domain.InOutBo
 		cart := iobuc.inoutboundData.ReadEntryAdminData(role)
 		if len(cart) == 0 {
 			log.Println("data not found")
-			return nil, 404
+			return []domain.InOutBounds{}, 200
 		} else {
 			return cart, 200
 		}
@@ -98,7 +98,7 @@ func (iobuc *inoutboundUseCase) ReadEntry(id int, role string) ([]domain.InOutBo
 		cart := iobuc.inoutboundData.ReadEntryUserData(id)
 		if len(cart) == 0 {
 			log.Println("data not found")
-			return nil, 404
+			return []domain.InOutBounds{}, 200
 		} else {
 			return cart, 200
 		}
