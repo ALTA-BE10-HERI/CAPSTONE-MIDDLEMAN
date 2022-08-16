@@ -3,7 +3,7 @@ package delivery
 import "middleman-capstone/domain"
 
 type ResponseCart struct {
-	ID           int    `json:"id"`
+	ID           int    `json:"product_id"`
 	ProductName  string `json:"product_name"`
 	Price        int    `json:"price"`
 	Unit         string `json:"unit"`
