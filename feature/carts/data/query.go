@@ -67,16 +67,17 @@ func (cd *cartData) UpdateDataDB(qty, idCart, idFromToken int) (row int, err err
 	}
 	return int(result.RowsAffected), nil
 }
-func (cd *cartData) DeleteDataDB(idCart, idFromToken int) (row int, err error) {
+func (cd *cartData) DeleteDataDB(idProd, idFromToken int) (row int, err error) {
 	dataCart := Cart{}
-	idCheck := cd.db.First(&dataCart, idCart)
+	idCheck := cd.db.First(&dataCart, "user_id = ? AND product_id = ? ", idFromToken, idProd)
 	if idCheck.Error != nil {
 		return 0, idCheck.Error
 	}
 	if idFromToken != dataCart.UserID {
 		return -1, errors.New("you don't have access")
 	}
-	result := cd.db.Delete(&Cart{}, idCart)
+	// result := cd.db.Delete(&Cart{}, idProd)
+	result := cd.db.Unscoped().Delete(&Cart{}, "user_id = ? AND product_id = ? ", idFromToken, idProd)
 	if result.Error != nil {
 		return 0, result.Error
 	}
