@@ -38,7 +38,7 @@ type InventoryData interface {
 	CekStok(newRecap []InventoryProduct, id int) bool
 	CreateUserDetailInventoryData(newRecap []InventoryProduct, id int, gen string) []InventoryProduct
 	CreateUserInventoryData(newRecap Inventory) Inventory
-	RekapStock(newRecap []InventoryProduct, id int) bool
+	RekapStock(newRecap []InventoryProduct, id int, gen string) bool
 	DeleteInOutBound(id int) (err string)
 	ReadUserOutBoundDetailData(id int, outboundIDGenerate string) []InventoryProduct
 }
