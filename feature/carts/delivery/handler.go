@@ -32,7 +32,7 @@ func (ch *CartHandler) GetAll() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get all data"))
 		}
 		var data = map[string]interface{}{
-			"data":        FromModelList(result),
+			"items":       FromModelList(result),
 			"grand_total": total,
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", data))
