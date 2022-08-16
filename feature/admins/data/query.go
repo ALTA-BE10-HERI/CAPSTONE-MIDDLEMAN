@@ -37,7 +37,7 @@ func (pd *productData) CreateProductData(newProduct domain.Product) domain.Produ
 
 func (pd *productData) GetAllProductData(limit, offset int) (data []domain.Product, err error) {
 	dataProduct := []Product{}
-	res := pd.db.Model(&Product{}).Find(&dataProduct)
+	res := pd.db.Model(&Product{}).Limit(limit).Offset(offset).Find(&dataProduct)
 	if res.Error != nil {
 		return []domain.Product{}, nil
 	}
@@ -72,4 +72,15 @@ func (pd *productData) DeleteProductData(idProduct int) (row int, err error) {
 		return 0, errors.New("failed to delete data")
 	}
 	return int(result.RowsAffected), nil
+}
+
+func (pd *productData) SearchRestoData(search string) (result []domain.Product, err error) {
+	var dataProduct []Product
+
+	res := pd.db.Where("name like ?", "%"+search+"%").Find(&dataProduct)
+
+	if res.Error != nil {
+		return []domain.Product{}, res.Error
+	}
+	return toModelList(dataProduct), nil
 }

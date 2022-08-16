@@ -23,6 +23,7 @@ type ProductUseCase interface {
 	GetAllProduct(limit, offset int) (data []Product, err error)
 	UpdateProduct(updatedData Product, idProduct int) (row int, err error)
 	DeleteProduct(productid int) int
+	SearchRestoBusiness(search string) (result []Product, err error)
 }
 
 //query
@@ -31,6 +32,7 @@ type ProductData interface {
 	GetAllProductData(limit, offset int) (data []Product, err error)
 	UpdateProductData(data map[string]interface{}, idProduct int) (row int, err error)
 	DeleteProductData(productid int) (row int, err error)
+	SearchRestoData(search string) (result []Product, err error)
 }
 
 //handler
@@ -39,4 +41,5 @@ type ProductHandler interface {
 	GetAll() echo.HandlerFunc
 	Update() echo.HandlerFunc
 	Delete() echo.HandlerFunc
+	Search() echo.HandlerFunc
 }

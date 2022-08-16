@@ -1,7 +1,6 @@
 package data
 
 import (
-	"errors"
 	"log"
 	"middleman-capstone/domain"
 
@@ -48,20 +47,33 @@ func (pud *productUserData) ReadAllProductData(id int) []domain.ProductUser {
 	return ParsePUToArr(product)
 }
 
-func (pud *productUserData) UpdateProductData(data map[string]interface{}, productid, id int) (row int, err error) {
+func (pud *productUserData) UpdateProductData(data map[string]interface{}, productid, id int) domain.ProductUser {
+	var product ProductUser
 	res := pud.db.Model(&ProductUser{}).Where("id = ? AND id_user = ?", productid, id).Updates(data)
 
 	if res.Error != nil {
 		log.Println("cannot update data", res.Error.Error())
-		return 0, res.Error
+		return domain.ProductUser{}
 	}
 
 	if res.RowsAffected == 0 {
 		log.Println("data not found")
-		return 0, errors.New("failed update data")
+		return domain.ProductUser{}
 	}
 
-	return int(res.RowsAffected), nil
+	res0 := pud.db.Model(&ProductUser{}).Where("id = ? AND id_user = ?", productid, id).First(&product)
+
+	if res0.Error != nil {
+		log.Println("cannot read data", res0.Error.Error())
+		return domain.ProductUser{}
+	}
+
+	if res0.RowsAffected == 0 {
+		log.Println("failed read data")
+		return domain.ProductUser{}
+	}
+
+	return product.ToPU()
 }
 
 func (pud *productUserData) DeleteProductData(productid, id int) (err string) {
@@ -76,4 +88,15 @@ func (pud *productUserData) DeleteProductData(productid, id int) (err string) {
 		return "no data deleted"
 	}
 	return ""
+}
+
+func (pud *productUserData) SearchRestoData(search string) (result []domain.ProductUser, err error) {
+	var dataProductUser []ProductUser
+
+	res := pud.db.Where("name like ?", "%"+search+"%").Find(&dataProductUser)
+
+	if res.Error != nil {
+		return []domain.ProductUser{}, res.Error
+	}
+	return toModelList(dataProductUser), nil
 }

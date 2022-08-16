@@ -20,13 +20,13 @@ func New(puc domain.ProductUserData, v *validator.Validate) domain.ProductUserUs
 	}
 }
 
-func (puuc *productUserUseCase) CreateProduct(newProduct domain.ProductUser, id int) int {
+func (puuc *productUserUseCase) CreateProduct(newProduct domain.ProductUser, id int) (domain.ProductUser, int) {
 	var product = data.FromPU(newProduct)
 	validError := puuc.validate.Struct(product)
 
 	if validError != nil {
 		log.Println("Validation error : ", validError)
-		return 400
+		return domain.ProductUser{}, 400
 	}
 
 	product.IdUser = id
@@ -34,9 +34,9 @@ func (puuc *productUserUseCase) CreateProduct(newProduct domain.ProductUser, id 
 
 	if create.ID == 0 {
 		log.Println("error after creating data")
-		return 500
+		return domain.ProductUser{}, 500
 	}
-	return 201
+	return create, 201
 }
 
 func (puuc *productUserUseCase) ReadAllProduct(id int) ([]domain.ProductUser, int) {
@@ -49,10 +49,10 @@ func (puuc *productUserUseCase) ReadAllProduct(id int) ([]domain.ProductUser, in
 	return product, 200
 }
 
-func (puuc *productUserUseCase) UpdateProduct(updatedData domain.ProductUser, productid, id int) (row int, err error) {
+func (puuc *productUserUseCase) UpdateProduct(updatedData domain.ProductUser, productid, id int) (domain.ProductUser, int) {
 
 	if updatedData.Name == "" && updatedData.Unit == "" && updatedData.Stock == 0 && updatedData.Price == 0 && updatedData.Image == "" {
-		return 0, err
+		return domain.ProductUser{}, 400
 	}
 	qry := map[string]interface{}{}
 
@@ -76,9 +76,13 @@ func (puuc *productUserUseCase) UpdateProduct(updatedData domain.ProductUser, pr
 		qry["image"] = updatedData.Image
 	}
 
-	row, err = puuc.productUserData.UpdateProductData(qry, productid, id)
+	products := puuc.productUserData.UpdateProductData(qry, productid, id)
 
-	return row, err
+	if products.ID == 0 {
+		log.Println("Empty Data")
+		return domain.ProductUser{}, 404
+	}
+	return products, 200
 }
 
 func (puuc *productUserUseCase) DeleteProduct(productid, id int) int {
@@ -92,4 +96,10 @@ func (puuc *productUserUseCase) DeleteProduct(productid, id int) int {
 		return 404
 	}
 	return 204
+}
+
+func (puuc *productUserUseCase) SearchRestoBusiness(search string) (result []domain.ProductUser, err error) {
+	response, err := puuc.productUserData.SearchRestoData(search)
+
+	return response, err
 }

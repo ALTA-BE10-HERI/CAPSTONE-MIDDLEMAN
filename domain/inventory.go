@@ -9,9 +9,12 @@ import (
 type InventoryProduct struct {
 	ID        int
 	IdUser    int
+	IdProduct int
 	Name      string
-	Unit      string
 	Qty       int
+	Unit      string
+	Idip      string
+	Stock     int
 	CreatedAt time.Time
 }
 
@@ -20,10 +23,10 @@ type InventoryHandler interface {
 }
 
 type InventoryUseCase interface {
-	CreateInventory(newRecap InventoryProduct, idUser int) int
+	CreateUserInventory(newRecap []InventoryProduct, idUser int) int
 }
 
 type InventoryData interface {
-	CreateInventoryData(newRecap InventoryProduct) InventoryProduct
-	StockUpdate(newRecap InventoryProduct) bool
+	CreateUserInventoryData(newRecap []InventoryProduct, id int, gen string) []InventoryProduct
+	CekStock(newRecap []InventoryProduct, id int) bool
 }

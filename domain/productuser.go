@@ -23,18 +23,21 @@ type ProductUserHandler interface {
 	ReadAll() echo.HandlerFunc
 	Update() echo.HandlerFunc
 	Delete() echo.HandlerFunc
+	Search() echo.HandlerFunc
 }
 
 type ProductUserUseCase interface {
-	CreateProduct(newProduct ProductUser, id int) int
+	CreateProduct(newProduct ProductUser, id int) (ProductUser, int)
 	ReadAllProduct(id int) ([]ProductUser, int)
-	UpdateProduct(updatedData ProductUser, productid, id int) (row int, err error)
+	UpdateProduct(updatedData ProductUser, productid, id int) (ProductUser, int)
 	DeleteProduct(productid, id int) int
+	SearchRestoBusiness(search string) (result []ProductUser, err error)
 }
 
 type ProductUserData interface {
 	CreateProductData(newProduct ProductUser) ProductUser
 	ReadAllProductData(id int) []ProductUser
-	UpdateProductData(data map[string]interface{}, productid, id int) (row int, err error)
+	UpdateProductData(data map[string]interface{}, productid, id int) ProductUser
 	DeleteProductData(productid, id int) (err string)
+	SearchRestoData(search string) (result []ProductUser, err error)
 }
