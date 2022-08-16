@@ -43,7 +43,7 @@ func (puuc *productUserUseCase) ReadAllProduct(id int) ([]domain.ProductUser, in
 	product := puuc.productUserData.ReadAllProductData(id)
 	if len(product) == 0 {
 		log.Println("data not found")
-		return nil, 404
+		return []domain.ProductUser{}, 200
 	}
 
 	return product, 200

@@ -42,5 +42,6 @@ func MigrateData(db *gorm.DB) {
 	db.AutoMigrate(inventoryData.InventoryProduct{})
 	db.AutoMigrate(inoutboundData.InOutBounds{})
 	db.AutoMigrate(cartData.Cart{})
+	db.AutoMigrate(inventoryData.Inventory{})
 
 }

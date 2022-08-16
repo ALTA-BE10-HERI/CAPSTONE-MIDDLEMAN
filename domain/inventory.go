@@ -18,15 +18,27 @@ type InventoryProduct struct {
 	CreatedAt time.Time
 }
 
+type Inventory struct {
+	ID         int
+	IdOutBound string
+	CreatedAt  time.Time
+}
+
 type InventoryHandler interface {
 	Create() echo.HandlerFunc
+	ReadUser() echo.HandlerFunc
 }
 
 type InventoryUseCase interface {
-	CreateUserInventory(newRecap []InventoryProduct, idUser int) int
+	CreateUserDetailInventory(newRecap []InventoryProduct, idUser int) int
+	ReadUserOutBoundDetail(id int, outboundIDGenerate string) ([]InventoryProduct, int)
 }
 
 type InventoryData interface {
-	CreateUserInventoryData(newRecap []InventoryProduct, id int, gen string) []InventoryProduct
-	CekStock(newRecap []InventoryProduct, id int) bool
+	CekStok(newRecap []InventoryProduct, id int) bool
+	CreateUserDetailInventoryData(newRecap []InventoryProduct, id int, gen string) []InventoryProduct
+	CreateUserInventoryData(newRecap Inventory) Inventory
+	RekapStock(newRecap []InventoryProduct, id int) bool
+	DeleteInOutBound(id int) (err string)
+	ReadUserOutBoundDetailData(id int, outboundIDGenerate string) []InventoryProduct
 }
