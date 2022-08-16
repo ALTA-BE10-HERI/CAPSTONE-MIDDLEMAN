@@ -9,9 +9,10 @@ import (
 
 func RouteAdmin(e *echo.Echo, dp domain.ProductHandler) {
 
-	admin := e.Group("/admins")
+	admin := e.Group("/admins/products")
 	admin.GET("", dp.GetAll())
 	admin.POST("", dp.Create(), _middleware.JWTMiddleware())
 	admin.PUT("/:idproduct", dp.Update(), _middleware.JWTMiddleware())
 	admin.DELETE("/:idproduct", dp.Delete(), _middleware.JWTMiddleware())
+	admin.GET("/products/", dp.Search())
 }

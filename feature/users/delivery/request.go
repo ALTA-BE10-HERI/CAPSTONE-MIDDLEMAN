@@ -7,7 +7,7 @@ type InsertFormat struct {
 	Email    string `json:"email" form:"email" gorm:"unique" validate:"required"`
 	Password string `json:"password" form:"password" validate:"required"`
 	Address  string `json:"address" form:"address" validate:"required"`
-	Phone    string `json:"phone" form:"phone" validate:"required,min=10"`
+	Phone    string `json:"phone" form:"phone" gorm:"unique" validate:"required,min=10"`
 	Role     string `gorm:"default:user"`
 }
 

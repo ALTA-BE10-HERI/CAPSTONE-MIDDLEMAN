@@ -125,7 +125,7 @@ func (ph *productHandler) GetAll() echo.HandlerFunc {
 			})
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{
-			"data":    result,
+			"data":    ParsePUToArr2(result),
 			"code":    200,
 			"message": "get data success",
 		})
@@ -251,4 +251,16 @@ func (ph *productHandler) Delete() echo.HandlerFunc {
 		})
 
 	}
+}
+
+func (puh *productHandler) Search() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		search := c.QueryParam("productname")
+		res, err := puh.productUseCase.SearchRestoBusiness(search)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to search data"))
+		}
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", res))
+	}
+
 }
