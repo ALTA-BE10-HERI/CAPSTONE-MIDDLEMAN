@@ -49,7 +49,6 @@ func (ch *CartHandler) PostCart() echo.HandlerFunc {
 		dataCart := domain.Cart{}
 		dataCart.Product.ID = cartReq.IdProduct
 		dataCart.Qty = cartReq.Qty
-		dataCart.Status = "Pending"
 		dataCart.UserID = idFromToken
 
 		row, _ := ch.cartUseCase.CreateData(dataCart)

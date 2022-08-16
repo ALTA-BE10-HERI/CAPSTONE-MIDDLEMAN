@@ -9,7 +9,6 @@ import (
 type Cart struct {
 	gorm.Model
 	Qty       int
-	Status    string
 	Subtotal  int
 	UserID    int
 	ProductID int
@@ -31,7 +30,6 @@ type User struct {
 type Product struct {
 	gorm.Model
 	Stock  int
-	Status string
 	Name   string
 	Image  string
 	Unit   string
@@ -45,7 +43,6 @@ func (c *Cart) ToDomain() domain.Cart {
 	return domain.Cart{
 		ID:        int(c.ID),
 		Qty:       c.Qty,
-		Status:    c.Status,
 		UserID:    c.UserID,
 		Subtotal:  c.Subtotal,
 		CreatedAt: c.CreatedAt,
@@ -72,7 +69,6 @@ func ParseToArr(arr []Cart) []domain.Cart {
 func FromDomain(data domain.Cart) Cart {
 	var res Cart
 	res.Qty = data.Qty
-	res.Status = data.Status
 	res.UserID = data.UserID
 	res.ProductID = data.Product.ID
 	res.Subtotal = data.Subtotal

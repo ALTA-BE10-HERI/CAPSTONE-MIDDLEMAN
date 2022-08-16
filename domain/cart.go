@@ -9,7 +9,6 @@ import (
 type Cart struct {
 	ID         int
 	Qty        int
-	Status     string
 	Subtotal   int
 	Grandtotal int
 	UserID     int

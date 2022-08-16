@@ -20,7 +20,7 @@ func New(db *gorm.DB) domain.ChartData {
 
 func (cd *cartData) SelectData(limit, offset, idFromToken int) (data []domain.Cart, err error) {
 	dataCart := []Cart{}
-	result := cd.db.Preload("Product").Where("user_id = ? AND status = ?", idFromToken, "Pending").Find(&dataCart)
+	result := cd.db.Preload("Product").Where("user_id = ?", idFromToken).Find(&dataCart)
 	if result.Error != nil {
 		return []domain.Cart{}, result.Error
 	}
@@ -41,7 +41,7 @@ func (cd *cartData) InsertData(data domain.Cart) (row int, err error) {
 
 func (cd *cartData) CheckCart(idProd, idFromToken int) (isExist bool, idCart, qty int, err error) {
 	dataCart := Cart{}
-	resultCheck := cd.db.Model(&Cart{}).Where("product_id = ? AND user_id = ? AND status = ?", idProd, idFromToken, "Pending").First(&dataCart)
+	resultCheck := cd.db.Model(&Cart{}).Where("product_id = ? AND user_id = ?", idProd, idFromToken).First(&dataCart)
 	if resultCheck.Error != nil {
 		return false, 0, 0, resultCheck.Error
 	}
