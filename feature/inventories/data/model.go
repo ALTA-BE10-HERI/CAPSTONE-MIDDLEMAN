@@ -3,40 +3,44 @@ package data
 import (
 	"middleman-capstone/domain"
 	"time"
+
+	"gorm.io/gorm"
 )
 
+type Inventory struct {
+	gorm.Model
+	IdOutBound       string
+	InventoryProduct []InventoryProduct `gorm:"foreignKey:IdOutBound;references:Idip;constraint:OnDelete:CASCADE"`
+}
+
 type InventoryProduct struct {
-	ID        int `gorm:"autoIncrement"`
+	ID        int
 	IdUser    int
 	IdProduct int `json:"product_id" form:"product_id" validate:"required"`
 	Name      string
 	Qty       int    `json:"qty" form:"qty" validate:"required"`
 	Unit      string `json:"unit" form:"unit" validate:"required"`
-	Idip      string ``
+	Idip      string `gorm:"primaryKey"`
 	Stock     int
 	CreatedAt time.Time
 }
 
-type Inventory struct {
-	ID         int
-	IdOutBound string
-	CreatedAt  time.Time
-}
-
-func (ip *InventoryProduct) ToIP() domain.InventoryProduct {
+func (ip *InventoryProduct) ToPU() domain.InventoryProduct {
 	return domain.InventoryProduct{
-		ID:        ip.ID,
+		ID:        int(ip.ID),
 		IdUser:    ip.IdUser,
-		Unit:      ip.Unit,
+		IdProduct: ip.IdProduct,
+		Name:      ip.Name,
 		Qty:       ip.Qty,
-		CreatedAt: ip.CreatedAt,
+		Unit:      ip.Unit,
+		Idip:      ip.Idip,
 	}
 }
 
-func ParseIPToArr(arr []InventoryProduct) []domain.InventoryProduct {
+func ParsePUToArr(arr []InventoryProduct) []domain.InventoryProduct {
 	var res []domain.InventoryProduct
 	for _, val := range arr {
-		res = append(res, val.ToIP())
+		res = append(res, val.ToPU())
 	}
 	return res
 }
@@ -47,28 +51,31 @@ func FromIP2(data []domain.InventoryProduct, id int, gen string) []InventoryProd
 		newdata := InventoryProduct{
 			IdUser:    id,
 			IdProduct: val.IdProduct,
-			Unit:      val.Unit,
+			Name:      val.Name,
 			Qty:       val.Qty,
+			Unit:      val.Unit,
 			Idip:      gen,
+			Stock:     val.Stock,
 		}
 		res = append(res, newdata)
 	}
 	return res
 }
 
-func FromIP3(data []domain.InventoryProduct) []InventoryProduct {
-	var res []InventoryProduct
-	for _, val := range data {
-		newdata := InventoryProduct{
-			IdUser:    val.IdUser,
-			IdProduct: val.IdProduct,
-			Name:      val.Name,
-			Qty:       val.Qty,
-			Unit:      val.Unit,
-			Stock:     val.Stock,
-		}
-		res = append(res, newdata)
-	}
+// func FromModel(data domain.Inventory, id int, gen string) Inventory {
+// 	return Inventory{
+// 		ID:         uint(data.ID),
+// 		IdOutBound: data.IdOutBound,
+// 		CreatedAt:  data.CreatedAt,
+// 		// Outbound:   FromIP2(data.Outbound, id, gen),
+// 	}
+// }
+
+func FromModel(data domain.Inventory, id int, gen string) Inventory {
+	var res Inventory
+	res.ID = uint(data.ID)
+	res.IdOutBound = gen
+	res.CreatedAt = data.CreatedAt
 	return res
 }
 
@@ -78,32 +85,6 @@ func (i *Inventory) ToI() domain.Inventory {
 		IdOutBound: i.IdOutBound,
 		CreatedAt:  i.CreatedAt,
 	}
-}
-
-func FromModel(data domain.Inventory) Inventory {
-	return Inventory{
-		ID:         data.ID,
-		IdOutBound: data.IdOutBound,
-		CreatedAt:  data.CreatedAt,
-	}
-}
-
-func (ip *InventoryProduct) ToPU() domain.InventoryProduct {
-	return domain.InventoryProduct{
-		Idip:      ip.Idip,
-		IdProduct: ip.IdProduct,
-		Name:      ip.Name,
-		Qty:       ip.Qty,
-		Unit:      ip.Unit,
-	}
-}
-
-func ParsePUToArr(arr []InventoryProduct) []domain.InventoryProduct {
-	var res []domain.InventoryProduct
-	for _, val := range arr {
-		res = append(res, val.ToPU())
-	}
-	return res
 }
 
 func ParsePUToArr2(arr []domain.InventoryProduct) []map[string]interface{} {

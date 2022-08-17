@@ -28,9 +28,9 @@ func (ih *inventoryHandler) Create() echo.HandlerFunc {
 
 		if bind != nil {
 			log.Println("cant bind")
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-				"code":    500,
-				"message": "there is an error in internal server",
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"code":    400,
+				"message": "wrong input",
 			})
 		}
 
@@ -42,18 +42,12 @@ func (ih *inventoryHandler) Create() echo.HandlerFunc {
 			})
 		}
 
-		status := ih.inventoryUseCase.CreateUserDetailInventory(ParseIFToArr(newInventory.Items), id)
+		status := ih.inventoryUseCase.CreateUserDetailInventory(ToDomain(newInventory), id)
 
 		if status == 400 {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"code":    status,
 				"message": "wrong input",
-			})
-		}
-		if status == 404 {
-			return c.JSON(http.StatusNotFound, map[string]interface{}{
-				"code":    status,
-				"message": "data not found",
 			})
 		}
 
@@ -86,12 +80,6 @@ func (ih *inventoryHandler) ReadUser() echo.HandlerFunc {
 		product, status := ih.inventoryUseCase.ReadUserOutBoundDetail(id, cnv)
 		data := data.ParsePUToArr2(product)
 
-		if status == 404 {
-			return c.JSON(http.StatusNotFound, map[string]interface{}{
-				"code":    status,
-				"message": "data not found",
-			})
-		}
 		if status == 500 {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"code":    status,
