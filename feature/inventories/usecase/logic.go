@@ -37,6 +37,12 @@ func (iuc *inventoryUseCase) CreateUserDetailInventory(newRecap domain.Inventory
 		return 404
 	}
 
+	// outbound := iuc.inventoryData.CreateUserInventoryData(newRecap, id, outboundIDGenerate)
+	// if outbound.ID == 0 {
+	// 	log.Println("error after creating data")
+	// 	return 500
+	// }
+
 	create := iuc.inventoryData.CreateUserDetailInventoryData(newRecap.InventoryProduct, id, outboundIDGenerate)
 	if len(create) == 0 {
 		log.Println("error after creating data")
@@ -59,12 +65,6 @@ func (iuc *inventoryUseCase) CreateUserDetailInventory(newRecap domain.Inventory
 		log.Println("data not found")
 		return 404
 	}
-
-	// outbound := iuc.inventoryData.CreateUserInventoryData(newRecap, id, outboundIDGenerate)
-	// if outbound.ID == 0 {
-	// 	log.Println("error after creating data")
-	// 	return 500
-	// }
 
 	return 201
 }

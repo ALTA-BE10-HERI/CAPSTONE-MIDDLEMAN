@@ -6,7 +6,7 @@ type InputFormat struct {
 	Items []InventoryFormat
 }
 type InventoryFormat struct {
-	IdProduct int    `json:"product_id" form:"product_id" validate:"required"`
+	ProductID int    `json:"product_id" form:"product_id" validate:"required"`
 	Qty       int    `json:"qty" form:"qty" validate:"required"`
 	Unit      string `json:"unit" form:"unit" validate:"required"`
 }
@@ -21,7 +21,7 @@ func ParseIFToArr(arr []InventoryFormat) []domain.InventoryProduct {
 
 func (pf *InventoryFormat) ToIF() domain.InventoryProduct {
 	return domain.InventoryProduct{
-		IdProduct: pf.IdProduct,
+		ProductID: pf.ProductID,
 		Qty:       pf.Qty,
 		Unit:      pf.Unit,
 	}

@@ -9,33 +9,31 @@ type FormatOrder struct {
 
 type Items struct {
 	ProductID int    `json:"product_id" form:"product_id"`
-	Subtotal  int    `json:"subtotal" form:"subtotal"`
-	Unit      string `json:"unit" form:"unit"`
 	Qty       int    `json:"qty" form:"qty"`
+	Unit      string `json:"unit" form:"unit"`
+	Subtotal  int    `json:"subtotal" form:"subtotal"`
 }
 
-func (i *Items) ToDomainItems() domain.Items {
-	return domain.Items{
-		ProductID: i.ProductID,
-		Subtotal:  i.Subtotal,
-		Unit:      i.Unit,
-		Qty:       i.Qty,
-	}
-}
-
-func ParseToArrItems(arr []Items) []domain.Items {
+func ParseIFToArr(arr []Items) []domain.Items {
 	var res []domain.Items
 	for _, val := range arr {
-		res = append(res, val.ToDomainItems())
+		res = append(res, val.ToIF())
 	}
 	return res
 }
 
-func FromDomainItems(data domain.Items) Items {
-	var res Items
-	res.ProductID = data.ProductID
-	res.Subtotal = data.Subtotal
-	res.Unit = data.Unit
-	res.Qty = data.Qty
-	return res
+func (pf *Items) ToIF() domain.Items {
+	return domain.Items{
+		ProductID: pf.ProductID,
+		Qty:       pf.Qty,
+		Unit:      pf.Unit,
+		Subtotal:  pf.Subtotal,
+	}
+}
+
+func ToDomain(format FormatOrder) domain.Order {
+	return domain.Order{
+		GrandTotal: format.GrandTotal,
+		Items:      ParseIFToArr(format.Items),
+	}
 }

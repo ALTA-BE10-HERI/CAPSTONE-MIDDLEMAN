@@ -13,6 +13,7 @@ type Order struct {
 	Payment    string
 	Status     string
 	CreatedAt  time.Time
+	Items      []Items
 }
 
 type Items struct {
@@ -27,21 +28,21 @@ type Items struct {
 
 //logic
 type OrderUseCase interface {
-	GetAllAdmin(limit, offset int) (data []Order, err error)
-	CreateOrder(dataOrder Order) (row int, err error)
-	CreateItems(data []Items) (row int, err error)
+	// GetAllAdmin(limit, offset int) (data []Order, err error)
+	CreateOrder(dataOrder Order, id int) int
+	// CreateItems(data []Items) (row int, err error)
 }
 
 //query
 type OrderData interface {
-	SelectDataAdminAll(limit, offset int) (data []Order, err error)
-	CreateItems(data []Items, orderID int) (row int, err error)
-	InsertData(data Order) (row int, err error)
+	// SelectDataAdminAll(limit, offset int) (data []Order, err error)
+	// CreateItems(data []Items, orderID int) (row int, err error)
+	InsertData(data []Items, id int) []Items
 }
 
 //handler
 type OrderHandler interface {
-	GetAllAdmin() echo.HandlerFunc
+	// GetAllAdmin() echo.HandlerFunc
 	Create() echo.HandlerFunc
-	CreateItems() echo.HandlerFunc
+	// CreateItems() echo.HandlerFunc
 }
