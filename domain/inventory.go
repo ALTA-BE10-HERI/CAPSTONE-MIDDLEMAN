@@ -8,21 +8,23 @@ import (
 
 type Inventory struct {
 	ID               int
-	IdOutBound       string
+	OutBound         string
+	UserID           int
 	InventoryProduct []InventoryProduct
 	CreatedAt        time.Time
 }
 
 type InventoryProduct struct {
-	ID        int
-	IdUser    int
-	IdProduct int
-	Name      string
-	Qty       int
-	Unit      string
-	Idip      string
-	Stock     int
-	CreatedAt time.Time
+	ID int
+	// InventoryID int
+	UserID      int
+	ProductID   int
+	ProductName string
+	Qty         int
+	Unit        string
+	Stock       int
+	Idip        string
+	CreatedAt   time.Time
 }
 
 type InventoryHandler interface {

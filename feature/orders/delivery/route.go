@@ -11,5 +11,7 @@ import (
 func RouteOrder(e *echo.Echo, do domain.OrderHandler) {
 
 	order := e.Group("/orders")
-	order.GET("/admins", do.GetAllAdmin(), _middleware.JWTMiddleware())
+	// order.GET("/admins", do.GetAllAdmin(), _middleware.JWTMiddleware())
+	order.POST("/users", do.Create(), _middleware.JWTMiddleware())
+	// order.POST("/user", do.CreateItems(), _middleware.JWTMiddleware())
 }

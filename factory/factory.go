@@ -25,6 +25,10 @@ import (
 	inoutboundDelivery "middleman-capstone/feature/inoutbounds/delivery"
 	iobs "middleman-capstone/feature/inoutbounds/usecase"
 
+	od "middleman-capstone/feature/orders/data"
+	orderDelivery "middleman-capstone/feature/orders/delivery"
+	os "middleman-capstone/feature/orders/usecase"
+
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -62,5 +66,10 @@ func InitFactory(e *echo.Echo, db *gorm.DB) {
 	inoutboundCase := iobs.New(inoutboundData, validator)
 	inoutboundHandler := inoutboundDelivery.New(inoutboundCase)
 	inoutboundDelivery.RouteInOutBound(e, inoutboundHandler)
+
+	orderData := od.New(db)
+	orderCase := os.New(orderData, validator)
+	orderHandler := orderDelivery.New(orderCase)
+	orderDelivery.RouteOrder(e, orderHandler)
 
 }

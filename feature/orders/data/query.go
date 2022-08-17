@@ -1,9 +1,9 @@
 package data
 
 import (
-	"errors"
+	"fmt"
+	"log"
 	"middleman-capstone/domain"
-	dataC "middleman-capstone/feature/carts/data"
 
 	"gorm.io/gorm"
 )
@@ -18,39 +18,57 @@ func New(db *gorm.DB) domain.OrderData {
 	}
 }
 
-func (od *orderData) InsertData(data domain.Order) (row int, err error) {
-	order := FromDomain(data)
-	result := od.db.Create(&order)
+func (od *orderData) InsertData(data []domain.Items, id int) []domain.Items {
+	order := FromIP2(data, id)
+	fmt.Println("order", order)
+	result := od.db.Create(order)
 
 	if result.Error != nil {
-		return 0, result.Error
+		log.Println("cannot create data", result.Error.Error())
+		return []domain.Items{}
 	}
-	if result.RowsAffected != 1 {
-		return 0, errors.New("failed to create data order")
+	if result.RowsAffected < 1 {
+		log.Println("failed to insert data")
+		return []domain.Items{}
 	}
-	return int(result.RowsAffected), nil
+	return ParsePUToArr(order)
 }
 
-func (od *orderData) GrandTotal(idCart int) (grandTotal int, err error) {
-	grandTotalCart := []dataC.Cart{}
-	result := od.db.Preload("Product").Find(&grandTotalCart, idCart)
+// func (od *orderData) CreateItems(data []domain.Items, orderID int) (row int, err error) {
+// 	items := FromDomItems(data, orderID)
+// 	result := od.db.Create(items)
 
-	if result.Error != nil {
-		return -1, result.Error
-	}
-	for _, v := range grandTotalCart {
-		grandTotal += (v.Qty * v.Product.Price)
-	}
+// 	if result.Error != nil {
+// 		return 0, result.Error
+// 	}
 
-	return grandTotal, nil
-}
+// 	if result.RowsAffected != 1 {
+// 		return 0, errors.New("failed to insert items")
 
-func (od *orderData) SelectDataAdminAll(limit, offset int) (data []domain.Order, err error) {
-	dataOrder := []Order{}
-	result := od.db.Find(&dataOrder)
+// 	}
+// 	return int(result.RowsAffected), nil
+// }
 
-	if result.Error != nil {
-		return []domain.Order{}, result.Error
-	}
-	return ParseToArr(dataOrder), nil
-}
+// func (od *orderData) GrandTotal(idCart int) (grandTotal int, err error) {
+// 	grandTotalCart := []dataC.Cart{}
+// 	result := od.db.Preload("Product").Find(&grandTotalCart, idCart)
+
+// 	if result.Error != nil {
+// 		return -1, result.Error
+// 	}
+// 	for _, v := range grandTotalCart {
+// 		grandTotal += (v.Qty * v.Product.Price)
+// 	}
+
+// 	return grandTotal, nil
+// }
+
+// func (od *orderData) SelectDataAdminAll(limit, offset int) (data []domain.Order, err error) {
+// 	dataOrder := []Order{}
+// 	result := od.db.Find(&dataOrder)
+
+// 	if result.Error != nil {
+// 		return []domain.Order{}, result.Error
+// 	}
+// 	return ParseToArr(dataOrder), nil
+// }
