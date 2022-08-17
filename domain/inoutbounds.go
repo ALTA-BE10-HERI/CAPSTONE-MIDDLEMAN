@@ -33,6 +33,7 @@ type InOutBoundData interface {
 	AddEntryData(newProduct InOutBounds) InOutBounds
 	CekUserEntry(newProduct InOutBounds) (cek bool, idcart, qty int)
 	CekOwnerEntry(newProduct InOutBounds) (cek bool)
+	CekOwnerAdminEntry(newProduct InOutBounds) (cek bool)
 	CekAdminEntry(newProduct InOutBounds) (cek bool, idcart, qty int)
 	UpdateQty(idcart int, qty int) InOutBounds
 	ReadEntryUserData(id int) []InOutBounds

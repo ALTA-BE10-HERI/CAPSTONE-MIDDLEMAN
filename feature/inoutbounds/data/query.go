@@ -64,6 +64,23 @@ func (iobd *inoutboundData) CekOwnerEntry(newProduct domain.InOutBounds) (cek bo
 	return true
 }
 
+// check if product owned by admin
+func (iobd *inoutboundData) CekOwnerAdminEntry(newProduct domain.InOutBounds) (cek bool) {
+	var cart domain.Product
+	err := iobd.db.Model(&domain.Product{}).Where("id = ?", newProduct.IdProduct).First(&cart)
+
+	if err.Error != nil {
+		return false
+	}
+
+	if err.RowsAffected == 0 {
+		log.Println("failed read data")
+		return false
+	}
+
+	return true
+}
+
 // check if product exist in cart (admin)
 func (iobd *inoutboundData) CekAdminEntry(newProduct domain.InOutBounds) (cek bool, idcart, qty int) {
 	var cart InOutBounds

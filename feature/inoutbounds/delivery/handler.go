@@ -57,7 +57,6 @@ func (iobh *inoutboundHandler) Add() echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, map[string]interface{}{
 				"code":    status,
 				"message": "data not found",
-				"data":    data,
 			})
 		}
 

@@ -32,27 +32,32 @@ func (iobuc *inoutboundUseCase) AddEntry(newProduct domain.InOutBounds, id int, 
 	cart.IdUser = id
 	cart.Role = role
 
-	if role == "admin" {
-		cek, cartid, cartqty := iobuc.inoutboundData.CekAdminEntry(cart.ToIOB())
-		if cek {
-			upqty := iobuc.inoutboundData.UpdateQty(cartid, cartqty+1)
-			if upqty.ID == 0 {
-				log.Println("failed to update data")
-				return domain.InOutBounds{}, 500
+	if role != "user" {
+		cekowner := iobuc.inoutboundData.CekOwnerAdminEntry(cart.ToIOB())
+		if cekowner {
+			cek, cartid, cartqty := iobuc.inoutboundData.CekAdminEntry(cart.ToIOB())
+			if cek {
+				upqty := iobuc.inoutboundData.UpdateQty(cartid, cartqty+1)
+				if upqty.ID == 0 {
+					log.Println("failed to update data")
+					return domain.InOutBounds{}, 500
+				}
+				return upqty, 201
+			} else {
+				create := iobuc.inoutboundData.AddEntryData(cart.ToIOB())
+				if create.ID == 0 {
+					log.Println("error after creating data")
+					return domain.InOutBounds{}, 500
+				}
+				create2 := iobuc.inoutboundData.UpdateEntryAdminData(cart.IdProduct)
+				if create2.ID == 0 {
+					log.Println("failed to update data")
+					return domain.InOutBounds{}, 500
+				}
+				return create2, 201
 			}
-			return upqty, 201
 		} else {
-			create := iobuc.inoutboundData.AddEntryData(cart.ToIOB())
-			if create.ID == 0 {
-				log.Println("error after creating data")
-				return domain.InOutBounds{}, 500
-			}
-			create2 := iobuc.inoutboundData.UpdateEntryAdminData(cart.IdProduct)
-			if create2.ID == 0 {
-				log.Println("failed to update data")
-				return domain.InOutBounds{}, 500
-			}
-			return create2, 201
+			return domain.InOutBounds{}, 404
 		}
 	} else {
 		cekowner := iobuc.inoutboundData.CekOwnerEntry(cart.ToIOB())
