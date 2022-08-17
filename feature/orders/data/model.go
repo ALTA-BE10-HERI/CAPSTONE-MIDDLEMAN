@@ -11,53 +11,16 @@ type Order struct {
 	UserID     int
 	GrandTotal int
 	Status     string
-	CartID     int
-	Cart       Cart `gorm:"foreignKey:CartID;references:ID;constraint:OnDelete:CASCADE"`
-	// OrderDetail []OrderDetail
+	Items      []Items
 }
 
-// type OrderDetail struct {
-// 	ID          int `gorm:"autoIncrement"`
-// 	OrderID     int
-// 	ProductID   int
-// 	ProductName string `gorm:"column:product_name"`
-// 	Price       int
-// 	Qty         int
-// }
-
-type Cart struct {
-	gorm.Model
-	Qty       int
-	Status    string
-	Subtotal  int
-	UserID    int
-	ProductID int
-	User      []User
-	Product   []Product
-}
-
-type User struct {
-	gorm.Model
-	Name     string
-	Email    string `gorm:"unique"`
-	Password string
-	Phone    string `gorm:"unique"`
-	Role     string
-	Address  string
-	Product  []Product
-}
-
-type Product struct {
-	gorm.Model
-	Stock  int
-	Status string
-	Name   string
-	Image  string
-	Unit   string
-	Price  int
-	UserID int
-	Cart   []Cart
-	User   User
+type Items struct {
+	ID          int `gorm:"autoIncrement"`
+	OrderID     int
+	ProductID   int
+	ProductName string
+	Subtotal    int
+	Qty         int
 }
 
 func (o *Order) ToDomain() domain.Order {
@@ -69,10 +32,44 @@ func (o *Order) ToDomain() domain.Order {
 	}
 }
 
+func (i *Items) ToDomainItems() domain.Items {
+	return domain.Items{
+		ID:          int(i.ID),
+		OrderID:     int(i.OrderID),
+		ProductID:   i.ProductID,
+		ProductName: i.ProductName,
+		Subtotal:    i.Subtotal,
+		Qty:         i.Qty,
+	}
+}
+
 func ParseToArr(arr []Order) []domain.Order {
 	var res []domain.Order
 	for _, val := range arr {
 		res = append(res, val.ToDomain())
+	}
+	return res
+}
+
+func ParseToArrItems(arr []Items) []domain.Items {
+	var res []domain.Items
+	for _, val := range arr {
+		res = append(res, val.ToDomainItems())
+	}
+	return res
+}
+
+func FromDomItems(data []domain.Items, orderID int) []Items {
+	var res []Items
+	for _, val := range data {
+		newdata := Items{
+			OrderID:     orderID,
+			ProductName: val.ProductName,
+			ProductID:   val.ProductID,
+			Subtotal:    val.Subtotal,
+			Qty:         val.Qty,
+		}
+		res = append(res, newdata)
 	}
 	return res
 }
@@ -82,5 +79,15 @@ func FromDomain(data domain.Order) Order {
 	res.Status = data.Status
 	res.GrandTotal = data.GrandTotal
 	res.UserID = data.UserID
+	return res
+}
+
+func FromDomainItems(data domain.Items) Items {
+	var res Items
+	res.OrderID = data.OrderID
+	res.ProductID = data.ProductID
+	res.ProductName = data.ProductName
+	res.Subtotal = data.Subtotal
+	res.Qty = data.Qty
 	return res
 }
