@@ -15,11 +15,11 @@ type Inventory struct {
 }
 
 type InventoryProduct struct {
-	ID int
-	// InventoryID int
+	ID          int
+	InventoryID int
 	UserID      int
 	ProductID   int
-	ProductName string
+	Name        string
 	Qty         int
 	Unit        string
 	Stock       int
@@ -29,19 +29,22 @@ type InventoryProduct struct {
 
 type InventoryHandler interface {
 	Create() echo.HandlerFunc
-	ReadUser() echo.HandlerFunc
+	ReadUserDetail() echo.HandlerFunc
+	ReadUserHistory() echo.HandlerFunc
 }
 
 type InventoryUseCase interface {
-	CreateUserDetailInventory(newRecap Inventory, idUser int) int
-	ReadUserOutBoundDetail(id int, outboundIDGenerate string) ([]InventoryProduct, int)
+	CreateUserDetailInventory(newRecap Inventory, idUser int) (Inventory, int)
+	ReadUserOutBoundDetail(id int, outboundIDGenerate string) ([]InventoryProduct, int, string)
+	ReadUserOutBoundHistory(id int) ([]Inventory, int)
 }
 
 type InventoryData interface {
-	CekStok(newRecap []InventoryProduct, id int, gen string) bool
-	CreateUserDetailInventoryData(newRecap []InventoryProduct, id int, gen string) []InventoryProduct
+	CekStok(newRecap []InventoryProduct, id int) bool
+	CreateUserDetailInventoryData(newRecap []InventoryProduct, id int, gen string, invenid int) []InventoryProduct
 	CreateUserInventoryData(newRecap Inventory, id int, gen string) Inventory
 	RekapStock(newRecap []InventoryProduct, id int, gen string) bool
 	DeleteInOutBound(id int) (err string)
 	ReadUserOutBoundDetailData(id int, outboundIDGenerate string) []InventoryProduct
+	ReadUserOutBoundHistoryData(id int) []Inventory
 }
