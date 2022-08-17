@@ -21,11 +21,9 @@ func New(ind domain.InventoryData, v *validator.Validate) domain.InventoryUseCas
 	}
 }
 
-func (iuc *inventoryUseCase) CreateUserDetailInventory(newRecap []domain.InventoryProduct, id int) int {
+func (iuc *inventoryUseCase) CreateUserDetailInventory(newRecap domain.Inventory, id int) int {
 
-	// var inventori domain.Inventory
 	outboundIDGenerate := strconv.FormatInt(time.Now().Unix(), 10)
-	// inventori.IdOutBound = outboundIDGenerate
 
 	validError := iuc.validate.Var(newRecap, "gt=0")
 	if validError != nil {
@@ -33,19 +31,19 @@ func (iuc *inventoryUseCase) CreateUserDetailInventory(newRecap []domain.Invento
 		return 400
 	}
 
-	cekstok := iuc.inventoryData.CekStok(newRecap, id)
+	cekstok := iuc.inventoryData.CekStok(newRecap.InventoryProduct, id, outboundIDGenerate)
 	if !cekstok {
 		log.Println("insufficient amount")
 		return 404
 	}
 
-	create := iuc.inventoryData.CreateUserDetailInventoryData(newRecap, id, outboundIDGenerate)
+	create := iuc.inventoryData.CreateUserDetailInventoryData(newRecap.InventoryProduct, id, outboundIDGenerate)
 	if len(create) == 0 {
 		log.Println("error after creating data")
 		return 500
 	}
 
-	updatestok := iuc.inventoryData.RekapStock(newRecap, id, outboundIDGenerate)
+	updatestok := iuc.inventoryData.RekapStock(newRecap.InventoryProduct, id, outboundIDGenerate)
 	if !updatestok {
 		log.Println("insufficient amount")
 		return 404
@@ -62,8 +60,7 @@ func (iuc *inventoryUseCase) CreateUserDetailInventory(newRecap []domain.Invento
 		return 404
 	}
 
-	// outbound := iuc.inventoryData.CreateUserInventoryData(inventori)
-	// fmt.Println("outbound", outbound)
+	// outbound := iuc.inventoryData.CreateUserInventoryData(newRecap, id, outboundIDGenerate)
 	// if outbound.ID == 0 {
 	// 	log.Println("error after creating data")
 	// 	return 500

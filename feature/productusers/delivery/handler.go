@@ -288,12 +288,12 @@ func (puh *productUserHandler) Search() echo.HandlerFunc {
 		search := c.QueryParam("productname")
 
 		res, err := puh.productUserUseCase.SearchRestoBusiness(search)
-		dares := data.ParsePUToArr2(res)
+		tmp := FromModelList(res)
 
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to search data"))
 		}
-		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", dares))
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success", tmp))
 	}
 
 }
