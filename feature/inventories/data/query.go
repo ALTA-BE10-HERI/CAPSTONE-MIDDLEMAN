@@ -22,7 +22,7 @@ func (ind *inventoryData) CekStok(newRecap []domain.InventoryProduct, id int, ge
 	var product = FromIP2(newRecap, id, gen)
 	something := domain.ProductUser{}
 	for _, val := range product {
-		res2 := ind.db.Model(&domain.ProductUser{}).Select("stock").Where("id = ? AND id_user = ?", val.IdProduct, id).First(&something)
+		res2 := ind.db.Model(&domain.ProductUser{}).Select("stock").Where("id = ? AND id_user = ?", val.ProductID, id).First(&something)
 		if res2.Error != nil {
 			log.Println("Cannot retrieve object", res2.Error.Error())
 			return false
@@ -36,9 +36,9 @@ func (ind *inventoryData) CekStok(newRecap []domain.InventoryProduct, id int, ge
 }
 
 func (ind *inventoryData) CreateUserInventoryData(newRecap domain.Inventory, id int, gen string) domain.Inventory {
-	var inventories = FromModel(newRecap, id, gen)
-	fmt.Println("inventories", inventories)
-	res := ind.db.Create(inventories)
+	var inven = FromModel(newRecap, id, gen)
+	fmt.Println("inventories", inven)
+	res := ind.db.Create(inven)
 
 	if res.Error != nil {
 		log.Println("cannot create data")
@@ -49,13 +49,12 @@ func (ind *inventoryData) CreateUserInventoryData(newRecap domain.Inventory, id 
 		log.Println("failed to insert data")
 		return domain.Inventory{}
 	}
-	return inventories.ToI()
+	return inven.ToI()
 }
 
 // func (ind *inventoryData) CreateUserInventoryData(newRecap domain.InventoryProduct) domain.InventoryProduct {
 func (ind *inventoryData) CreateUserDetailInventoryData(newRecap []domain.InventoryProduct, id int, gen string) []domain.InventoryProduct {
 	var product = FromIP2(newRecap, id, gen)
-	fmt.Println("product", product)
 	err := ind.db.Create(product)
 
 	if err.Error != nil {
@@ -74,18 +73,18 @@ func (ind *inventoryData) RekapStock(newRecap []domain.InventoryProduct, id int,
 	var product = FromIP2(newRecap, id, gen)
 	something := InventoryProduct{}
 	for _, val := range product {
-		res2 := ind.db.Model(&InventoryProduct{}).Select("inventory_products.id_user, inventory_products.id_product, product_users.name, inventory_products.qty, inventory_products.unit, product_users.stock").Joins("left join product_users on product_users.id = inventory_products.id_product").Where("id_product = ? AND idip = ?", val.IdProduct, gen).First(&something)
+		res2 := ind.db.Model(&InventoryProduct{}).Select("inventory_products.user_id, inventory_products.product_id, product_users.name, inventory_products.qty, inventory_products.unit, product_users.stock").Joins("left join product_users on product_users.id = inventory_products.product_id").Where("product_id = ? AND idip = ?", val.ProductID, gen).First(&something)
 		if res2.Error != nil {
 			log.Println("Cannot retrieve object", res2.Error.Error())
 			return false
 		}
-		res3 := ind.db.Model(&InventoryProduct{}).Where("id_product = ? AND id_user = ? AND idip = ?", val.IdProduct, id, gen).Updates(&something)
+		res3 := ind.db.Model(&InventoryProduct{}).Where("product_id = ? AND user_id = ? AND idip = ?", val.ProductID, id, gen).Updates(&something)
 		if res3.Error != nil {
 			log.Println("Cannot retrieve object", res2.Error.Error())
 			return false
 		}
 		stock := something.Stock - something.Qty
-		res4 := ind.db.Model(&domain.ProductUser{}).Where("id = ? AND id_user = ?", val.IdProduct, id).Update("stock", stock)
+		res4 := ind.db.Model(&domain.ProductUser{}).Where("id = ? AND id_user = ?", val.ProductID, id).Update("stock", stock)
 		if res4.Error != nil {
 			log.Println("Cannot retrieve object", res2.Error.Error())
 			return false
@@ -110,7 +109,7 @@ func (ind *inventoryData) DeleteInOutBound(id int) (err string) {
 
 func (ind *inventoryData) ReadUserOutBoundDetailData(id int, outboundIDGenerate string) []domain.InventoryProduct {
 	var product []InventoryProduct
-	err := ind.db.Where("id_user = ? AND idip = ?", id, outboundIDGenerate).Find(&product)
+	err := ind.db.Where("user_id = ? AND idip = ?", id, outboundIDGenerate).Find(&product)
 	if err.Error != nil {
 		log.Println("cannot read data", err.Error.Error())
 		return []domain.InventoryProduct{}
