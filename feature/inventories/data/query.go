@@ -1,7 +1,6 @@
 package data
 
 import (
-	"fmt"
 	"log"
 	"middleman-capstone/domain"
 
@@ -18,8 +17,8 @@ func New(db *gorm.DB) domain.InventoryData {
 	}
 }
 
-func (ind *inventoryData) CekStok(newRecap []domain.InventoryProduct, id int, gen string) bool {
-	var product = FromIP2(newRecap, id, gen)
+func (ind *inventoryData) CekStok(newRecap []domain.InventoryProduct, id int) bool {
+	var product = FromIP2(newRecap)
 	something := domain.ProductUser{}
 	for _, val := range product {
 		res2 := ind.db.Model(&domain.ProductUser{}).Select("stock").Where("id = ? AND id_user = ?", val.ProductID, id).First(&something)
@@ -36,9 +35,8 @@ func (ind *inventoryData) CekStok(newRecap []domain.InventoryProduct, id int, ge
 }
 
 func (ind *inventoryData) CreateUserInventoryData(newRecap domain.Inventory, id int, gen string) domain.Inventory {
-	var inven = FromModel(newRecap, id, gen)
-	fmt.Println("inventories", inven)
-	res := ind.db.Create(inven)
+	inven := FromModel(newRecap, id, gen)
+	res := ind.db.Create(&inven)
 
 	if res.Error != nil {
 		log.Println("cannot create data")
@@ -53,8 +51,8 @@ func (ind *inventoryData) CreateUserInventoryData(newRecap domain.Inventory, id 
 }
 
 // func (ind *inventoryData) CreateUserInventoryData(newRecap domain.InventoryProduct) domain.InventoryProduct {
-func (ind *inventoryData) CreateUserDetailInventoryData(newRecap []domain.InventoryProduct, id int, gen string) []domain.InventoryProduct {
-	var product = FromIP2(newRecap, id, gen)
+func (ind *inventoryData) CreateUserDetailInventoryData(newRecap []domain.InventoryProduct, id int, gen string, invenid int) []domain.InventoryProduct {
+	var product = FromIP3(newRecap, invenid, gen, id)
 	err := ind.db.Create(product)
 
 	if err.Error != nil {
@@ -70,7 +68,7 @@ func (ind *inventoryData) CreateUserDetailInventoryData(newRecap []domain.Invent
 }
 
 func (ind *inventoryData) RekapStock(newRecap []domain.InventoryProduct, id int, gen string) bool {
-	var product = FromIP2(newRecap, id, gen)
+	var product = FromIP2(newRecap)
 	something := InventoryProduct{}
 	for _, val := range product {
 		res2 := ind.db.Model(&InventoryProduct{}).Select("inventory_products.user_id, inventory_products.product_id, product_users.name, inventory_products.qty, inventory_products.unit, product_users.stock").Joins("left join product_users on product_users.id = inventory_products.product_id").Where("product_id = ? AND idip = ?", val.ProductID, gen).First(&something)
@@ -119,4 +117,18 @@ func (ind *inventoryData) ReadUserOutBoundDetailData(id int, outboundIDGenerate 
 		return []domain.InventoryProduct{}
 	}
 	return ParsePUToArr(product)
+}
+
+func (ind *inventoryData) ReadUserOutBoundHistoryData(id int) []domain.Inventory {
+	var product []Inventory
+	err := ind.db.Where("user_id = ?", id).Find(&product)
+	if err.Error != nil {
+		log.Println("cannot read data", err.Error.Error())
+		return []domain.Inventory{}
+	}
+	if err.RowsAffected == 0 {
+		log.Println("data not found")
+		return []domain.Inventory{}
+	}
+	return ParsePUToArr4(product)
 }
