@@ -12,6 +12,7 @@ import (
 	inoutboundData "middleman-capstone/feature/inoutbounds/data"
 
 	inventoryData "middleman-capstone/feature/inventories/data"
+	orderData "middleman-capstone/feature/orders/data"
 	productuserData "middleman-capstone/feature/productusers/data"
 	userData "middleman-capstone/feature/users/data"
 
@@ -43,5 +44,7 @@ func MigrateData(db *gorm.DB) {
 	db.AutoMigrate(inventoryData.InventoryProduct{})
 	db.AutoMigrate(inoutboundData.InOutBounds{})
 	db.AutoMigrate(cartData.Cart{})
+	db.AutoMigrate(orderData.Order{})
+	db.AutoMigrate(orderData.Items{})
 
 }

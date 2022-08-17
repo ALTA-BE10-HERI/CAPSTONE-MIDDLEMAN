@@ -1,39 +1,41 @@
 package delivery
 
-type FormatOrder struct {
-	GrandTotal int
-	Items      Items
-}
+import "middleman-capstone/domain"
 
-type Order struct {
-	ID         int
-	GrandTotal int
-	Items      Items
+type FormatOrder struct {
+	GrandTotal int `json:"grand_total" form:"grand_total"`
+	Items      []Items
 }
 
 type Items struct {
-	ID       int    `json:"id"`
-	Subtotal int    `json:"subtotal"`
-	Unit     string `json:"unit"`
-	Qty      int    `json:"qty"`
+	ProductID int    `json:"product_id" form:"product_id"`
+	Subtotal  int    `json:"subtotal" form:"subtotal"`
+	Unit      string `json:"unit" form:"unit"`
+	Qty       int    `json:"qty" form:"qty"`
 }
 
-// func FromModel(data domain.Order) Order {
-// 	return Order{
-// 		GrandTotal: data.GrandTotal,
-// 		Items: Items{
-// 			ID:       data.Product.ID,
-// 			Qty:      data.Cart.Qty,
-// 			Unit:     data.Cart.Product.Unit,
-// 			Subtotal: data.Cart.Subtotal,
-// 		},
-// 	}
-// }
+func (i *Items) ToDomainItems() domain.Items {
+	return domain.Items{
+		ProductID: i.ProductID,
+		Subtotal:  i.Subtotal,
+		Unit:      i.Unit,
+		Qty:       i.Qty,
+	}
+}
 
-// func FromModelList(data []domain.Order) []Order {
-// 	result := []Order{}
-// 	for key := range data {
-// 		result = append(result, FromModel(data[key]))
-// 	}
-// 	return result
-// }
+func ParseToArrItems(arr []Items) []domain.Items {
+	var res []domain.Items
+	for _, val := range arr {
+		res = append(res, val.ToDomainItems())
+	}
+	return res
+}
+
+func FromDomainItems(data domain.Items) Items {
+	var res Items
+	res.ProductID = data.ProductID
+	res.Subtotal = data.Subtotal
+	res.Unit = data.Unit
+	res.Qty = data.Qty
+	return res
+}
