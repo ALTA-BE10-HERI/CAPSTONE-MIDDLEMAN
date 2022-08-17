@@ -11,6 +11,7 @@ type Inventory struct {
 	gorm.Model
 	OutBound         string
 	UserID           int
+	Role             string
 	InventoryProduct []InventoryProduct
 }
 
@@ -24,6 +25,7 @@ type InventoryProduct struct {
 	Unit        string `json:"unit" form:"unit" validate:"required"`
 	Stock       int
 	Idip        string
+	Role        string
 	CreatedAt   time.Time
 }
 
@@ -80,6 +82,28 @@ func FromIP3(data []domain.InventoryProduct, invenid int, gen string, id int) []
 			Unit:        val.Unit,
 			Stock:       val.Stock,
 			Idip:        gen,
+			Role:        val.Role,
+			CreatedAt:   val.CreatedAt,
+		}
+		res = append(res, newdata)
+	}
+	return res
+}
+
+func FromIP4(data []domain.InventoryProduct, invenid int, gen string, id int, role string) []InventoryProduct {
+	var res []InventoryProduct
+	for _, val := range data {
+		newdata := InventoryProduct{
+			ID:          val.ID,
+			InventoryID: invenid,
+			UserID:      id,
+			ProductID:   val.ProductID,
+			Name:        val.Name,
+			Qty:         val.Qty,
+			Unit:        val.Unit,
+			Stock:       val.Stock,
+			Idip:        gen,
+			Role:        "admin",
 			CreatedAt:   val.CreatedAt,
 		}
 		res = append(res, newdata)
@@ -92,6 +116,17 @@ func FromModel(data domain.Inventory, id int, gen string) Inventory {
 	res.ID = uint(data.ID)
 	res.OutBound = gen
 	res.UserID = id
+	res.Role = "user"
+	res.CreatedAt = data.CreatedAt
+	return res
+}
+
+func FromModel2(data domain.Inventory, id int, gen string) Inventory {
+	var res Inventory
+	res.ID = uint(data.ID)
+	res.OutBound = gen
+	res.UserID = id
+	res.Role = "admin"
 	res.CreatedAt = data.CreatedAt
 	return res
 }
@@ -100,6 +135,18 @@ func (i *Inventory) ToI() domain.Inventory {
 	return domain.Inventory{
 		ID:        int(i.ID),
 		OutBound:  i.OutBound,
+		UserID:    i.UserID,
+		Role:      i.Role,
+		CreatedAt: i.CreatedAt,
+	}
+}
+
+func (i *Inventory) ToI2() domain.Inventory {
+	return domain.Inventory{
+		ID:        int(i.ID),
+		OutBound:  i.OutBound,
+		UserID:    i.UserID,
+		Role:      i.Role,
 		CreatedAt: i.CreatedAt,
 	}
 }
