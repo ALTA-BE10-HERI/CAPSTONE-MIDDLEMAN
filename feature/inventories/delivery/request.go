@@ -1,8 +1,6 @@
 package delivery
 
-import (
-	"middleman-capstone/domain"
-)
+import "middleman-capstone/domain"
 
 type InputFormat struct {
 	Items []InventoryFormat
@@ -26,5 +24,11 @@ func (pf *InventoryFormat) ToIF() domain.InventoryProduct {
 		IdProduct: pf.IdProduct,
 		Qty:       pf.Qty,
 		Unit:      pf.Unit,
+	}
+}
+
+func ToDomain(format InputFormat) domain.Inventory {
+	return domain.Inventory{
+		InventoryProduct: ParseIFToArr(format.Items),
 	}
 }
