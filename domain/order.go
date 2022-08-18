@@ -63,5 +63,6 @@ type OrderHandler interface {
 	Create() echo.HandlerFunc
 	GetAllUser() echo.HandlerFunc
 	GetDetail() echo.HandlerFunc
+	Payment() echo.HandlerFunc
 	// CreateItems() echo.HandlerFunc
 }

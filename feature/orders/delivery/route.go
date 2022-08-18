@@ -15,5 +15,6 @@ func RouteOrder(e *echo.Echo, do domain.OrderHandler) {
 	order.POST("/users", do.Create(), _middleware.JWTMiddleware())
 	order.GET("/users", do.GetAllUser(), _middleware.JWTMiddleware())
 	order.GET("/users/:idorder", do.GetDetail(), _middleware.JWTMiddleware())
+	order.POST("/payment", do.Payment())
 
 }

@@ -96,7 +96,7 @@ func (oh *OrderHandler) Create() echo.HandlerFunc {
 		dataOrder.GrandTotal = newOrder.GrandTotal
 		dataOrder.PaymentLink = url
 		dataOrder.OrderName = orderName
-		dataOrder.Status = "On Process"
+		dataOrder.Status = "pending"
 		fmt.Println("data order:", dataOrder)
 		status := oh.orderUseCase.CreateOrder(dataOrder, id)
 		fmt.Println("to Domain:", ToDomain(newOrder))
