@@ -8,10 +8,12 @@ import (
 
 type Order struct {
 	gorm.Model
-	UserID     int
-	GrandTotal int
-	Status     string
-	Items      []Items
+	UserID      int
+	GrandTotal  int
+	Status      string
+	PaymentLink string
+	OrderName   string
+	Items       []Items
 }
 
 type Items struct {
@@ -24,12 +26,24 @@ type Items struct {
 	Qty         int    `json:"qty" form:"qty"`
 }
 
+type OrderPayment struct {
+	Name       string
+	Email      string
+	Phone      int
+	GrandTotal int
+}
+
+type PaymentWeb struct {
+	TransactionStatus string `json:"transaction_status" form:"transaction_status"`
+	OrderName         string `json:"order_name" form:"order_name"`
+}
+
 func FromIP2(data []domain.Items, id int) []Items {
 	var res []Items
 	for _, val := range data {
 		newdata := Items{
-			ID: val.ID,
-			// OrderID:     val.OrderID,
+			ID:          val.ID,
+			OrderID:     id,
 			ProductID:   val.ProductID,
 			ProductName: val.ProductName,
 			Subtotal:    val.Subtotal,
@@ -56,76 +70,61 @@ func (ip *Items) ToPU() domain.Items {
 		ProductID:   ip.ProductID,
 		ProductName: ip.ProductName,
 		Subtotal:    ip.Subtotal,
-		Qty:         ip.Subtotal,
+		Qty:         ip.Qty,
 		Unit:        ip.Unit,
 	}
 }
 
-// func (o *Order) ToDomain() domain.Order {
-// 	return domain.Order{
-// 		ID:         int(o.ID),
-// 		Status:     o.Status,
-// 		GrandTotal: o.GrandTotal,
-// 		UserID:     o.UserID,
-// 	}
-// }
+func (o *Order) ToDomain() domain.Order {
+	return domain.Order{
+		ID:         int(o.ID),
+		GrandTotal: o.GrandTotal,
+		Status:     o.Status,
+		CreatedAt:  o.CreatedAt,
+	}
+}
 
-// func (i *Items) ToDomainItems() domain.Items {
-// 	return domain.Items{
-// 		ID:          int(i.ID),
-// 		OrderID:     int(i.OrderID),
-// 		ProductID:   i.ProductID,
-// 		ProductName: i.ProductName,
-// 		Subtotal:    i.Subtotal,
-// 		Qty:         i.Qty,
-// 	}
-// }
+func ParseToArr(arr []Order) []domain.Order {
+	var res []domain.Order
+	for _, val := range arr {
+		res = append(res, val.ToDomain())
+	}
+	return res
+}
 
-// func ParseToArr(arr []Order) []domain.Order {
-// 	var res []domain.Order
-// 	for _, val := range arr {
-// 		res = append(res, val.ToDomain())
-// 	}
-// 	return res
-// }
+func FromDomain(data domain.Order) Order {
+	var res Order
+	res.Status = data.Status
+	res.GrandTotal = data.GrandTotal
+	res.UserID = data.UserID
+	res.OrderName = data.OrderName
+	res.PaymentLink = data.PaymentLink
+	return res
+}
 
-// func ParseToArrItems(arr []Items) []domain.Items {
-// 	var res []domain.Items
-// 	for _, val := range arr {
-// 		res = append(res, val.ToDomainItems())
-// 	}
-// 	return res
-// }
+func (od *Order) ToDomainDetail() domain.Order {
+	return domain.Order{
+		ID:         int(od.ID),
+		Status:     od.Status,
+		GrandTotal: od.GrandTotal,
+		CreatedAt:  od.CreatedAt,
+	}
+}
 
-// func FromDomItems(data []domain.Items, orderID int) []Items {
-// 	var res []Items
-// 	for _, val := range data {
-// 		newdata := Items{
-// 			OrderID:     orderID,
-// 			ProductName: val.ProductName,
-// 			ProductID:   val.ProductID,
-// 			Subtotal:    val.Subtotal,
-// 			Qty:         val.Qty,
-// 		}
-// 		res = append(res, newdata)
-// 	}
-// 	return res
-// }
+func ParseToArrDetail(arr []domain.Items, grandTotal, idOrder int) map[string]interface{} {
+	var arrmap []map[string]interface{}
+	var res2 = map[string]interface{}{}
+	for i := 0; i < len(arr); i++ {
+		var res = map[string]interface{}{}
+		res["product_id"] = arr[i].ProductID
+		res["product_name"] = arr[i].ProductName
+		res["qty"] = arr[i].Qty
+		res["subtotal"] = arr[i].Subtotal
 
-// func FromDomain(data domain.Order) Order {
-// 	var res Order
-// 	res.Status = data.Status
-// 	res.GrandTotal = data.GrandTotal
-// 	res.UserID = data.UserID
-// 	return res
-// }
-
-// func FromDomainItems(data domain.Items) Items {
-// 	var res Items
-// 	res.OrderID = data.OrderID
-// 	res.ProductID = data.ProductID
-// 	res.ProductName = data.ProductName
-// 	res.Subtotal = data.Subtotal
-// 	res.Qty = data.Qty
-// 	return res
-// }
+		arrmap = append(arrmap, res)
+	}
+	res2["id_order"] = idOrder
+	res2["grand_total"] = grandTotal
+	res2["items"] = arrmap
+	return res2
+}
