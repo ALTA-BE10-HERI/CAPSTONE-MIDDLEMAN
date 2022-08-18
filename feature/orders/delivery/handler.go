@@ -1,11 +1,14 @@
 package delivery
 
 import (
+	"fmt"
 	"log"
 	"middleman-capstone/domain"
 	_middleware "middleman-capstone/feature/common"
+	_data "middleman-capstone/feature/orders/data"
 	_helper "middleman-capstone/helper"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -22,18 +25,54 @@ func New(os domain.OrderUseCase) domain.OrderHandler {
 
 func (oh *OrderHandler) GetAllAdmin() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		// 		limitcnv := c.QueryParam("limit")
-		// 		offsetcnv := c.QueryParam("offset")
-		// 		limit, _ := strconv.Atoi(limitcnv)
-		// 		offset, _ := strconv.Atoi(offsetcnv)
-		// 		result, err := oh.orderUseCase.GetAllAdmin(limit, offset)
-		// 		if err != nil {
-		// 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get all data"))
-		// 		}
-		// 		var data = map[string]interface{}{
-		// 			"data": FromModelList(result),
-		// 		}
-		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("sucess"))
+		limitcnv := c.QueryParam("limit")
+		offsetcnv := c.QueryParam("offset")
+		limit, _ := strconv.Atoi(limitcnv)
+		offset, _ := strconv.Atoi(offsetcnv)
+		result, err := oh.orderUseCase.GetAllAdmin(limit, offset)
+		data := ParsePUToArr2(result)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get all data"))
+		}
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success get data", data))
+	}
+}
+
+func (oh *OrderHandler) GetAllUser() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		limitcnv := c.QueryParam("limit")
+		offsetcnv := c.QueryParam("offset")
+		limit, _ := strconv.Atoi(limitcnv)
+		offset, _ := strconv.Atoi(offsetcnv)
+		id, _ := _middleware.ExtractData(c)
+
+		result, err := oh.orderUseCase.GetAllUser(limit, offset, id)
+		data := ParsePUToArr2(result)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get data"))
+		}
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success get data", data))
+
+	}
+}
+
+func (oh *OrderHandler) GetDetail() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		idParam := c.Param("idorder")
+		idOrder, _ := strconv.Atoi(idParam)
+		idUser, _ := _middleware.ExtractData(c)
+
+		grandTotal, _ := oh.orderUseCase.GetDetail(idUser, idOrder)
+		if grandTotal == -1 {
+			return c.JSON(http.StatusInternalServerError, _helper.ResponseInternalServerError("there is an internal server error"))
+		}
+		result, err := oh.orderUseCase.GetItems(idOrder)
+		fmt.Println("hasil :", result)
+		data := _data.ParseToArrDetail(result, grandTotal, idOrder)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get data"))
+		}
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success get data", data))
 	}
 }
 
@@ -51,9 +90,16 @@ func (oh *OrderHandler) Create() echo.HandlerFunc {
 			})
 
 		}
-
-		status := oh.orderUseCase.CreateOrder(ToDomain(newOrder), id)
-
+		orderName, url, token, user := oh.orderUseCase.Payment(newOrder.GrandTotal, id)
+		dataOrder := ToDomain(newOrder)
+		dataOrder.UserID = id
+		dataOrder.GrandTotal = newOrder.GrandTotal
+		dataOrder.PaymentLink = url
+		dataOrder.OrderName = orderName
+		dataOrder.Status = "On Process"
+		fmt.Println("data order:", dataOrder)
+		status := oh.orderUseCase.CreateOrder(dataOrder, id)
+		fmt.Println("to Domain:", ToDomain(newOrder))
 		if status == 400 {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"code":    status,
@@ -67,10 +113,44 @@ func (oh *OrderHandler) Create() echo.HandlerFunc {
 				"message": "there is an error in internal server",
 			})
 		}
+		data := map[string]interface{}{
+			"order_id":    dataOrder.ID,
+			"grand_total": newOrder.GrandTotal,
+			"nama":        user.Name,
+			"email":       user.Email,
+			"link":        url,
+			"token":       token,
+		}
 		return c.JSON(http.StatusOK, map[string]interface{}{
+			"data":    data,
 			"code":    status,
 			"message": "success create product",
 		})
+	}
+}
+
+func (oh *OrderHandler) Payment() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var data PaymentWeb
+
+		err := c.Bind(&data)
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input data"))
+		}
+
+		dataWeb := FromWeb(data)
+
+		response, err := oh.orderUseCase.AcceptPayment(dataWeb)
+
+		if response == -1 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseInternalServerError("there is an internal server error"))
+		}
+
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseInternalServerError("there is an internal server error"))
+		}
+		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success"))
 	}
 }
 
