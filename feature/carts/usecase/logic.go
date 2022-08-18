@@ -28,6 +28,9 @@ func (uc *cartUseCase) CreateData(data domain.Cart) (row int, err error) {
 	if data.Qty == 0 || data.Product.ID == 0 {
 		return -1, errors.New("please make sure all fields are filled in correctly")
 	}
+	if data.ID == 0 {
+		return 404, errors.New("data product not found")
+	}
 	productStock, _ := uc.cartData.GetStockProduct(data.Product.ID)
 	// cekStock := data.Qty >= productStock
 	log.Println("qty : ", data.Qty, "stok :", productStock)
