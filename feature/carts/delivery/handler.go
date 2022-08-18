@@ -56,7 +56,7 @@ func (ch *CartHandler) PostCart() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("please make sure all fields are filled in correctly"))
 		}
 		if row == 404 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseDataNotFound("product data not found"))
+			return c.JSON(http.StatusNotFound, _helper.ResponseDataNotFound("product data not found"))
 		}
 
 		if row == 400 {
@@ -81,7 +81,7 @@ func (h *CartHandler) UpdateCart() echo.HandlerFunc {
 		row, errUpd := h.cartUseCase.UpdateData(qty, idCart, idFromToken)
 		if errUpd != nil {
 			log.Println("cek : ", errUpd)
-			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("you dont have access sssss"))
+			return c.JSON(http.StatusNotFound, _helper.ResponseDataNotFound("product data not found"))
 		}
 		if row == 0 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to update data"))
@@ -100,7 +100,7 @@ func (h *CartHandler) DeleteCart() echo.HandlerFunc {
 		row, errDel := h.cartUseCase.DeleteData(idProd, idFromToken)
 		if errDel != nil {
 			log.Println("cek", errDel)
-			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("you dont have access"))
+			return c.JSON(http.StatusNotFound, _helper.ResponseDataNotFound("product data not found"))
 		}
 		if row != 1 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("failed to delete data user"))
