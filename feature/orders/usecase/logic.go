@@ -127,9 +127,32 @@ func (oc *orderUseCase) DoneOrder(ordername string, userid int, role string) (do
 		return domain.Order{}, 500
 	}
 
-	cekown := oc.orderData.CekOwnedUser(ordername, userid)
-	if !cekown {
+	cekown := oc.orderData.CekUser(ordername, userid)
+	if len(cekown) < 1 {
 		log.Println("failed retrieve data")
+		return domain.Order{}, 500
+	}
+
+	for _, val := range cekown {
+		owned := oc.orderData.CekOwned(val, userid)
+		if !owned {
+			product := oc.orderData.CreateNewProduct(val, userid)
+			if !product {
+				log.Println("failed create data")
+				return domain.Order{}, 500
+			}
+		} else {
+			product := oc.orderData.UpdateNewProduct(val, userid)
+			if !product {
+				log.Println("failed update data")
+				return domain.Order{}, 500
+			}
+		}
+	}
+
+	delete := oc.orderData.DeleteCart(userid)
+	if !delete {
+		log.Println("failed delete data")
 		return domain.Order{}, 500
 	}
 
