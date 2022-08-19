@@ -20,6 +20,7 @@ func New(db *gorm.DB) domain.OrderData {
 }
 
 func (od *orderData) InsertData(data []domain.Items, id int) []domain.Items {
+	fmt.Println("isi dari data :", data)
 	order := FromIP2(data, id)
 	fmt.Println("order", order)
 	result := od.db.Create(&order)

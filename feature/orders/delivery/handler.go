@@ -93,13 +93,12 @@ func (oh *OrderHandler) Create() echo.HandlerFunc {
 		}
 
 		orderName, url, token, user := oh.orderUseCase.Payment(newOrder.GrandTotal, idUser)
-		dataOrder := domain.Order{
-			UserID:      idUser,
-			GrandTotal:  newOrder.GrandTotal,
-			PaymentLink: url,
-			OrderName:   orderName,
-			Status:      "pending",
-		}
+		dataOrder := ToDomain(newOrder)
+		dataOrder.UserID = idUser
+		dataOrder.GrandTotal = newOrder.GrandTotal
+		dataOrder.PaymentLink = url
+		dataOrder.OrderName = orderName
+		dataOrder.Status = "pending"
 		status := oh.orderUseCase.CreateOrder(dataOrder, idUser)
 		if status == 400 {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
