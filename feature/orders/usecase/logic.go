@@ -107,10 +107,22 @@ func (oc *orderUseCase) AcceptPayment(data domain.PaymentWeb) (row int, err erro
 
 func (oc *orderUseCase) ConfirmOrder(ordername string, userid int, role string) (domain.Order, int) {
 	order := oc.orderData.ConfirmOrderData(ordername, userid)
+	user, _ := oc.orderData.GetUser(userid)
+	totalPayment := strconv.Itoa(order.GrandTotal)
+	data := _helper.Recipient{
+		OrderID:      ordername,
+		Name:         user.Name,
+		Email:        user.Email,
+		Handphone:    user.Phone,
+		TotalPayment: totalPayment,
+	}
 	if order.OrderName == "" {
 		log.Println("Empty Data")
 		return domain.Order{}, 404
+	} else {
+		_helper.SendEmail(data)
 	}
+
 	return order, 200
 }
 
