@@ -13,7 +13,7 @@ import (
 
 func TestProduct(t *testing.T) {
 	repo := new(mocks.ProductData)
-	mockData := domain.Product{ID: 1, IdAdmin: 2, Name: "tango", Unit: "piece", Stock: 100, Price: 3000, Image: "tango.jpg"}
+	mockData := domain.Product{ID: 1, IdAdmin: 2, Name: "tango", Unit: "piece", Stock: 100, Price: 3000, Satuan: 25, Image: "tango.jpg"}
 	emptyMockData := domain.Product{ID: 0, IdAdmin: 0, Name: "", Unit: "", Stock: 0, Price: 0, Image: ""}
 	t.Run("Success insert product", func(t *testing.T) {
 		repo.On("CreateProductData", mock.Anything).Return(mockData).Once()
@@ -49,7 +49,7 @@ func TestGetAllData(t *testing.T) {
 	repo := new(mocks.ProductData)
 	limit := 1
 	offset := 10
-	outdata := []domain.Product{{ID: 1, IdAdmin: 2, Name: "adidas", Unit: "kg", Stock: 10, Price: 10000, Image: "jpg"}}
+	outdata := []domain.Product{{ID: 1, IdAdmin: 2, Name: "adidas", Unit: "kg", Stock: 10, Price: 10000, Satuan: 25, Image: "jpg"}}
 	t.Run("Success Get product", func(t *testing.T) {
 		repo.On("GetAllProductData", limit, offset).Return(outdata, nil).Once()
 		useCase := New(repo, validator.New())
@@ -73,7 +73,7 @@ func TestGetAllData(t *testing.T) {
 
 func TestUpdateProduct(t *testing.T) {
 	repo := new(mocks.ProductData)
-	insert := domain.Product{Name: "adidas", Unit: "kg", Stock: 10, Price: 10000, Image: "ini gambar"}
+	insert := domain.Product{Name: "adidas", Unit: "kg", Stock: 10, Price: 10000, Satuan: 25, Image: "ini gambar"}
 
 	t.Run("Success Update product", func(t *testing.T) {
 		repo.On("UpdateProductData", mock.Anything, 1).Return(1, nil).Once()
@@ -130,7 +130,7 @@ func TestDeleteProduct(t *testing.T) {
 
 func TestSearchRestoBusiness(t *testing.T) {
 	repo := new(mocks.ProductData)
-	outdata := []domain.Product{{ID: 1, IdAdmin: 2, Name: "Beras", Unit: "kg", Stock: 10, Price: 10000, Image: "jpg"}}
+	outdata := []domain.Product{{ID: 1, IdAdmin: 2, Name: "Beras", Unit: "kg", Stock: 10, Satuan: 25, Price: 10000, Image: "jpg"}}
 	t.Run("Succes delete", func(t *testing.T) {
 		repo.On("SearchRestoData", "Beras").Return(outdata, nil).Once()
 		usecase := New(repo, validator.New())

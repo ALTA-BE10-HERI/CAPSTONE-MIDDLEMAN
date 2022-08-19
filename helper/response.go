@@ -48,3 +48,10 @@ func ResponseCreate(msg string) map[string]interface{} {
 		"message": msg,
 	}
 }
+
+func ResponseDataNotFound(msg string) map[string]interface{} {
+	return map[string]interface{}{
+		"code":    404,
+		"message": msg,
+	}
+}

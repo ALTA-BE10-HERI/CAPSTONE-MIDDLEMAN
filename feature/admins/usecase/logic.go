@@ -63,6 +63,9 @@ func (pc *productUseCase) UpdateProduct(updatedData domain.Product, idProduct in
 	if updatedData.Price != 0 {
 		qry["price"] = updatedData.Price
 	}
+	if updatedData.Satuan != 0 {
+		qry["satuan"] = updatedData.Satuan
+	}
 
 	if updatedData.Image != "" {
 		qry["image"] = updatedData.Image

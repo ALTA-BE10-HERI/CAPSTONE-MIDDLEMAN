@@ -128,3 +128,44 @@ func ParseToArrDetail(arr []domain.Items, grandTotal, idOrder int) map[string]in
 	res2["items"] = arrmap
 	return res2
 }
+
+func (od *Order) ToOD() domain.Order {
+	return domain.Order{
+		OrderName:  od.OrderName,
+		GrandTotal: od.GrandTotal,
+		Status:     od.Status,
+	}
+}
+
+func ParseToArrConfirm(arr domain.Order) map[string]interface{} {
+	var res = map[string]interface{}{}
+	res["order_id"] = arr.OrderName
+	res["grand_total"] = arr.GrandTotal
+	res["status"] = arr.Status
+	return res
+}
+
+func FromIP3(data []domain.Items) []Items {
+	var res []Items
+	for _, val := range data {
+		newdata := Items{
+			ID:          val.ID,
+			OrderID:     val.OrderID,
+			ProductID:   val.ProductID,
+			ProductName: val.ProductName,
+			Subtotal:    val.Subtotal,
+			Qty:         val.Qty,
+			Unit:        val.Unit,
+		}
+		res = append(res, newdata)
+	}
+	return res
+}
+
+func (it *Items) ToPS() domain.ProductUser {
+	return domain.ProductUser{
+		Name:  it.ProductName,
+		Reff:  it.ProductID,
+		Stock: it.Qty,
+	}
+}
