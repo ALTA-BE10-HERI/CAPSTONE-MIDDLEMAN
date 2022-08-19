@@ -46,7 +46,7 @@ type CartUseCase interface {
 	DeleteData(idProd, idFromToken int) (row int, err error)
 }
 
-//usecase
+// usecase
 type ChartData interface {
 	GetPriceProduct(id int) (price int, err error)
 	GetStockProduct(idProduct int) (stok int, err error)
