@@ -42,6 +42,8 @@ type OrderUseCase interface {
 	GetItems(idOrder int) (data []Items, err error)
 	Payment(grandTotal, idUser int) (orderName, url, token string, dataUser User)
 	AcceptPayment(data PaymentWeb) (row int, err error)
+	ConfirmOrder(orderid string, userid int, role string) (Order, int)
+	DoneOrder(orderid string, userid int, role string) (Order, int)
 }
 
 //query
@@ -55,6 +57,10 @@ type OrderData interface {
 	GetDetailData(idUser, idOrder int) (grandTotal int, err error)
 	GetDetailItems(idOrder int) (data []Items, err error)
 	AcceptPaymentData(data PaymentWeb) (row int, err error)
+	ConfirmOrderData(orderid string, userid int) Order
+	DoneOrderData(orderid string, userid int) Order
+	UpdateStokAdmin(ordername string) bool
+	CekOwnedUser(ordername string, userid int) bool
 }
 
 //handler
@@ -65,4 +71,6 @@ type OrderHandler interface {
 	GetDetail() echo.HandlerFunc
 	Payment() echo.HandlerFunc
 	// CreateItems() echo.HandlerFunc
+	Confirm() echo.HandlerFunc
+	Done() echo.HandlerFunc
 }

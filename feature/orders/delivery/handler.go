@@ -174,3 +174,79 @@ func (oh *OrderHandler) Payment() echo.HandlerFunc {
 // 		})
 // 	}
 // }
+
+func (oh *OrderHandler) Confirm() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, role := _middleware.ExtractData(c)
+		orderid := c.Param("idorder")
+
+		if role != "admin" {
+			log.Println("you dont have access")
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+				"code":    401,
+				"message": "you dont have access",
+			})
+		}
+
+		order, status := oh.orderUseCase.ConfirmOrder(orderid, id, role)
+		data := _data.ParseToArrConfirm(order)
+
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "data not found",
+			})
+		}
+
+		if status == 500 {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    status,
+				"message": "there is an error in internal server",
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"data":    data,
+			"code":    status,
+			"message": "success confirm order",
+		})
+	}
+}
+
+func (oh *OrderHandler) Done() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, role := _middleware.ExtractData(c)
+		orderid := c.Param("idorder")
+
+		if role != "admin" {
+			log.Println("you dont have access")
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+				"code":    401,
+				"message": "you dont have access",
+			})
+		}
+
+		order, status := oh.orderUseCase.DoneOrder(orderid, id, role)
+		data := _data.ParseToArrConfirm(order)
+
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "data not found",
+			})
+		}
+
+		if status == 500 {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"code":    status,
+				"message": "there is an error in internal server",
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"data":    data,
+			"code":    status,
+			"message": "success confirm order",
+		})
+	}
+}

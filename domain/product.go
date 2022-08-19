@@ -13,11 +13,12 @@ type Product struct {
 	Unit      string
 	Stock     int
 	Price     int
+	Satuan    int
 	Image     string
 	CreatedAt time.Time
 }
 
-//logic
+// logic
 type ProductUseCase interface {
 	CreateProduct(newProduct Product, idAdmin int) int
 	GetAllProduct(limit, offset int) (data []Product, err error)
@@ -26,7 +27,7 @@ type ProductUseCase interface {
 	SearchRestoBusiness(search string) (result []Product, err error)
 }
 
-//query
+// query
 type ProductData interface {
 	CreateProductData(newProduct Product) Product
 	GetAllProductData(limit, offset int) (data []Product, err error)
@@ -35,7 +36,7 @@ type ProductData interface {
 	SearchRestoData(search string) (result []Product, err error)
 }
 
-//handler
+// handler
 type ProductHandler interface {
 	Create() echo.HandlerFunc
 	GetAll() echo.HandlerFunc

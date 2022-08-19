@@ -3,20 +3,22 @@ package delivery
 import "middleman-capstone/domain"
 
 type ProductFormat struct {
-	Name  string `json:"product_name" form:"product_name" validate:"required"`
-	Unit  string `json:"unit" form:"unit" validate:"required"`
-	Stock int    `json:"stock" form:"stock" validate:"required"`
-	Price int    `json:"price" form:"price" validate:"required"`
-	Image string `json:"product_image" form:"product_image" validate:"required"`
+	Name   string `json:"product_name" form:"product_name" validate:"required"`
+	Unit   string `json:"unit" form:"unit" validate:"required"`
+	Stock  int    `json:"stock" form:"stock" validate:"required"`
+	Price  int    `json:"price" form:"price" validate:"required"`
+	Image  string `json:"product_image" form:"product_image" validate:"required"`
+	Satuan int    `json:"satuan" form:"satuan" validate:"required"`
 }
 
 func (pf *ProductFormat) ToModel() domain.Product {
 	return domain.Product{
-		Name:  pf.Name,
-		Unit:  pf.Unit,
-		Stock: pf.Stock,
-		Price: pf.Price,
-		Image: pf.Image,
+		Name:   pf.Name,
+		Unit:   pf.Unit,
+		Stock:  pf.Stock,
+		Price:  pf.Price,
+		Image:  pf.Image,
+		Satuan: pf.Satuan,
 	}
 }
 
@@ -29,6 +31,7 @@ func ParsePUToArr2(arr []domain.Product) []map[string]interface{} {
 		res["unit"] = arr[i].Unit
 		res["stock"] = arr[i].Stock
 		res["price"] = arr[i].Price
+		res["satuan"] = arr[i].Satuan
 		res["product_image"] = arr[i].Image
 
 		arrmap = append(arrmap, res)

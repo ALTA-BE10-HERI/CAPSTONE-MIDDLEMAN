@@ -179,7 +179,7 @@ func (ind *inventoryData) RekapAdminStock(newRecap []domain.InventoryProduct, id
 			log.Println("Cannot retrieve object", res2.Error.Error())
 			return false
 		}
-		stock := something.Stock - something.Qty
+		stock := something.Stock + something.Qty
 		res4 := ind.db.Model(&domain.Product{}).Where("id = ?", val.ProductID).Update("stock", stock)
 		if res4.Error != nil {
 			log.Println("Cannot retrieve object", res2.Error.Error())
