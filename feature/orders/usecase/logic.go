@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"fmt"
 	"log"
 	"middleman-capstone/domain"
 	_data "middleman-capstone/feature/orders/data"
@@ -79,13 +78,14 @@ func (oc *orderUseCase) CreateOrder(dataOrder domain.Order, idUser int) int {
 
 func (oc *orderUseCase) Payment(grandTotal, idUser int) (orderName, url, token string, dataUser domain.User) {
 	user, _ := oc.orderData.GetUser(idUser)
-	data := _data.OrderPayment{}
-	data.Email = user.Email
-	data.Name = user.Name
+	data := _data.OrderPayment{
+		Email:      user.Email,
+		Name:       user.Name,
+		GrandTotal: grandTotal,
+	}
 	data.Phone, _ = strconv.Atoi(user.Phone)
-	data.GrandTotal = grandTotal
+
 	orderIDGen, trans := _helper.Payment(data)
-	fmt.Println("isi data :", data)
 
 	return orderIDGen, trans.RedirectURL, trans.Token, user
 }
