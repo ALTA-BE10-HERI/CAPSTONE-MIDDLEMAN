@@ -3,7 +3,7 @@ package delivery
 import "middleman-capstone/domain"
 
 type InputFormat struct {
-	Items []InventoryFormat
+	Items []InventoryFormat `json:"items" form:"items" validate:"required"`
 }
 type InventoryFormat struct {
 	ProductID int    `json:"product_id" form:"product_id" validate:"required"`

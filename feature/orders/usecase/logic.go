@@ -104,3 +104,34 @@ func (oc *orderUseCase) AcceptPayment(data domain.PaymentWeb) (row int, err erro
 	}
 	return row, err
 }
+
+func (oc *orderUseCase) ConfirmOrder(ordername string, userid int, role string) (domain.Order, int) {
+	order := oc.orderData.ConfirmOrderData(ordername, userid)
+	if order.OrderName == "" {
+		log.Println("Empty Data")
+		return domain.Order{}, 404
+	}
+	return order, 200
+}
+
+func (oc *orderUseCase) DoneOrder(ordername string, userid int, role string) (domain.Order, int) {
+	order := oc.orderData.DoneOrderData(ordername, userid)
+	if order.OrderName == "" {
+		log.Println("Empty Data")
+		return domain.Order{}, 404
+	}
+
+	updateadminstok := oc.orderData.UpdateStokAdmin(ordername)
+	if !updateadminstok {
+		log.Println("failed update data")
+		return domain.Order{}, 500
+	}
+
+	cekown := oc.orderData.CekOwnedUser(ordername, userid)
+	if !cekown {
+		log.Println("failed retrieve data")
+		return domain.Order{}, 500
+	}
+
+	return order, 200
+}
