@@ -102,6 +102,18 @@ func FromDomain(data domain.Order) Order {
 	return res
 }
 
+func FromDomainItems(data domain.Items) Items {
+	var res Items
+	res.ID = data.ID
+	res.OrderID = data.OrderID
+	res.ProductID = data.ProductID
+	res.ProductName = data.ProductName
+	res.Subtotal = data.Subtotal
+	res.Unit = data.Unit
+	res.Qty = data.Qty
+	return res
+}
+
 func (od *Order) ToDomainDetail() domain.Order {
 	return domain.Order{
 		ID:         int(od.ID),
@@ -160,12 +172,4 @@ func FromIP3(data []domain.Items) []Items {
 		res = append(res, newdata)
 	}
 	return res
-}
-
-func (it *Items) ToPS() domain.ProductUser {
-	return domain.ProductUser{
-		Name:  it.ProductName,
-		Reff:  it.ProductID,
-		Stock: it.Qty,
-	}
 }
