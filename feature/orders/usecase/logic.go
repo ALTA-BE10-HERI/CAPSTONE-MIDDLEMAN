@@ -105,8 +105,8 @@ func (oc *orderUseCase) AcceptPayment(data domain.PaymentWeb) (row int, err erro
 	return row, err
 }
 
-func (oc *orderUseCase) ConfirmOrder(ordername string, userid int, role string) (domain.Order, int) {
-	order := oc.orderData.ConfirmOrderData(ordername, userid)
+func (oc *orderUseCase) ConfirmOrder(ordername string) (domain.Order, int) {
+	order := oc.orderData.ConfirmOrderData(ordername)
 	if order.OrderName == "" {
 		log.Println("Empty Data")
 		return domain.Order{}, 404
@@ -114,8 +114,8 @@ func (oc *orderUseCase) ConfirmOrder(ordername string, userid int, role string) 
 	return order, 200
 }
 
-func (oc *orderUseCase) DoneOrder(ordername string, userid int, role string) (domain.Order, int) {
-	order := oc.orderData.DoneOrderData(ordername, userid)
+func (oc *orderUseCase) DoneOrder(ordername string) (domain.Order, int) {
+	order := oc.orderData.DoneOrderData(ordername)
 	if order.OrderName == "" {
 		log.Println("Empty Data")
 		return domain.Order{}, 404
@@ -127,22 +127,22 @@ func (oc *orderUseCase) DoneOrder(ordername string, userid int, role string) (do
 		return domain.Order{}, 500
 	}
 
-	cekown := oc.orderData.CekUser(ordername, userid)
+	cekown, id := oc.orderData.CekUser(ordername)
 	if len(cekown) < 1 {
 		log.Println("failed retrieve data")
 		return domain.Order{}, 500
 	}
 
 	for _, val := range cekown {
-		owned := oc.orderData.CekOwned(val, userid)
+		owned := oc.orderData.CekOwned(val, id)
 		if !owned {
-			product := oc.orderData.CreateNewProduct(val, userid)
+			product := oc.orderData.CreateNewProduct(val, id)
 			if !product {
 				log.Println("failed create data")
 				return domain.Order{}, 500
 			}
 		} else {
-			product := oc.orderData.UpdateNewProduct(val, userid)
+			product := oc.orderData.UpdateNewProduct(val, id)
 			if !product {
 				log.Println("failed update data")
 				return domain.Order{}, 500
@@ -150,7 +150,7 @@ func (oc *orderUseCase) DoneOrder(ordername string, userid int, role string) (do
 		}
 	}
 
-	delete := oc.orderData.DeleteCart(userid)
+	delete := oc.orderData.DeleteCart(id)
 	if !delete {
 		log.Println("failed delete data")
 		return domain.Order{}, 500
