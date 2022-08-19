@@ -51,15 +51,14 @@ func (ch *CartHandler) PostCart() echo.HandlerFunc {
 		dataCart.Qty = cartReq.Qty
 		dataCart.UserID = idFromToken
 
-		row, _ := ch.cartUseCase.CreateData(dataCart)
-		if row == -1 {
+		code, _ := ch.cartUseCase.CreateData(dataCart)
+		if code == 404 {
+			return c.JSON(http.StatusNotFound, _helper.ResponseDataNotFound("data product not found"))
+		}
+		if code == -1 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseFailed("please make sure all fields are filled in correctly"))
 		}
-		if row == 404 {
-			return c.JSON(http.StatusNotFound, _helper.ResponseDataNotFound("product data not found"))
-		}
-
-		if row == 400 {
+		if code == 400 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("qty exceeds product stock"))
 		}
 
@@ -81,7 +80,7 @@ func (h *CartHandler) UpdateCart() echo.HandlerFunc {
 		row, errUpd := h.cartUseCase.UpdateData(qty, idCart, idFromToken)
 		if errUpd != nil {
 			log.Println("cek : ", errUpd)
-			return c.JSON(http.StatusNotFound, _helper.ResponseDataNotFound("product data not found"))
+			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("you dont have access"))
 		}
 		if row == 0 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to update data"))
