@@ -42,7 +42,7 @@ type OrderUseCase interface {
 	GetItems(idOrder int) (data []Items, err error)
 	Payment(grandTotal, idUser int) (orderName, url, token string, dataUser User)
 	AcceptPayment(data PaymentWeb) (row int, err error)
-	ConfirmOrder(orderid string) (Order, int)
+	ConfirmOrder(orderid string, id int) (Order, int)
 	DoneOrder(orderid string) (Order, int)
 }
 
