@@ -92,7 +92,7 @@ func (oh *OrderHandler) Create() echo.HandlerFunc {
 
 		}
 
-		orderName, url, token, user := oh.orderUseCase.Payment(newOrder.GrandTotal, id)
+		orderName, url, token, user := oh.orderUseCase.Payment(newOrder.GrandTotal, idUser)
 		dataOrder := domain.Order{
 			UserID:      idUser,
 			GrandTotal:  newOrder.GrandTotal,
