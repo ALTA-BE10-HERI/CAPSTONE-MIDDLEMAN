@@ -140,7 +140,8 @@ func (oh *OrderHandler) Payment() echo.HandlerFunc {
 		}
 
 		dataWeb := FromWeb(data)
-
+		fmt.Println("isi dataWeb :", dataWeb)
+		fmt.Println("isi data :", data)
 		response, err := oh.orderUseCase.AcceptPayment(dataWeb)
 
 		if response == -1 {
