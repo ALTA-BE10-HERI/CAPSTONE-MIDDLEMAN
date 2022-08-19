@@ -34,7 +34,7 @@ type PaymentWeb struct {
 
 //logic
 type OrderUseCase interface {
-	GetAllAdmin(limit, offset int) (data []Order, err error)
+	GetAllAdmin(limit, offset int, role string) (data []Order, err error)
 	CreateOrder(dataOrder Order, idUser int) int
 	// CreateItems(data []Items) (row int, err error)
 	GetAllUser(limit, offset, idUser int) (data []Order, err error)
@@ -57,6 +57,7 @@ type OrderData interface {
 	GetDetailData(idUser, idOrder int) (grandTotal int, err error)
 	GetDetailItems(idOrder int) (data []Items, err error)
 	AcceptPaymentData(data PaymentWeb) (row int, err error)
+	CancelPaymentData(data PaymentWeb) (row int, err error)
 	ConfirmOrderData(orderid string) Order
 	DoneOrderData(orderid string) Order
 	UpdateStokAdmin(ordername string) bool
@@ -74,7 +75,6 @@ type OrderHandler interface {
 	GetAllUser() echo.HandlerFunc
 	GetDetail() echo.HandlerFunc
 	Payment() echo.HandlerFunc
-	// CreateItems() echo.HandlerFunc
 	Confirm() echo.HandlerFunc
 	Done() echo.HandlerFunc
 }

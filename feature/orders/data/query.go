@@ -108,11 +108,22 @@ func (od *orderData) GetDetailItems(idOrder int) (data []domain.Items, err error
 
 func (od *orderData) AcceptPaymentData(data domain.PaymentWeb) (row int, err error) {
 
-	if data.TransactionStatus != "settlement" {
-		return -1, err
+	updateOrder := od.db.Table("orders").Where("order_name = ?", data.OrderName).Update("status", "waiting confirmation")
+
+	if updateOrder.Error != nil {
+		return 0, nil
 	}
 
-	updateOrder := od.db.Table("orders").Where("order_name = ?", data.OrderName).Update("status", "waiting confirmation")
+	if updateOrder.RowsAffected != 1 {
+		return 0, errors.New("order not found")
+	}
+
+	return row, nil
+}
+
+func (od *orderData) CancelPaymentData(data domain.PaymentWeb) (row int, err error) {
+
+	updateOrder := od.db.Table("orders").Where("order_name = ?", data.OrderName).Update("status", "canceled")
 
 	if updateOrder.Error != nil {
 		return 0, nil
