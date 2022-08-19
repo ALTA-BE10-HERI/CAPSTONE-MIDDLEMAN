@@ -16,10 +16,11 @@ type PaymentWeb struct {
 }
 
 type Items struct {
-	ProductID int    `json:"product_id" form:"product_id"`
-	Qty       int    `json:"qty" form:"qty"`
-	Unit      string `json:"unit" form:"unit"`
-	Subtotal  int    `json:"subtotal" form:"subtotal"`
+	ProductID   int    `json:"product_id" form:"product_id"`
+	ProductName string `json:"product_name" form:"product_name"`
+	Qty         int    `json:"qty" form:"qty"`
+	Unit        string `json:"unit" form:"unit"`
+	Subtotal    int    `json:"subtotal" form:"subtotal"`
 }
 
 type Order struct {
@@ -46,10 +47,11 @@ func ParseIFToArr(arr []Items) []domain.Items {
 
 func (pf *Items) ToIF() domain.Items {
 	return domain.Items{
-		ProductID: pf.ProductID,
-		Qty:       pf.Qty,
-		Unit:      pf.Unit,
-		Subtotal:  pf.Subtotal,
+		ProductID:   pf.ProductID,
+		ProductName: pf.ProductName,
+		Qty:         pf.Qty,
+		Unit:        pf.Unit,
+		Subtotal:    pf.Subtotal,
 	}
 }
 

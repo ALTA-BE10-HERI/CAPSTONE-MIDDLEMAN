@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"fmt"
 	"log"
 	"middleman-capstone/domain"
 	_data "middleman-capstone/feature/orders/data"
@@ -79,13 +78,14 @@ func (oc *orderUseCase) CreateOrder(dataOrder domain.Order, idUser int) int {
 
 func (oc *orderUseCase) Payment(grandTotal, idUser int) (orderName, url, token string, dataUser domain.User) {
 	user, _ := oc.orderData.GetUser(idUser)
-	data := _data.OrderPayment{}
-	data.Email = user.Email
-	data.Name = user.Name
+	data := _data.OrderPayment{
+		Email:      user.Email,
+		Name:       user.Name,
+		GrandTotal: grandTotal,
+	}
 	data.Phone, _ = strconv.Atoi(user.Phone)
-	data.GrandTotal = grandTotal
+
 	orderIDGen, trans := _helper.Payment(data)
-	fmt.Println("isi data :", data)
 
 	return orderIDGen, trans.RedirectURL, trans.Token, user
 }
@@ -105,17 +105,29 @@ func (oc *orderUseCase) AcceptPayment(data domain.PaymentWeb) (row int, err erro
 	return row, err
 }
 
-func (oc *orderUseCase) ConfirmOrder(ordername string, userid int, role string) (domain.Order, int) {
-	order := oc.orderData.ConfirmOrderData(ordername, userid)
+func (oc *orderUseCase) ConfirmOrder(ordername string, userid int) (domain.Order, int) {
+	order := oc.orderData.ConfirmOrderData(ordername)
+	user, _ := oc.orderData.GetUser(userid)
+	totalPayment := strconv.Itoa(order.GrandTotal)
+	data := _helper.Recipient{
+		OrderID:      ordername,
+		Name:         user.Name,
+		Email:        user.Email,
+		Handphone:    user.Phone,
+		TotalPayment: totalPayment,
+	}
 	if order.OrderName == "" {
 		log.Println("Empty Data")
 		return domain.Order{}, 404
+	} else {
+		_helper.SendEmail(data)
 	}
+
 	return order, 200
 }
 
-func (oc *orderUseCase) DoneOrder(ordername string, userid int, role string) (domain.Order, int) {
-	order := oc.orderData.DoneOrderData(ordername, userid)
+func (oc *orderUseCase) DoneOrder(ordername string) (domain.Order, int) {
+	order := oc.orderData.DoneOrderData(ordername)
 	if order.OrderName == "" {
 		log.Println("Empty Data")
 		return domain.Order{}, 404
@@ -127,22 +139,22 @@ func (oc *orderUseCase) DoneOrder(ordername string, userid int, role string) (do
 		return domain.Order{}, 500
 	}
 
-	cekown := oc.orderData.CekUser(ordername, userid)
+	cekown, id := oc.orderData.CekUser(ordername)
 	if len(cekown) < 1 {
 		log.Println("failed retrieve data")
 		return domain.Order{}, 500
 	}
 
 	for _, val := range cekown {
-		owned := oc.orderData.CekOwned(val, userid)
+		owned := oc.orderData.CekOwned(val, id)
 		if !owned {
-			product := oc.orderData.CreateNewProduct(val, userid)
+			product := oc.orderData.CreateNewProduct(val, id)
 			if !product {
 				log.Println("failed create data")
 				return domain.Order{}, 500
 			}
 		} else {
-			product := oc.orderData.UpdateNewProduct(val, userid)
+			product := oc.orderData.UpdateNewProduct(val, id)
 			if !product {
 				log.Println("failed update data")
 				return domain.Order{}, 500
@@ -150,7 +162,7 @@ func (oc *orderUseCase) DoneOrder(ordername string, userid int, role string) (do
 		}
 	}
 
-	delete := oc.orderData.DeleteCart(userid)
+	delete := oc.orderData.DeleteCart(id)
 	if !delete {
 		log.Println("failed delete data")
 		return domain.Order{}, 500

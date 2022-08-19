@@ -140,7 +140,8 @@ func (oh *OrderHandler) Payment() echo.HandlerFunc {
 		}
 
 		dataWeb := FromWeb(data)
-
+		fmt.Println("isi dataWeb :", dataWeb)
+		fmt.Println("isi data :", data)
 		response, err := oh.orderUseCase.AcceptPayment(dataWeb)
 
 		if response == -1 {
@@ -188,7 +189,7 @@ func (oh *OrderHandler) Confirm() echo.HandlerFunc {
 			})
 		}
 
-		order, status := oh.orderUseCase.ConfirmOrder(orderid, id, role)
+		order, status := oh.orderUseCase.ConfirmOrder(orderid, id)
 		data := _data.ParseToArrConfirm(order)
 
 		if status == 404 {
@@ -215,7 +216,7 @@ func (oh *OrderHandler) Confirm() echo.HandlerFunc {
 
 func (oh *OrderHandler) Done() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id, role := _middleware.ExtractData(c)
+		_, role := _middleware.ExtractData(c)
 		orderid := c.Param("idorder")
 
 		if role != "admin" {
@@ -226,7 +227,7 @@ func (oh *OrderHandler) Done() echo.HandlerFunc {
 			})
 		}
 
-		order, status := oh.orderUseCase.DoneOrder(orderid, id, role)
+		order, status := oh.orderUseCase.DoneOrder(orderid)
 		data := _data.ParseToArrConfirm(order)
 
 		if status == 404 {

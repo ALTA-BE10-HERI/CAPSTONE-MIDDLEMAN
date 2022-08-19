@@ -42,8 +42,8 @@ type OrderUseCase interface {
 	GetItems(idOrder int) (data []Items, err error)
 	Payment(grandTotal, idUser int) (orderName, url, token string, dataUser User)
 	AcceptPayment(data PaymentWeb) (row int, err error)
-	ConfirmOrder(orderid string, userid int, role string) (Order, int)
-	DoneOrder(orderid string, userid int, role string) (Order, int)
+	ConfirmOrder(orderid string, id int) (Order, int)
+	DoneOrder(orderid string) (Order, int)
 }
 
 //query
@@ -57,10 +57,10 @@ type OrderData interface {
 	GetDetailData(idUser, idOrder int) (grandTotal int, err error)
 	GetDetailItems(idOrder int) (data []Items, err error)
 	AcceptPaymentData(data PaymentWeb) (row int, err error)
-	ConfirmOrderData(orderid string, userid int) Order
-	DoneOrderData(orderid string, userid int) Order
+	ConfirmOrderData(orderid string) Order
+	DoneOrderData(orderid string) Order
 	UpdateStokAdmin(ordername string) bool
-	CekUser(ordername string, userid int) (product []Items)
+	CekUser(ordername string) (product []Items, id int)
 	CekOwned(product Items, userid int) bool
 	CreateNewProduct(product Items, userid int) bool
 	UpdateNewProduct(product Items, userid int) bool
