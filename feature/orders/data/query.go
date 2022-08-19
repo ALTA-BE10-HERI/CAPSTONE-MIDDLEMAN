@@ -207,60 +207,162 @@ func (od *orderData) UpdateStokAdmin(ordername string) bool {
 	return true
 }
 
-func (od *orderData) CekOwnedUser(ordername string, userid int) bool {
+// func (od *orderData) CekOwnedUser(ordername string, userid int) (exist bool, products []domain.Items) {
+// 	var order = Order{}
+// 	var item = []Items{}
+
+// 	res0 := od.db.Model(&Order{}).Where("order_name = ?", ordername).Find(&order)
+// 	if res0.Error != nil {
+// 		log.Println("Cannot retrieve object", res0.Error.Error())
+// 		return false, []domain.Items{}
+// 	}
+
+// 	res := od.db.Model(&Items{}).Where("order_id = ?", order.ID).Find(&item)
+// 	if res.Error != nil {
+// 		log.Println("Cannot retrieve object", res.Error.Error())
+// 		return false, []domain.Items{}
+// 	}
+
+// 	for _, val := range item {
+// 		var productadmin = domain.ProductUser{}
+// 		var productitems = Items{}
+// 		res2 := od.db.Model(&Items{}).Where("product_id = ?", val.ProductID).First(&productitems)
+// 		if res2.Error != nil {
+// 			log.Println("Cannot retrieve object", res2.Error.Error())
+// 			return false, []domain.Items{}
+// 		}
+
+// 		res3 := od.db.Table("product_users").Where("reff = ? AND id_user = ?", val.ProductID, userid).First(&productadmin)
+// 		if res3.Error != nil {
+// 			log.Println("Cannot retrieve object", res2.Error.Error())
+// 			return false, []domain.Items{}
+// 		}
+// 		// 	if res2.Error != nil {
+// 		// 		var itemuser = domain.Items{}
+// 		// 		var productadmin2 = domain.ProductUser{}
+// 		// 		res3 := od.db.Where("product_id", val.ProductID).First(&itemuser)
+// 		// 		if res3.Error != nil {
+// 		// 			log.Println("Cannot retrieve object", res3.Error.Error())
+// 		// 			return false
+// 		// 		}
+// 		// 		fmt.Println("productadmin2", productadmin2)
+// 		// 		res4 := od.db.Create(&productadmin2)
+// 		// 		if res4.Error != nil {
+// 		// 			log.Println("Cannot retrieve object", res4.Error.Error())
+// 		// 			return false
+// 		// 		}
+// 		// 		res5 := od.db.Model(&domain.ProductUser{}).Where("name = ?", val.ProductName).Updates(domain.ProductUser{Reff: val.ProductID, IdUser: userid})
+// 		// 		if res5.Error != nil {
+// 		// 			log.Println("Cannot retrieve object", res5.Error.Error())
+// 		// 			return false
+// 		// 		}
+// 		// 	} else {
+// 		// 		res6 := od.db.Model(&domain.ProductUser{}).Where("reff = ? AND id_user = ?", val.ProductID, userid).Update("stock", productitems.Qty+productadmin.Stock)
+// 		// 		if res6.Error != nil {
+// 		// 			log.Println("Cannot retrieve object", res6.Error.Error())
+// 		// 			return false
+// 		// 		}
+// 		// 	}
+// 		// }
+// 	}
+// 	return true, []domain.Items{}
+// }
+
+func (od *orderData) CekUser(ordername string, userid int) (products []domain.Items) {
 	var order = Order{}
 	var item = []Items{}
 
 	res0 := od.db.Model(&Order{}).Where("order_name = ?", ordername).Find(&order)
 	if res0.Error != nil {
 		log.Println("Cannot retrieve object", res0.Error.Error())
-		return false
+		return []domain.Items{}
 	}
 
 	res := od.db.Model(&Items{}).Where("order_id = ?", order.ID).Find(&item)
 	if res.Error != nil {
 		log.Println("Cannot retrieve object", res.Error.Error())
+		return []domain.Items{}
+	}
+	return ParsePUToArr(item)
+}
+
+func (od *orderData) CekOwned(product domain.Items, userid int) bool {
+	item := FromDomainItems(product)
+	productuser := domain.ProductUser{}
+	res := od.db.Table("product_users").Where("reff = ? AND id_user = ?", item.ProductID, userid).First(&productuser)
+	if res.Error != nil {
+		log.Println("Cannot retrieve object", res.Error.Error())
 		return false
 	}
+	return true
+}
 
-	for _, val := range item {
-		var productadmin = domain.ProductUser{}
-		var productitems = Items{}
-		res7 := od.db.Model(&Items{}).Where("product_id = ?", val.ProductID).First(&productitems)
-		if res7.Error != nil {
-			log.Println("Cannot retrieve object", res7.Error.Error())
-			return false
-		}
-		fmt.Println("productitem", productitems)
+func (od *orderData) CreateNewProduct(product domain.Items, userid int) bool {
+	item := FromDomainItems(product)
+	productuser := domain.ProductUser{}
+	productuser2 := domain.ProductUser{}
+	productadmin := domain.Product{}
+	res0 := od.db.Model(&domain.Product{}).Where("id = ?", item.ProductID).First(&productadmin)
+	if res0.Error != nil {
+		log.Println("Cannot retrieve object", res0.Error.Error())
+		return false
+	}
+	res := od.db.Create(&productuser)
+	if res.Error != nil {
+		log.Println("Cannot retrieve object", res.Error.Error())
+		return false
+	}
+	res2 := od.db.Model(&domain.ProductUser{}).Where("id = ?", productuser.ID).Updates(domain.ProductUser{IdUser: userid, Name: item.ProductName, Stock: item.Qty * productadmin.Satuan, Reff: item.ProductID})
+	if res2.Error != nil {
+		log.Println("Cannot retrieve object", res2.Error.Error())
+		return false
+	}
+	res3 := od.db.Model(&domain.ProductUser{}).Select("products.name, products.image").Joins("left join products on product_users.reff = products.id").Where("product_users.reff = ?", item.ProductID).First(&productuser2)
+	if res3.Error != nil {
+		log.Println("Cannot retrieve object", res3.Error.Error())
+		return false
+	}
+	res4 := od.db.Model(&domain.ProductUser{}).Where("product_users.reff = ?", item.ProductID).Updates(&productuser2)
+	if res4.Error != nil {
+		log.Println("Cannot retrieve object", res4.Error.Error())
+		return false
+	}
+	return true
+}
 
-		res2 := od.db.Table("product_users").Where("reff = ? AND id_user = ?", val.ProductID, userid).First(&productadmin)
-		fmt.Println("productadmin", productadmin)
-		if res2.Error != nil {
-			var itemuser = domain.Items{}
-			var productadmin2 = domain.ProductUser{}
-			res3 := od.db.Where("product_id", val.ProductID).First(&itemuser)
-			if res3.Error != nil {
-				log.Println("Cannot retrieve object", res3.Error.Error())
-				return false
-			}
-			fmt.Println("productadmin2", productadmin2)
-			res4 := od.db.Create(&productadmin2)
-			if res4.Error != nil {
-				log.Println("Cannot retrieve object", res4.Error.Error())
-				return false
-			}
-			res5 := od.db.Model(&domain.ProductUser{}).Where("name = ?", val.ProductName).Updates(domain.ProductUser{Reff: val.ProductID, IdUser: userid})
-			if res5.Error != nil {
-				log.Println("Cannot retrieve object", res5.Error.Error())
-				return false
-			}
-		} else {
-			res6 := od.db.Model(&domain.ProductUser{}).Where("reff = ? AND id_user = ?", val.ProductID, userid).Update("stock", productitems.Qty+productadmin.Stock)
-			if res6.Error != nil {
-				log.Println("Cannot retrieve object", res6.Error.Error())
-				return false
-			}
-		}
+func (od *orderData) UpdateNewProduct(product domain.Items, userid int) bool {
+	item := FromDomainItems(product)
+	productuser := domain.ProductUser{}
+	productadmin := domain.Product{}
+	res0 := od.db.Model(&domain.Product{}).Where("id = ?", item.ProductID).First(&productadmin)
+	if res0.Error != nil {
+		log.Println("Cannot retrieve object", res0.Error.Error())
+		return false
+	}
+	res := od.db.Model(&domain.ProductUser{}).Where("reff = ? AND id_user = ?", item.ProductID, userid).First(&productuser)
+	if res.Error != nil {
+		log.Println("Cannot retrieve object", res.Error.Error())
+		return false
+	}
+	res2 := od.db.Model(&domain.ProductUser{}).Where("reff = ? AND id_user = ?", item.ProductID, userid).Update("stock", item.Qty*productadmin.Satuan+productuser.Stock)
+	if res.Error != nil {
+		log.Println("Cannot retrieve object", res2.Error.Error())
+		return false
+	}
+	return true
+
+}
+
+func (od *orderData) DeleteCart(userid int) bool {
+	res := od.db.Where("user_id = ?", userid).Delete(&domain.Cart{})
+
+	if res.Error != nil {
+		log.Println("cannot delete data")
+		return false
+	}
+	if res.RowsAffected < 1 {
+		log.Println("no data deleted")
+		return false
 	}
 	return true
 }

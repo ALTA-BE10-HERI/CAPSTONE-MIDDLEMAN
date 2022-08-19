@@ -60,7 +60,11 @@ type OrderData interface {
 	ConfirmOrderData(orderid string, userid int) Order
 	DoneOrderData(orderid string, userid int) Order
 	UpdateStokAdmin(ordername string) bool
-	CekOwnedUser(ordername string, userid int) bool
+	CekUser(ordername string, userid int) (product []Items)
+	CekOwned(product Items, userid int) bool
+	CreateNewProduct(product Items, userid int) bool
+	UpdateNewProduct(product Items, userid int) bool
+	DeleteCart(userid int) bool
 }
 
 //handler
