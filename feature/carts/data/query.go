@@ -39,25 +39,19 @@ func (cd *cartData) InsertData(data domain.Cart) (row int, err error) {
 	return int(result.RowsAffected), nil
 }
 
-func (cd *cartData) CheckCart(idProd, idFromToken int) (isExist bool, idCart, qty int, err error) {
+func (cd *cartData) CheckCart(idProd, idFromToken int) (isExist bool, qty int, err error) {
 	dataCart := Cart{}
 	resultCheck := cd.db.Model(&Cart{}).Where("product_id = ? AND user_id = ?", idProd, idFromToken).First(&dataCart)
 	if resultCheck.Error != nil {
-		return false, 0, 0, resultCheck.Error
+		return false, 0, resultCheck.Error
 	}
-	return true, int(dataCart.ID), int(dataCart.Qty), nil
+	return true, int(dataCart.Qty), nil
 }
 
-func (cd *cartData) UpdateDataDB(qty, idCart, idFromToken int) (row int, err error) {
+func (cd *cartData) UpdateDataDB(qty, idProd, productPrice, idFromToken int) (row int, err error) {
 	dataCart := Cart{}
-	idCheck := cd.db.Preload("Product").First(&dataCart, "id = ? AND user_id = ?", idCart, idFromToken)
-	if idCheck.Error != nil {
-		return 0, idCheck.Error
-	}
-	if dataCart.UserID != idFromToken {
-		return -1, errors.New("you don't have access")
-	}
-	result := cd.db.Model(&Cart{}).Where("user_id = ? AND product_id = ? ", idFromToken, dataCart.ProductID).Updates(map[string]interface{}{"qty": qty, "subtotal": qty * dataCart.Product.Price})
+	dataCart.Product.Price = productPrice
+	result := cd.db.Model(&Cart{}).Where("user_id = ? AND product_id = ? ", idFromToken, idProd).Updates(map[string]interface{}{"qty": qty, "subtotal": qty * dataCart.Product.Price})
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -104,9 +98,9 @@ func (cd *cartData) GetStockProduct(idProduct int) (stok int, err error) {
 	fmt.Println("di luar if : ")
 	return tmp.Stock, nil
 }
-func (cd *cartData) GetQtyProductCart(idCart int) (stok int, err error) {
+func (cd *cartData) GetQtyProductCart(idProd int) (stok int, err error) {
 	var tmp Cart
-	res := cd.db.Where("id = ?", idCart).First(&tmp)
+	res := cd.db.Where("product_id = ?", idProd).First(&tmp)
 	if res.Error != nil {
 		return 0, res.Error
 	}
