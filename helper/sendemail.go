@@ -42,14 +42,22 @@ func SendEmail(data Recipient) {
 		</tr>
 		<tr>
 			<td>
-				Total Payment
+				No Hanpdhone 
 			</td>
 			<td>
 				: %s
 			</td>
 		</tr>
+		<tr>
+			<td>
+				Total Payment
+			</td>
+			<td>
+				: Rp. %s
+			</td>
+		</tr>
 			<td colspan="2">
-				<h3>------------- Middleman --------------</h3>
+				<h3>------------ Middleman -------------</h3>
 			</td>
 		</tr>
 	</table>
@@ -64,7 +72,7 @@ func SendEmail(data Recipient) {
 	msg.SetHeader("From", "middlemancapstone@gmail.com")
 	msg.SetHeader("To", data.Email)
 	msg.SetHeader("Subject", "Notification Payment")
-	msg.SetBody("text/html", fmt.Sprintf(temp, data.OrderID, data.Name, data.TotalPayment))
+	msg.SetBody("text/html", fmt.Sprintf(temp, data.OrderID, data.Name, data.Handphone, data.TotalPayment))
 
 	n := gomail.NewDialer(host, port, email, password)
 

@@ -18,4 +18,5 @@ func RouteOrder(e *echo.Echo, do domain.OrderHandler) {
 	order.POST("/payment/notif", do.Payment())
 	order.PUT("/confirm/:idorder", do.Confirm(), _middleware.JWTMiddleware())
 	order.PUT("/done/:idorder", do.Done(), _middleware.JWTMiddleware())
+	order.GET("/admins/incoming", do.GetIncoming(), _middleware.JWTMiddleware())
 }

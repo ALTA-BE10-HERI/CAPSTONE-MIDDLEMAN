@@ -51,7 +51,7 @@ func (oh *OrderHandler) GetAllUser() echo.HandlerFunc {
 		result, err := oh.orderUseCase.GetAllUser(limit, offset, id)
 		data := ParsePUToArr2(result)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get data"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success get data", data))
 
@@ -71,7 +71,24 @@ func (oh *OrderHandler) GetDetail() echo.HandlerFunc {
 		result, err := oh.orderUseCase.GetItems(idOrder)
 		data := _data.ParseToArrDetail(result, grandTotal, idOrder)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get data"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
+		}
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success get data", data))
+	}
+}
+
+func (oh *OrderHandler) GetIncoming() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		limitcnv := c.QueryParam("limit")
+		offsetcnv := c.QueryParam("offset")
+		limit, _ := strconv.Atoi(limitcnv)
+		offset, _ := strconv.Atoi(offsetcnv)
+		_, role := _middleware.ExtractData(c)
+
+		result, err := oh.orderUseCase.GetIncoming(limit, offset, role)
+		data := ParsePUToArr2(result)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success get data", data))
 	}
@@ -157,20 +174,18 @@ func (oh *OrderHandler) Payment() echo.HandlerFunc {
 
 func (oh *OrderHandler) Confirm() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id, role := _middleware.ExtractData(c)
-		orderid := c.Param("idorder")
+		_, role := _middleware.ExtractData(c)
+		orderName := c.Param("idorder")
 
-		if role != "admin" {
-			log.Println("you dont have access")
-			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-				"code":    401,
-				"message": "you dont have access",
-			})
-		}
-
-		order, status := oh.orderUseCase.ConfirmOrder(orderid, id)
+		order, status := oh.orderUseCase.ConfirmOrder(orderName, role)
 		data := _data.ParseToArrConfirm(order)
 
+		if status == 401 {
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+				"code":    status,
+				"message": "data not found",
+			})
+		}
 		if status == 404 {
 			return c.JSON(http.StatusNotFound, map[string]interface{}{
 				"code":    status,
