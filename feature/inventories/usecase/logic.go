@@ -34,7 +34,7 @@ func (iuc *inventoryUseCase) CreateUserInventory(newRecap domain.Inventory, id i
 	cekstok := iuc.inventoryData.CekStok(newRecap.InventoryProduct, id)
 	if !cekstok {
 		log.Println("insufficient amount")
-		return domain.Inventory{}, 404
+		return domain.Inventory{}, 400
 	}
 
 	outbound := iuc.inventoryData.CreateUserInventoryData(newRecap, id, outboundIDGenerate)
@@ -52,15 +52,10 @@ func (iuc *inventoryUseCase) CreateUserInventory(newRecap domain.Inventory, id i
 	updatestok := iuc.inventoryData.RekapStock(newRecap.InventoryProduct, id, outboundIDGenerate)
 	if !updatestok {
 		log.Println("insufficient amount")
-		return domain.Inventory{}, 404
+		return domain.Inventory{}, 400
 	}
 
 	delete := iuc.inventoryData.DeleteInOutBound(id)
-
-	if delete == "cannot delete data" {
-		log.Println("internal server error")
-		return domain.Inventory{}, 500
-	}
 	if delete == "no data deleted" {
 		log.Println("data not found")
 		return domain.Inventory{}, 404
@@ -114,15 +109,10 @@ func (iuc *inventoryUseCase) CreateAdminInventory(newRecap domain.Inventory, id 
 	updatestok := iuc.inventoryData.RekapAdminStock(newRecap.InventoryProduct, id, inboundIDGenerate)
 	if !updatestok {
 		log.Println("insufficient amount")
-		return domain.Inventory{}, 404
+		return domain.Inventory{}, 400
 	}
 
 	delete := iuc.inventoryData.DeleteAdminInOutBound()
-
-	if delete == "cannot delete data" {
-		log.Println("internal server error")
-		return domain.Inventory{}, 500
-	}
 	if delete == "no data deleted" {
 		log.Println("data not found")
 		return domain.Inventory{}, 404

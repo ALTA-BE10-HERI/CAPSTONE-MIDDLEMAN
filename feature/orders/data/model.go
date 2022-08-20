@@ -65,8 +65,8 @@ func ParsePUToArr(arr []Items) []domain.Items {
 
 func (ip *Items) ToPU() domain.Items {
 	return domain.Items{
-		ID: int(ip.ID),
-		// OrderID:     ip.OrderID,
+		ID:          int(ip.ID),
+		OrderID:     ip.OrderID,
 		ProductID:   ip.ProductID,
 		ProductName: ip.ProductName,
 		Subtotal:    ip.Subtotal,

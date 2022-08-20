@@ -52,6 +52,13 @@ func (ih *inventoryHandler) CreateUser() echo.HandlerFunc {
 			})
 		}
 
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "please check your outbounds, it must have a data",
+			})
+		}
+
 		if status == 500 {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"code":    status,
@@ -162,6 +169,13 @@ func (ih *inventoryHandler) CreateAdmin() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"code":    status,
 				"message": "wrong input",
+			})
+		}
+
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "please check your inbounds, it must have a data",
 			})
 		}
 
