@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"middleman-capstone/domain"
 )
@@ -37,15 +38,15 @@ func (uc *cartUseCase) CreateData(data domain.Cart) (row int, err error) {
 		return 400, errors.New("qty exceeds product stock")
 	}
 	productPrice, _ := uc.cartData.GetPriceProduct(data.Product.ID)
-	isExist, idCart, Qty, _ := uc.cartData.CheckCart(data.Product.ID, data.UserID)
+	isExist, Qty, _ := uc.cartData.CheckCart(data.Product.ID, data.UserID)
 	if isExist {
-		cekCurrentQty, _ := uc.cartData.GetQtyProductCart(idCart)
+		cekCurrentQty, _ := uc.cartData.GetQtyProductCart(data.Product.ID)
 		if (cekCurrentQty + data.Qty) > productStock {
 			return 400, errors.New("qty exceeds product stock")
 		}
 		data.Subtotal = productPrice * Qty
 		log.Println("cek qty awal ", Qty, "input ", data.Qty)
-		row, err = uc.cartData.UpdateDataDB(Qty+data.Qty, idCart, data.UserID)
+		row, err = uc.cartData.UpdateDataDB(Qty+1, data.Product.ID, productPrice, data.UserID)
 	} else {
 		data.Subtotal = productPrice * data.Qty
 		row, err = uc.cartData.InsertData(data)
@@ -54,8 +55,10 @@ func (uc *cartUseCase) CreateData(data domain.Cart) (row int, err error) {
 	return row, err
 }
 
-func (uc *cartUseCase) UpdateData(qty, idCart, idFromToken int) (row int, err error) {
-	row, err = uc.cartData.UpdateDataDB(qty, idCart, idFromToken)
+func (uc *cartUseCase) UpdateData(qty, idProd, idFromToken int) (row int, err error) {
+	productPrice, _ := uc.cartData.GetPriceProduct(idProd)
+	row, err = uc.cartData.UpdateDataDB(qty, idProd, productPrice, idFromToken)
+	fmt.Println("eror : ", err)
 	return row, err
 }
 func (uc *cartUseCase) DeleteData(idProd, idFromToken int) (row int, err error) {

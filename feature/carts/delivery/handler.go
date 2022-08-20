@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"fmt"
 	"log"
 	"middleman-capstone/domain"
 	_middleware "middleman-capstone/feature/common"
@@ -68,25 +69,24 @@ func (ch *CartHandler) PostCart() echo.HandlerFunc {
 func (h *CartHandler) UpdateCart() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		id := c.Param("id")
-		idCart, _ := strconv.Atoi(id)
+		idProd, _ := strconv.Atoi(id)
 		idFromToken, _ := _middleware.ExtractData(c)
 		cartReq := InsertFormat{}
 		err := c.Bind(&cartReq)
-
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to bind data, check your input"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to bind data"))
+		}
+		if cartReq.Qty == 0 {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("qty must be filled more than 0"))
 		}
 		qty := cartReq.Qty
-		row, errUpd := h.cartUseCase.UpdateData(qty, idCart, idFromToken)
+		row, errUpd := h.cartUseCase.UpdateData(qty, idProd, idFromToken)
 		if errUpd != nil {
 			log.Println("cek : ", errUpd)
-			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("you dont have access"))
+			return c.JSON(http.StatusNotFound, _helper.ResponseDataNotFound(fmt.Sprintf("there is no cart with product id %d", idProd)))
 		}
 		if row == 0 {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to update data"))
-		}
-		if row == 400 {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("your cart is payment"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkNoData("success"))
 	}

@@ -146,6 +146,7 @@ func (od *Order) ToOD() domain.Order {
 		OrderName:  od.OrderName,
 		GrandTotal: od.GrandTotal,
 		Status:     od.Status,
+		UserID:     od.UserID,
 	}
 }
 
