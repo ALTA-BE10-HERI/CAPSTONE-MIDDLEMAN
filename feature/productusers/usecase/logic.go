@@ -98,8 +98,8 @@ func (puuc *productUserUseCase) DeleteProduct(productid, id int) int {
 	return 204
 }
 
-func (puuc *productUserUseCase) SearchRestoBusiness(search string) (result []domain.ProductUser, err error) {
-	response, err := puuc.productUserData.SearchRestoData(search)
+func (puuc *productUserUseCase) SearchRestoBusiness(search string, idUser int) (result []domain.ProductUser, err error) {
+	response, err := puuc.productUserData.SearchRestoData(search, idUser)
 
 	return response, err
 }
