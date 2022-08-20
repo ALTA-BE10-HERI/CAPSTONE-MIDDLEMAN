@@ -138,10 +138,10 @@ func (oh *OrderHandler) Create() echo.HandlerFunc {
 			"link":        url,
 			"token":       token,
 		}
-		return c.JSON(http.StatusOK, map[string]interface{}{
+		return c.JSON(http.StatusCreated, map[string]interface{}{
 			"data":    data,
 			"code":    status,
-			"message": "success create product",
+			"message": "success create order",
 		})
 	}
 }
