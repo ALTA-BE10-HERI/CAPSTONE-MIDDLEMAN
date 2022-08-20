@@ -21,7 +21,6 @@ func New(db *gorm.DB) domain.OrderData {
 
 func (od *orderData) InsertData(data []domain.Items, id int) []domain.Items {
 	order := FromIP2(data, id)
-	fmt.Println("order", order)
 	result := od.db.Create(&order)
 
 	if result.Error != nil {
@@ -108,10 +107,6 @@ func (od *orderData) GetDetailItems(idOrder int) (data []domain.Items, err error
 
 func (od *orderData) AcceptPaymentData(data domain.PaymentWeb) (row int, err error) {
 
-	if data.TransactionStatus != "settlement" {
-		return -1, err
-	}
-
 	updateOrder := od.db.Table("orders").Where("order_name = ?", data.OrderName).Update("status", "waiting confirmation")
 
 	if updateOrder.Error != nil {
@@ -125,18 +120,44 @@ func (od *orderData) AcceptPaymentData(data domain.PaymentWeb) (row int, err err
 	return row, nil
 }
 
-func (od *orderData) ConfirmOrderData(ordername string) domain.Order {
+func (od *orderData) CancelPaymentData(data domain.PaymentWeb) (row int, err error) {
 
-	order := Order{}
-	updatestatus := od.db.Table("orders").Where("order_name = ?", ordername).Update("status", "on process")
+	updateOrder := od.db.Table("orders").Where("order_name = ?", data.OrderName).Update("status", "canceled")
+
+	if updateOrder.Error != nil {
+		return 0, nil
+	}
+
+	if updateOrder.RowsAffected != 1 {
+		return 0, errors.New("order not found")
+	}
+
+	return row, nil
+}
+
+func (od *orderData) GetIncomingData(limit, offset int) (data []domain.Order, err error) {
+	var dataOrder []Order
+	result := od.db.Limit(limit).Offset(offset).Table("orders").Where("status", "waiting confirmation")
+	if result.Error != nil {
+		log.Println("error get data")
+		return []domain.Order{}, nil
+	}
+	return ParseToArr(dataOrder), nil
+}
+
+func (od *orderData) ConfirmOrderData(orderName string) domain.Order {
+	var dataOrder domain.Order
+	updatestatus := od.db.Table("orders").Where("order_name = ?", orderName).Update("status", "on process")
 	if updatestatus.Error != nil {
+		log.Println("error update data")
 		return domain.Order{}
 	}
 	if updatestatus.RowsAffected < 1 {
+		log.Println("status not updated")
 		return domain.Order{}
 	}
 
-	statusorder := od.db.Table("orders").Where("order_name = ?", ordername).First(&order)
+	statusorder := od.db.Table("orders").Where("order_name = ?", orderName).First(&dataOrder)
 	if statusorder.Error != nil {
 		return domain.Order{}
 	}
@@ -144,7 +165,21 @@ func (od *orderData) ConfirmOrderData(ordername string) domain.Order {
 		return domain.Order{}
 	}
 
-	return order.ToOD()
+	return dataOrder
+}
+
+func (od *orderData) GetUserByOrderName(orderName string) (data domain.Order, err error) {
+	var order domain.Order
+	result := od.db.Where("order_name = ?", orderName).First(&order)
+
+	if result.Error != nil {
+		return domain.Order{}, result.Error
+	}
+
+	if result.RowsAffected != 1 {
+		return domain.Order{}, fmt.Errorf("failed to get order")
+	}
+	return order, err
 }
 
 func (od *orderData) DoneOrderData(ordername string) domain.Order {

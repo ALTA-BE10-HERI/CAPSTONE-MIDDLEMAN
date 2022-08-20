@@ -117,7 +117,7 @@ func (puh *productUserHandler) ReadAll() echo.HandlerFunc {
 		}
 
 		product, status := puh.productUserUseCase.ReadAllProduct(id)
-		data := data.ParsePUToArr2(product)
+		data := FromModelList(product)
 
 		if status == 404 {
 			return c.JSON(http.StatusNotFound, map[string]interface{}{

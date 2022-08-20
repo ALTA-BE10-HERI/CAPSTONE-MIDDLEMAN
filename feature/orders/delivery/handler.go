@@ -29,7 +29,9 @@ func (oh *OrderHandler) GetAllAdmin() echo.HandlerFunc {
 		offsetcnv := c.QueryParam("offset")
 		limit, _ := strconv.Atoi(limitcnv)
 		offset, _ := strconv.Atoi(offsetcnv)
-		result, err := oh.orderUseCase.GetAllAdmin(limit, offset)
+		_, role := _middleware.ExtractData(c)
+
+		result, err := oh.orderUseCase.GetAllAdmin(limit, offset, role)
 		data := ParsePUToArr2(result)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get all data"))
@@ -49,7 +51,7 @@ func (oh *OrderHandler) GetAllUser() echo.HandlerFunc {
 		result, err := oh.orderUseCase.GetAllUser(limit, offset, id)
 		data := ParsePUToArr2(result)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get data"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success get data", data))
 
@@ -67,10 +69,26 @@ func (oh *OrderHandler) GetDetail() echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, _helper.ResponseInternalServerError("there is an internal server error"))
 		}
 		result, err := oh.orderUseCase.GetItems(idOrder)
-		fmt.Println("hasil :", result)
 		data := _data.ParseToArrDetail(result, grandTotal, idOrder)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get data"))
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
+		}
+		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success get data", data))
+	}
+}
+
+func (oh *OrderHandler) GetIncoming() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		limitcnv := c.QueryParam("limit")
+		offsetcnv := c.QueryParam("offset")
+		limit, _ := strconv.Atoi(limitcnv)
+		offset, _ := strconv.Atoi(offsetcnv)
+		_, role := _middleware.ExtractData(c)
+
+		result, err := oh.orderUseCase.GetIncoming(limit, offset, role)
+		data := ParsePUToArr2(result)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
 		}
 		return c.JSON(http.StatusOK, _helper.ResponseOkWithData("success get data", data))
 	}
@@ -79,7 +97,7 @@ func (oh *OrderHandler) GetDetail() echo.HandlerFunc {
 func (oh *OrderHandler) Create() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var newOrder FormatOrder
-		id, _ := _middleware.ExtractData(c)
+		idUser, _ := _middleware.ExtractData(c)
 		bind := c.Bind(&newOrder)
 
 		if bind != nil {
@@ -90,16 +108,15 @@ func (oh *OrderHandler) Create() echo.HandlerFunc {
 			})
 
 		}
-		orderName, url, token, user := oh.orderUseCase.Payment(newOrder.GrandTotal, id)
+
+		orderName, url, token, user := oh.orderUseCase.Payment(newOrder.GrandTotal, idUser)
 		dataOrder := ToDomain(newOrder)
-		dataOrder.UserID = id
+		dataOrder.UserID = idUser
 		dataOrder.GrandTotal = newOrder.GrandTotal
 		dataOrder.PaymentLink = url
 		dataOrder.OrderName = orderName
 		dataOrder.Status = "pending"
-		fmt.Println("data order:", dataOrder)
-		status := oh.orderUseCase.CreateOrder(dataOrder, id)
-		fmt.Println("to Domain:", ToDomain(newOrder))
+		status := oh.orderUseCase.CreateOrder(dataOrder, idUser)
 		if status == 400 {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"code":    status,
@@ -114,17 +131,17 @@ func (oh *OrderHandler) Create() echo.HandlerFunc {
 			})
 		}
 		data := map[string]interface{}{
-			"order_id":    dataOrder.ID,
+			"order_id":    orderName,
 			"grand_total": newOrder.GrandTotal,
 			"nama":        user.Name,
 			"email":       user.Email,
 			"link":        url,
 			"token":       token,
 		}
-		return c.JSON(http.StatusOK, map[string]interface{}{
+		return c.JSON(http.StatusCreated, map[string]interface{}{
 			"data":    data,
 			"code":    status,
-			"message": "success create product",
+			"message": "success create order",
 		})
 	}
 }
@@ -155,43 +172,20 @@ func (oh *OrderHandler) Payment() echo.HandlerFunc {
 	}
 }
 
-// func (oh *OrderHandler) CreateItems() echo.HandlerFunc {
-// 	return func(c echo.Context) error {
-// 		var newOrder FormatOrder
-// 		bind := c.Bind(&newOrder)
-
-// 		if bind != nil {
-// 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
-// 				"message": "error to bind",
-// 				"code":    400,
-// 			})
-// 		}
-// 		data := ParseToArrItems(newOrder.Items)
-// 		row, err := oh.orderUseCase.CreateItems(data)
-// 		fmt.Println("row", row)
-// 		fmt.Println("err", err)
-// 		return c.JSON(http.StatusOK, map[string]interface{}{
-// 			"msg": "berhasil",
-// 		})
-// 	}
-// }
-
 func (oh *OrderHandler) Confirm() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		id, role := _middleware.ExtractData(c)
-		orderid := c.Param("idorder")
+		_, role := _middleware.ExtractData(c)
+		orderName := c.Param("idorder")
 
-		if role != "admin" {
-			log.Println("you dont have access")
-			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-				"code":    401,
-				"message": "you dont have access",
-			})
-		}
-
-		order, status := oh.orderUseCase.ConfirmOrder(orderid, id)
+		order, status := oh.orderUseCase.ConfirmOrder(orderName, role)
 		data := _data.ParseToArrConfirm(order)
 
+		if status == 401 {
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+				"code":    status,
+				"message": "data not found",
+			})
+		}
 		if status == 404 {
 			return c.JSON(http.StatusNotFound, map[string]interface{}{
 				"code":    status,

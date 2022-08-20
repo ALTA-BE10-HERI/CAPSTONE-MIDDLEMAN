@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"log"
 	"middleman-capstone/domain"
 	_data "middleman-capstone/feature/orders/data"
@@ -22,13 +23,29 @@ func New(od domain.OrderData, v *validator.Validate) domain.OrderUseCase {
 	}
 }
 
-func (oc *orderUseCase) GetAllAdmin(limit, offset int) (data []domain.Order, err error) {
+func (oc *orderUseCase) GetAllAdmin(limit, offset int, role string) (data []domain.Order, err error) {
+
+	if role != "admin" {
+		log.Println("you dont have access")
+		return []domain.Order{}, nil
+	}
 	data, err = oc.orderData.SelectDataAdminAll(limit, offset)
 	return data, err
 }
 
 func (oc *orderUseCase) GetAllUser(limit, offset, idUser int) (data []domain.Order, err error) {
+
+	if idUser == 0 {
+		log.Println("order data from user not found")
+		return []domain.Order{}, nil
+	}
 	data, err = oc.orderData.SelectDataUserAll(limit, offset, idUser)
+
+	if err != nil {
+		log.Println("failed to get data")
+		return []domain.Order{}, nil
+	}
+
 	return data, err
 }
 func (oc *orderUseCase) GetDetail(idUser, idOrder int) (grandTotal int, err error) {
@@ -49,6 +66,21 @@ func (oc *orderUseCase) GetItems(idOrder int) (data []domain.Items, err error) {
 	if err != nil {
 		log.Println("failed to get data")
 		return []domain.Items{}, nil
+	}
+	return data, nil
+}
+
+func (oc *orderUseCase) GetIncoming(limit, offset int, role string) (data []domain.Order, err error) {
+
+	if role != "admin" {
+		log.Println("you dont have access")
+		return []domain.Order{}, errors.New("you dont have access")
+	}
+	data, err = oc.orderData.GetIncomingData(limit, offset)
+
+	if err != nil {
+		log.Println("failed to get data")
+		return []domain.Order{}, nil
 	}
 	return data, nil
 }
@@ -78,6 +110,10 @@ func (oc *orderUseCase) CreateOrder(dataOrder domain.Order, idUser int) int {
 
 func (oc *orderUseCase) Payment(grandTotal, idUser int) (orderName, url, token string, dataUser domain.User) {
 	user, _ := oc.orderData.GetUser(idUser)
+	if user.ID == 0 {
+		log.Println("failed to get user data")
+		return "", "", "", domain.User{}
+	}
 	data := _data.OrderPayment{
 		Email:      user.Email,
 		Name:       user.Name,
@@ -86,37 +122,58 @@ func (oc *orderUseCase) Payment(grandTotal, idUser int) (orderName, url, token s
 	data.Phone, _ = strconv.Atoi(user.Phone)
 
 	orderIDGen, trans := _helper.Payment(data)
+	if orderIDGen == "" {
+		log.Println("failed to make midtrans invoice")
+	}
 
 	return orderIDGen, trans.RedirectURL, trans.Token, user
 }
 
-// func (oc *orderUseCase) CreateItems(data []domain.Items) (row int, err error) {
-// 	res, err := oc.orderData.CreateItems(data, 1)
-// 	return res, err
-// }
-
 func (oc *orderUseCase) AcceptPayment(data domain.PaymentWeb) (row int, err error) {
-	row, err = oc.orderData.AcceptPaymentData(data)
 
-	if row < 1 {
+	if data.TransactionStatus == "settlement" {
+		oc.orderData.AcceptPaymentData(data)
+	} else if data.TransactionStatus == "expire" {
+		oc.orderData.CancelPaymentData(data)
+	} else if data.TransactionStatus == "cancel" {
+		oc.orderData.CancelPaymentData(data)
+	}
+
+	if data.TransactionStatus == "" {
 		log.Println("error payment")
 		return -1, err
 	}
 	return row, err
 }
 
-func (oc *orderUseCase) ConfirmOrder(ordername string, userid int) (domain.Order, int) {
-	order := oc.orderData.ConfirmOrderData(ordername)
-	user, _ := oc.orderData.GetUser(userid)
+func (oc *orderUseCase) ConfirmOrder(orderName, role string) (domain.Order, int) {
+	if role != "admin" {
+		log.Println("you dont have access")
+		return domain.Order{}, 401
+	}
+
+	order := oc.orderData.ConfirmOrderData(orderName)
+	if order.ID == 0 {
+		log.Println("failed to get order data")
+		return domain.Order{}, 500
+	}
+
+	user, _ := oc.orderData.GetUser(order.UserID)
+	if user.ID == 0 {
+		log.Println("failed to get user data")
+		return domain.Order{}, 500
+	}
+
 	totalPayment := strconv.Itoa(order.GrandTotal)
 	data := _helper.Recipient{
-		OrderID:      ordername,
+		OrderID:      orderName,
 		Name:         user.Name,
 		Email:        user.Email,
 		Handphone:    user.Phone,
 		TotalPayment: totalPayment,
 	}
-	if order.OrderName == "" {
+
+	if data.OrderID == "" {
 		log.Println("Empty Data")
 		return domain.Order{}, 404
 	} else {

@@ -2,7 +2,7 @@ package data
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"middleman-capstone/domain"
 
 	"gorm.io/gorm"
@@ -48,17 +48,16 @@ func (cd *cartData) CheckCart(idProd, idFromToken int) (isExist bool, idCart, qt
 	return true, int(dataCart.ID), int(dataCart.Qty), nil
 }
 
-func (cd *cartData) UpdateDataDB(qty, idProd, idFromToken int) (row int, err error) {
+func (cd *cartData) UpdateDataDB(qty, idCart, idFromToken int) (row int, err error) {
 	dataCart := Cart{}
-	idCheck := cd.db.Preload("Product").First(&dataCart, "user_id = ? AND product_id = ? ", idFromToken, idProd)
+	idCheck := cd.db.Preload("Product").First(&dataCart, "id = ? AND user_id = ?", idCart, idFromToken)
 	if idCheck.Error != nil {
 		return 0, idCheck.Error
 	}
 	if dataCart.UserID != idFromToken {
-		log.Println("cek ", dataCart.UserID)
 		return -1, errors.New("you don't have access")
 	}
-	result := cd.db.Model(&Cart{}).Where("user_id = ? AND product_id = ? ", idFromToken, idProd).Updates(map[string]interface{}{"qty": qty, "subtotal": qty * dataCart.Product.Price})
+	result := cd.db.Model(&Cart{}).Where("user_id = ? AND product_id = ? ", idFromToken, dataCart.ProductID).Updates(map[string]interface{}{"qty": qty, "subtotal": qty * dataCart.Product.Price})
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -99,8 +98,10 @@ func (cd *cartData) GetStockProduct(idProduct int) (stok int, err error) {
 	var tmp Product
 	res := cd.db.Where("id = ?", idProduct).First(&tmp)
 	if res.Error != nil {
-		return 0, res.Error
+		fmt.Println("di dalam if : ")
+		return -2, res.Error
 	}
+	fmt.Println("di luar if : ")
 	return tmp.Stock, nil
 }
 func (cd *cartData) GetQtyProductCart(idCart int) (stok int, err error) {

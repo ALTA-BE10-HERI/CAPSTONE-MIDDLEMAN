@@ -73,7 +73,7 @@ func (iobh *inoutboundHandler) ReadAll() echo.HandlerFunc {
 		id, role := common.ExtractData(c)
 
 		cart, status := iobh.inoutboundUseCase.ReadEntry(id, role)
-		data := data.ParseIOBToArr2(cart)
+		data := FromModelList(cart)
 
 		if status == 404 {
 			return c.JSON(http.StatusNotFound, map[string]interface{}{

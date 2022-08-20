@@ -50,22 +50,6 @@ func FromIOB(data domain.InOutBounds) InOutBounds {
 	return res
 }
 
-func ParseIOBToArr2(arr []domain.InOutBounds) map[string]interface{} {
-	var arrmap []map[string]interface{}
-	var res2 = map[string]interface{}{}
-	for i := 0; i < len(arr); i++ {
-		var res = map[string]interface{}{}
-		res["product_id"] = arr[i].ID
-		res["product_name"] = arr[i].Name
-		res["unit"] = arr[i].Unit
-		res["qty"] = arr[i].Qty
-
-		arrmap = append(arrmap, res)
-	}
-	res2["items"] = arrmap
-	return res2
-}
-
 func ParseIOBToArr3(arr domain.InOutBounds) map[string]interface{} {
 	var res = map[string]interface{}{}
 	res["product_id"] = arr.ID
