@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"log"
 	"middleman-capstone/domain"
 	_data "middleman-capstone/feature/orders/data"
@@ -69,6 +70,21 @@ func (oc *orderUseCase) GetItems(idOrder int) (data []domain.Items, err error) {
 	return data, nil
 }
 
+func (oc *orderUseCase) GetIncoming(limit, offset int, role string) (data []domain.Order, err error) {
+
+	if role != "admin" {
+		log.Println("you dont have access")
+		return []domain.Order{}, errors.New("you dont have access")
+	}
+	data, err = oc.orderData.GetIncomingData(limit, offset)
+
+	if err != nil {
+		log.Println("failed to get data")
+		return []domain.Order{}, nil
+	}
+	return data, nil
+}
+
 func (oc *orderUseCase) CreateOrder(dataOrder domain.Order, idUser int) int {
 
 	validError := oc.validate.Var(dataOrder, "gt=0")
@@ -130,22 +146,34 @@ func (oc *orderUseCase) AcceptPayment(data domain.PaymentWeb) (row int, err erro
 	return row, err
 }
 
-func (oc *orderUseCase) ConfirmOrder(ordername string, userid int) (domain.Order, int) {
-	order := oc.orderData.ConfirmOrderData(ordername)
+func (oc *orderUseCase) ConfirmOrder(orderName, role string) (domain.Order, int) {
+	if role != "admin" {
+		log.Println("you dont have access")
+		return domain.Order{}, 401
+	}
+
+	order := oc.orderData.ConfirmOrderData(orderName)
+	if order.ID == 0 {
+		log.Println("failed to get order data")
+		return domain.Order{}, 500
+	}
+
 	user, _ := oc.orderData.GetUser(order.UserID)
 	if user.ID == 0 {
 		log.Println("failed to get user data")
 		return domain.Order{}, 500
 	}
+
 	totalPayment := strconv.Itoa(order.GrandTotal)
 	data := _helper.Recipient{
-		OrderID:      ordername,
+		OrderID:      orderName,
 		Name:         user.Name,
 		Email:        user.Email,
 		Handphone:    user.Phone,
 		TotalPayment: totalPayment,
 	}
-	if order.OrderName == "" {
+
+	if data.OrderID == "" {
 		log.Println("Empty Data")
 		return domain.Order{}, 404
 	} else {

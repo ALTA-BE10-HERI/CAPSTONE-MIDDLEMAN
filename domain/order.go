@@ -40,9 +40,10 @@ type OrderUseCase interface {
 	GetAllUser(limit, offset, idUser int) (data []Order, err error)
 	GetDetail(idUser, idOrder int) (grandTotal int, err error)
 	GetItems(idOrder int) (data []Items, err error)
+	GetIncoming(limit, offset int, role string) (data []Order, err error)
 	Payment(grandTotal, idUser int) (orderName, url, token string, dataUser User)
 	AcceptPayment(data PaymentWeb) (row int, err error)
-	ConfirmOrder(orderid string, id int) (Order, int)
+	ConfirmOrder(orderName, role string) (Order, int)
 	DoneOrder(orderid string) (Order, int)
 }
 
@@ -54,8 +55,10 @@ type OrderData interface {
 	InsertData(data []Items, id int) []Items
 	Insert(data Order) (idOrder int, err error)
 	GetUser(idUser int) (data User, err error)
+	GetUserByOrderName(orderName string) (data Order, err error)
 	GetDetailData(idUser, idOrder int) (grandTotal int, err error)
 	GetDetailItems(idOrder int) (data []Items, err error)
+	GetIncomingData(limit, offset int) (data []Order, err error)
 	AcceptPaymentData(data PaymentWeb) (row int, err error)
 	CancelPaymentData(data PaymentWeb) (row int, err error)
 	ConfirmOrderData(orderid string) Order
@@ -74,6 +77,7 @@ type OrderHandler interface {
 	Create() echo.HandlerFunc
 	GetAllUser() echo.HandlerFunc
 	GetDetail() echo.HandlerFunc
+	GetIncoming() echo.HandlerFunc
 	Payment() echo.HandlerFunc
 	Confirm() echo.HandlerFunc
 	Done() echo.HandlerFunc
