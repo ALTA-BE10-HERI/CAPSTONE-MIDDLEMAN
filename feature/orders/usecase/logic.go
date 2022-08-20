@@ -190,6 +190,12 @@ func (oc *orderUseCase) DoneOrder(ordername string) (domain.Order, int) {
 		return domain.Order{}, 404
 	}
 
+	delete := oc.orderData.DeleteCart(order.UserID)
+	if !delete {
+		log.Println("failed delete data")
+		return domain.Order{}, 500
+	}
+
 	updateadminstok := oc.orderData.UpdateStokAdmin(ordername)
 	if !updateadminstok {
 		log.Println("failed update data")
@@ -217,12 +223,6 @@ func (oc *orderUseCase) DoneOrder(ordername string) (domain.Order, int) {
 				return domain.Order{}, 500
 			}
 		}
-	}
-
-	delete := oc.orderData.DeleteCart(id)
-	if !delete {
-		log.Println("failed delete data")
-		return domain.Order{}, 500
 	}
 
 	return order, 200

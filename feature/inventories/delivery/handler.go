@@ -87,12 +87,19 @@ func (ih *inventoryHandler) ReadUserDetail() echo.HandlerFunc {
 		}
 
 		product, status, invenid := ih.inventoryUseCase.ReadUserOutBoundDetail(id, cnv)
-		data := data.ParsePUToArr2(product, invenid)
+		data := FromModel2(product, invenid)
 
 		if status == 500 {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"code":    status,
 				"message": "there is an error in internal server",
+			})
+		}
+
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "not found",
 			})
 		}
 
@@ -117,7 +124,7 @@ func (ih *inventoryHandler) ReadUserHistory() echo.HandlerFunc {
 		}
 
 		product, status := ih.inventoryUseCase.ReadUserOutBoundHistory(id)
-		data := data.ParsePUToArr3(product)
+		data := FromModelListHistory(product)
 
 		if status == 404 {
 			return c.JSON(http.StatusNotFound, map[string]interface{}{
@@ -206,7 +213,7 @@ func (ih *inventoryHandler) ReadAdminHistory() echo.HandlerFunc {
 		}
 
 		product, status := ih.inventoryUseCase.ReadAdminOutBoundHistory()
-		data := data.ParsePUToArr3(product)
+		data := FromModelListHistory(product)
 
 		if status == 404 {
 			return c.JSON(http.StatusNotFound, map[string]interface{}{
@@ -243,12 +250,19 @@ func (ih *inventoryHandler) ReadAdminDetail() echo.HandlerFunc {
 		}
 
 		product, status, invenid := ih.inventoryUseCase.ReadAdminOutBoundDetail(cnv)
-		data := data.ParsePUToArr2(product, invenid)
+		data := FromModel2(product, invenid)
 
 		if status == 500 {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"code":    status,
 				"message": "there is an error in internal server",
+			})
+		}
+
+		if status == 404 {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"code":    status,
+				"message": "not found",
 			})
 		}
 

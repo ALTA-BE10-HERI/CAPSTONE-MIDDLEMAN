@@ -31,6 +31,12 @@ func (iuc *inventoryUseCase) CreateUserInventory(newRecap domain.Inventory, id i
 		return domain.Inventory{}, 400
 	}
 
+	delete := iuc.inventoryData.DeleteInOutBound(id)
+	if delete == "no data deleted" {
+		log.Println("data not found")
+		return domain.Inventory{}, 404
+	}
+
 	cekstok := iuc.inventoryData.CekStok(newRecap.InventoryProduct, id)
 	if !cekstok {
 		log.Println("insufficient amount")
@@ -55,12 +61,6 @@ func (iuc *inventoryUseCase) CreateUserInventory(newRecap domain.Inventory, id i
 		return domain.Inventory{}, 400
 	}
 
-	delete := iuc.inventoryData.DeleteInOutBound(id)
-	if delete == "no data deleted" {
-		log.Println("data not found")
-		return domain.Inventory{}, 404
-	}
-
 	return outbound, 201
 }
 
@@ -68,7 +68,7 @@ func (iuc *inventoryUseCase) ReadUserOutBoundDetail(id int, outboundIDGenerate s
 	product := iuc.inventoryData.ReadUserOutBoundDetailData(id, outboundIDGenerate)
 	if len(product) == 0 {
 		log.Println("data not found")
-		return []domain.InventoryProduct{}, 200, ""
+		return []domain.InventoryProduct{}, 404, ""
 	}
 
 	return product, 200, outboundIDGenerate
@@ -94,6 +94,12 @@ func (iuc *inventoryUseCase) CreateAdminInventory(newRecap domain.Inventory, id 
 		return domain.Inventory{}, 400
 	}
 
+	delete := iuc.inventoryData.DeleteAdminInOutBound()
+	if delete == "no data deleted" {
+		log.Println("data not found")
+		return domain.Inventory{}, 404
+	}
+
 	inbound := iuc.inventoryData.CreateAdminInventoryData(newRecap, id, inboundIDGenerate)
 	if inbound.ID == 0 {
 		log.Println("error after creating data")
@@ -110,12 +116,6 @@ func (iuc *inventoryUseCase) CreateAdminInventory(newRecap domain.Inventory, id 
 	if !updatestok {
 		log.Println("insufficient amount")
 		return domain.Inventory{}, 400
-	}
-
-	delete := iuc.inventoryData.DeleteAdminInOutBound()
-	if delete == "no data deleted" {
-		log.Println("data not found")
-		return domain.Inventory{}, 404
 	}
 
 	return inbound, 201
@@ -135,7 +135,7 @@ func (iuc *inventoryUseCase) ReadAdminOutBoundDetail(inboundIDGenerate string) (
 	product := iuc.inventoryData.ReadAdminOutBoundDetailData(inboundIDGenerate)
 	if len(product) == 0 {
 		log.Println("data not found")
-		return []domain.InventoryProduct{}, 200, ""
+		return []domain.InventoryProduct{}, 404, ""
 	}
 
 	return product, 200, inboundIDGenerate

@@ -14,7 +14,7 @@ type ChartData struct {
 }
 
 // CheckCart provides a mock function with given fields: idProd, idFromToken
-func (_m *ChartData) CheckCart(idProd int, idFromToken int) (bool, int, int, error) {
+func (_m *ChartData) CheckCart(idProd int, idFromToken int) (bool, int, error) {
 	ret := _m.Called(idProd, idFromToken)
 
 	var r0 bool
@@ -31,21 +31,14 @@ func (_m *ChartData) CheckCart(idProd int, idFromToken int) (bool, int, int, err
 		r1 = ret.Get(1).(int)
 	}
 
-	var r2 int
-	if rf, ok := ret.Get(2).(func(int, int) int); ok {
+	var r2 error
+	if rf, ok := ret.Get(2).(func(int, int) error); ok {
 		r2 = rf(idProd, idFromToken)
 	} else {
-		r2 = ret.Get(2).(int)
+		r2 = ret.Error(2)
 	}
 
-	var r3 error
-	if rf, ok := ret.Get(3).(func(int, int) error); ok {
-		r3 = rf(idProd, idFromToken)
-	} else {
-		r3 = ret.Error(3)
-	}
-
-	return r0, r1, r2, r3
+	return r0, r1, r2
 }
 
 // DeleteDataDB provides a mock function with given fields: idProd, idFromToken
@@ -90,20 +83,20 @@ func (_m *ChartData) GetPriceProduct(id int) (int, error) {
 	return r0, r1
 }
 
-// GetQtyProductCart provides a mock function with given fields: idProduct
-func (_m *ChartData) GetQtyProductCart(idProduct int) (int, error) {
-	ret := _m.Called(idProduct)
+// GetQtyProductCart provides a mock function with given fields: idProd
+func (_m *ChartData) GetQtyProductCart(idProd int) (int, error) {
+	ret := _m.Called(idProd)
 
 	var r0 int
 	if rf, ok := ret.Get(0).(func(int) int); ok {
-		r0 = rf(idProduct)
+		r0 = rf(idProd)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int) error); ok {
-		r1 = rf(idProduct)
+		r1 = rf(idProd)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -176,20 +169,20 @@ func (_m *ChartData) SelectData(limit int, offset int, idFromToken int) ([]domai
 	return r0, r1
 }
 
-// UpdateDataDB provides a mock function with given fields: qty, idProd, idFromToken
-func (_m *ChartData) UpdateDataDB(qty int, idProd int, idFromToken int) (int, error) {
-	ret := _m.Called(qty, idProd, idFromToken)
+// UpdateDataDB provides a mock function with given fields: qty, idProd, productPrice, idFromToken
+func (_m *ChartData) UpdateDataDB(qty int, idProd int, productPrice int, idFromToken int) (int, error) {
+	ret := _m.Called(qty, idProd, productPrice, idFromToken)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, int, int) int); ok {
-		r0 = rf(qty, idProd, idFromToken)
+	if rf, ok := ret.Get(0).(func(int, int, int, int) int); ok {
+		r0 = rf(qty, idProd, productPrice, idFromToken)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int, int) error); ok {
-		r1 = rf(qty, idProd, idFromToken)
+	if rf, ok := ret.Get(1).(func(int, int, int, int) error); ok {
+		r1 = rf(qty, idProd, productPrice, idFromToken)
 	} else {
 		r1 = ret.Error(1)
 	}

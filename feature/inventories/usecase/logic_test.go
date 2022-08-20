@@ -17,7 +17,18 @@ func TestUserInventory(t *testing.T) {
 	input3 := []domain.InventoryProduct{}
 	input4 := domain.Inventory{ID: 0, InventoryProduct: []domain.InventoryProduct{}}
 
-	t.Run("insufficient amount", func(t *testing.T) {
+	t.Run("delete cart", func(t *testing.T) {
+		repo.On("DeleteInOutBound", mock.Anything).Return("no data deleted").Once()
+		useCase := New(repo, validator.New())
+		bound, status := useCase.CreateUserInventory(input2, 1)
+
+		assert.Equal(t, 404, status)
+		assert.Equal(t, domain.Inventory{}, bound)
+
+	})
+
+	t.Run("cek stock", func(t *testing.T) {
+		repo.On("DeleteInOutBound", mock.Anything).Return("").Once()
 		repo.On("CekStok", mock.Anything, mock.Anything).Return(false).Once()
 		useCase := New(repo, validator.New())
 		bound, status := useCase.CreateUserInventory(input2, 1)
@@ -27,7 +38,8 @@ func TestUserInventory(t *testing.T) {
 
 	})
 
-	t.Run("error after creating outbound data", func(t *testing.T) {
+	t.Run("create user inventory", func(t *testing.T) {
+		repo.On("DeleteInOutBound", mock.Anything).Return("").Once()
 		repo.On("CekStok", mock.Anything, mock.Anything).Return(true).Once()
 		repo.On("CreateUserInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input4).Once()
 		useCase := New(repo, validator.New())
@@ -38,7 +50,8 @@ func TestUserInventory(t *testing.T) {
 
 	})
 
-	t.Run("error after creating data", func(t *testing.T) {
+	t.Run("create user detail", func(t *testing.T) {
+		repo.On("DeleteInOutBound", mock.Anything).Return("").Once()
 		repo.On("CekStok", mock.Anything, mock.Anything).Return(true).Once()
 		repo.On("CreateUserInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input2).Once()
 		repo.On("CreateUserDetailInventoryData", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(input3).Once()
@@ -50,7 +63,8 @@ func TestUserInventory(t *testing.T) {
 
 	})
 
-	t.Run("error after update data", func(t *testing.T) {
+	t.Run("rekap stok", func(t *testing.T) {
+		repo.On("DeleteInOutBound", mock.Anything).Return("").Once()
 		repo.On("CekStok", mock.Anything, mock.Anything).Return(true).Once()
 		repo.On("CreateUserInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input2).Once()
 		repo.On("CreateUserDetailInventoryData", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(input).Once()
@@ -63,25 +77,12 @@ func TestUserInventory(t *testing.T) {
 
 	})
 
-	t.Run("error after update data", func(t *testing.T) {
-		repo.On("CekStok", mock.Anything, mock.Anything).Return(true).Once()
-		repo.On("CreateUserInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input2).Once()
-		repo.On("CreateUserDetailInventoryData", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(input).Once()
-		repo.On("RekapStock", mock.Anything, mock.Anything, mock.Anything).Return(true).Once()
-		repo.On("DeleteInOutBound", mock.Anything).Return("no data deleted").Once()
-		useCase := New(repo, validator.New())
-		bound, status := useCase.CreateUserInventory(input2, 1)
-
-		assert.Equal(t, 404, status)
-		assert.Equal(t, domain.Inventory{}, bound)
-
-	})
-	t.Run("error after update data", func(t *testing.T) {
-		repo.On("CekStok", mock.Anything, mock.Anything).Return(true).Once()
-		repo.On("CreateUserInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input2).Once()
-		repo.On("CreateUserDetailInventoryData", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(input).Once()
-		repo.On("RekapStock", mock.Anything, mock.Anything, mock.Anything).Return(true).Once()
+	t.Run("succes", func(t *testing.T) {
 		repo.On("DeleteInOutBound", mock.Anything).Return("").Once()
+		repo.On("CekStok", mock.Anything, mock.Anything).Return(true).Once()
+		repo.On("CreateUserInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input2).Once()
+		repo.On("CreateUserDetailInventoryData", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(input).Once()
+		repo.On("RekapStock", mock.Anything, mock.Anything, mock.Anything).Return(true).Once()
 		useCase := New(repo, validator.New())
 		bound, status := useCase.CreateUserInventory(input2, 1)
 
@@ -101,7 +102,7 @@ func TestReadUserOutBoundDetail(t *testing.T) {
 		useCase := New(repo, validator.New())
 		bound, status, gen := useCase.ReadUserOutBoundDetail(1, "1345767564")
 
-		assert.Equal(t, 200, status)
+		assert.Equal(t, 404, status)
 		assert.Equal(t, []domain.InventoryProduct{}, bound)
 		assert.Equal(t, "", gen)
 
@@ -148,7 +149,18 @@ func TestAdminInventory(t *testing.T) {
 	input3 := []domain.InventoryProduct{}
 	input4 := domain.Inventory{ID: 0, InventoryProduct: []domain.InventoryProduct{}}
 
-	t.Run("error after creating outbound data", func(t *testing.T) {
+	t.Run("delete cart", func(t *testing.T) {
+		repo.On("DeleteAdminInOutBound").Return("no data deleted").Once()
+		useCase := New(repo, validator.New())
+		bound, status := useCase.CreateAdminInventory(input2, 1, "admin")
+
+		assert.Equal(t, 404, status)
+		assert.Equal(t, domain.Inventory{}, bound)
+
+	})
+
+	t.Run("create admin inventory", func(t *testing.T) {
+		repo.On("DeleteAdminInOutBound").Return("").Once()
 		repo.On("CreateAdminInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input4).Once()
 		useCase := New(repo, validator.New())
 		bound, status := useCase.CreateAdminInventory(input2, 1, "admin")
@@ -158,7 +170,8 @@ func TestAdminInventory(t *testing.T) {
 
 	})
 
-	t.Run("error after creating data", func(t *testing.T) {
+	t.Run("create admin detail inventory", func(t *testing.T) {
+		repo.On("DeleteAdminInOutBound").Return("").Once()
 		repo.On("CreateAdminInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input2).Once()
 		repo.On("CreateAdminDetailInventoryData", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(input3).Once()
 		useCase := New(repo, validator.New())
@@ -169,7 +182,8 @@ func TestAdminInventory(t *testing.T) {
 
 	})
 
-	t.Run("error after update data", func(t *testing.T) {
+	t.Run("update inventory", func(t *testing.T) {
+		repo.On("DeleteAdminInOutBound").Return("").Once()
 		repo.On("CreateAdminInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input2).Once()
 		repo.On("CreateAdminDetailInventoryData", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(input).Once()
 		repo.On("RekapAdminStock", mock.Anything, mock.Anything, mock.Anything).Return(false).Once()
@@ -181,23 +195,11 @@ func TestAdminInventory(t *testing.T) {
 
 	})
 
-	t.Run("error after update data", func(t *testing.T) {
-		repo.On("CreateAdminInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input2).Once()
-		repo.On("CreateAdminDetailInventoryData", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(input).Once()
-		repo.On("RekapAdminStock", mock.Anything, mock.Anything, mock.Anything).Return(true).Once()
-		repo.On("DeleteAdminInOutBound").Return("no data deleted").Once()
-		useCase := New(repo, validator.New())
-		bound, status := useCase.CreateAdminInventory(input2, 1, "admin")
-
-		assert.Equal(t, 404, status)
-		assert.Equal(t, domain.Inventory{}, bound)
-
-	})
-	t.Run("error after update data", func(t *testing.T) {
-		repo.On("CreateAdminInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input2).Once()
-		repo.On("CreateAdminDetailInventoryData", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(input).Once()
-		repo.On("RekapAdminStock", mock.Anything, mock.Anything, mock.Anything).Return(true).Once()
+	t.Run("update inventory", func(t *testing.T) {
 		repo.On("DeleteAdminInOutBound").Return("").Once()
+		repo.On("CreateAdminInventoryData", mock.Anything, mock.Anything, mock.Anything).Return(input2).Once()
+		repo.On("CreateAdminDetailInventoryData", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(input).Once()
+		repo.On("RekapAdminStock", mock.Anything, mock.Anything, mock.Anything).Return(true).Once()
 		useCase := New(repo, validator.New())
 		bound, status := useCase.CreateAdminInventory(input2, 1, "admin")
 
@@ -217,7 +219,7 @@ func TestReadAdminOutBoundDetail(t *testing.T) {
 		useCase := New(repo, validator.New())
 		bound, status, gen := useCase.ReadAdminOutBoundDetail("123456789")
 
-		assert.Equal(t, 200, status)
+		assert.Equal(t, 404, status)
 		assert.Equal(t, []domain.InventoryProduct{}, bound)
 		assert.Equal(t, "", gen)
 

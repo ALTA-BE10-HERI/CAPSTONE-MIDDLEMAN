@@ -151,23 +151,6 @@ func (i *Inventory) ToI2() domain.Inventory {
 	}
 }
 
-func ParsePUToArr2(arr []domain.InventoryProduct, invenid string) map[string]interface{} {
-	var arrmap []map[string]interface{}
-	var res2 = map[string]interface{}{}
-	for i := 0; i < len(arr); i++ {
-		var res = map[string]interface{}{}
-		res["product_id"] = arr[i].ProductID
-		res["product_name"] = arr[i].Name
-		res["qty"] = arr[i].Qty
-		res["unit"] = arr[i].Unit
-
-		arrmap = append(arrmap, res)
-	}
-	res2["inventory_id"] = invenid
-	res2["items"] = arrmap
-	return res2
-}
-
 func ParsePUToArr3(arr []domain.Inventory) []map[string]interface{} {
 	var arrmap []map[string]interface{}
 	for i := 0; i < len(arr); i++ {
@@ -190,9 +173,10 @@ func ParsePUToArr4(arr []Inventory) []domain.Inventory {
 
 func (ip *Inventory) ToPU2() domain.Inventory {
 	return domain.Inventory{
-		ID:       int(ip.ID),
-		OutBound: ip.OutBound,
-		UserID:   ip.UserID,
+		ID:        int(ip.ID),
+		OutBound:  ip.OutBound,
+		UserID:    ip.UserID,
+		CreatedAt: ip.CreatedAt,
 	}
 }
 
