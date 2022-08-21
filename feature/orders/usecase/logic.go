@@ -132,11 +132,23 @@ func (oc *orderUseCase) Payment(grandTotal, idUser int) (orderName, url, token s
 func (oc *orderUseCase) AcceptPayment(data domain.PaymentWeb) (row int, err error) {
 
 	if data.TransactionStatus == "settlement" {
-		oc.orderData.AcceptPaymentData(data)
+		_, err := oc.orderData.AcceptPaymentData(data)
+		if err != nil {
+			log.Println("failed to update status")
+			return 500, err
+		}
 	} else if data.TransactionStatus == "expire" {
-		oc.orderData.CancelPaymentData(data)
+		_, err := oc.orderData.CancelPaymentData(data)
+		if err != nil {
+			log.Println("failed to update status")
+			return 500, err
+		}
 	} else if data.TransactionStatus == "cancel" {
-		oc.orderData.CancelPaymentData(data)
+		_, err := oc.orderData.CancelPaymentData(data)
+		if err != nil {
+			log.Println("failed to update status")
+			return 500, err
+		}
 	}
 
 	if data.TransactionStatus == "" {
@@ -185,7 +197,7 @@ func (oc *orderUseCase) ConfirmOrder(orderName, role string) (domain.Order, int)
 
 func (oc *orderUseCase) DoneOrder(ordername string) (domain.Order, int) {
 	order := oc.orderData.DoneOrderData(ordername)
-	if order.OrderName == "" {
+	if order.ID == 0 {
 		log.Println("Empty Data")
 		return domain.Order{}, 404
 	}
