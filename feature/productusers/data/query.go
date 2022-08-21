@@ -90,11 +90,10 @@ func (pud *productUserData) DeleteProductData(productid, id int) (err string) {
 	return ""
 }
 
-func (pud *productUserData) SearchRestoData(search string) (result []domain.ProductUser, err error) {
+func (pud *productUserData) SearchRestoData(search string, idUser int) (result []domain.ProductUser, err error) {
 	var dataProductUser []ProductUser
-
-	res := pud.db.Where("name like ?", "%"+search+"%").Find(&dataProductUser)
-
+	res := pud.db.Where("name like ? AND id_user = ?", "%"+search+"%", idUser).Find(&dataProductUser)
+	log.Println("cek id user :", idUser)
 	if res.Error != nil {
 		return []domain.ProductUser{}, res.Error
 	}

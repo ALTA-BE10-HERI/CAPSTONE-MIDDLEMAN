@@ -5,6 +5,7 @@ import (
 	"log"
 	"middleman-capstone/domain"
 	"middleman-capstone/feature/common"
+	_middleware "middleman-capstone/feature/common"
 	"middleman-capstone/feature/productusers/data"
 	_helper "middleman-capstone/helper"
 	"net/http"
@@ -286,8 +287,8 @@ func (puh *productUserHandler) Delete() echo.HandlerFunc {
 func (puh *productUserHandler) Search() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		search := c.QueryParam("productname")
-
-		res, err := puh.productUserUseCase.SearchRestoBusiness(search)
+		idFromToken, _ := _middleware.ExtractData(c)
+		res, err := puh.productUserUseCase.SearchRestoBusiness(search, idFromToken)
 		tmp := FromModelList(res)
 
 		if err != nil {
