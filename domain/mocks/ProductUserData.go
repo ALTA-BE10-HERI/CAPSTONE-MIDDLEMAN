@@ -57,13 +57,13 @@ func (_m *ProductUserData) ReadAllProductData(id int) []domain.ProductUser {
 	return r0
 }
 
-// SearchRestoData provides a mock function with given fields: search
-func (_m *ProductUserData) SearchRestoData(search string) ([]domain.ProductUser, error) {
-	ret := _m.Called(search)
+// SearchRestoData provides a mock function with given fields: search, idUser
+func (_m *ProductUserData) SearchRestoData(search string, idUser int) ([]domain.ProductUser, error) {
+	ret := _m.Called(search, idUser)
 
 	var r0 []domain.ProductUser
-	if rf, ok := ret.Get(0).(func(string) []domain.ProductUser); ok {
-		r0 = rf(search)
+	if rf, ok := ret.Get(0).(func(string, int) []domain.ProductUser); ok {
+		r0 = rf(search, idUser)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.ProductUser)
@@ -71,8 +71,8 @@ func (_m *ProductUserData) SearchRestoData(search string) ([]domain.ProductUser,
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(search)
+	if rf, ok := ret.Get(1).(func(string, int) error); ok {
+		r1 = rf(search, idUser)
 	} else {
 		r1 = ret.Error(1)
 	}

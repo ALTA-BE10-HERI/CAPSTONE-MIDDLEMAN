@@ -147,7 +147,7 @@ func (od *orderData) GetIncomingData(limit, offset int) (data []domain.Order, er
 
 func (od *orderData) ConfirmOrderData(orderName string) domain.Order {
 	var dataOrder domain.Order
-	updatestatus := od.db.Table("orders").Where("order_name = ?", orderName).Update("status", "on process")
+	updatestatus := od.db.Table("orders").Where("order_name = ? AND status = ?", orderName, "waiting confirmation").Update("status", "on process")
 	if updatestatus.Error != nil {
 		log.Println("error update data")
 		return domain.Order{}
@@ -185,7 +185,7 @@ func (od *orderData) GetUserByOrderName(orderName string) (data domain.Order, er
 func (od *orderData) DoneOrderData(ordername string) domain.Order {
 
 	order := Order{}
-	updatestatus := od.db.Table("orders").Where("order_name = ?", ordername).Update("status", "delivered")
+	updatestatus := od.db.Table("orders").Where("order_name = ? AND status = ? ", ordername, "on process").Update("status", "delivered")
 	if updatestatus.Error != nil {
 		return domain.Order{}
 	}

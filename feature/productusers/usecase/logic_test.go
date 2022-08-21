@@ -138,10 +138,10 @@ func TestDeleteProduct(t *testing.T) {
 func TestSearchRestoBusiness(t *testing.T) {
 	repo := new(mocks.ProductUserData)
 	outdata := []domain.ProductUser{{ID: 1, IdUser: 2, Name: "Beras", Unit: "kg", Stock: 10, Price: 10000, Image: "jpg"}}
-	t.Run("Succes delete", func(t *testing.T) {
-		repo.On("SearchRestoData", "Beras").Return(outdata, nil).Once()
+	t.Run("Succes search", func(t *testing.T) {
+		repo.On("SearchRestoData", "Beras", mock.Anything).Return(outdata, nil).Once()
 		usecase := New(repo, validator.New())
-		res, err := usecase.SearchRestoBusiness("Beras")
+		res, err := usecase.SearchRestoBusiness("Beras", 2)
 
 		assert.NoError(t, err)
 		assert.Equal(t, outdata, res)
@@ -149,9 +149,9 @@ func TestSearchRestoBusiness(t *testing.T) {
 	})
 
 	t.Run("Not Found", func(t *testing.T) {
-		repo.On("SearchRestoData", "Beras").Return([]domain.ProductUser{}, errors.New("error")).Once()
+		repo.On("SearchRestoData", "Beras", mock.Anything).Return([]domain.ProductUser{}, errors.New("error")).Once()
 		usecase := New(repo, validator.New())
-		res, err := usecase.SearchRestoBusiness("Beras")
+		res, err := usecase.SearchRestoBusiness("Beras", 1)
 
 		assert.Error(t, err)
 		assert.Equal(t, []domain.ProductUser{}, res)
