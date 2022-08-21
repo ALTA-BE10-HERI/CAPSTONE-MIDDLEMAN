@@ -154,8 +154,8 @@ func (oc *orderUseCase) ConfirmOrder(orderName, role string) (domain.Order, int)
 
 	order := oc.orderData.ConfirmOrderData(orderName)
 	if order.ID == 0 {
-		log.Println("failed to get order data")
-		return domain.Order{}, 500
+		log.Println("data not found")
+		return domain.Order{}, 404
 	}
 
 	user, _ := oc.orderData.GetUser(order.UserID)

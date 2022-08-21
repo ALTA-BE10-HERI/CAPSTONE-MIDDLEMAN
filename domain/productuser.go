@@ -31,7 +31,7 @@ type ProductUserUseCase interface {
 	ReadAllProduct(id int) ([]ProductUser, int)
 	UpdateProduct(updatedData ProductUser, productid, id int) (ProductUser, int)
 	DeleteProduct(productid, id int) int
-	SearchRestoBusiness(search string) (result []ProductUser, err error)
+	SearchRestoBusiness(search string, idUser int) (result []ProductUser, err error)
 }
 
 type ProductUserData interface {
@@ -39,5 +39,5 @@ type ProductUserData interface {
 	ReadAllProductData(id int) []ProductUser
 	UpdateProductData(data map[string]interface{}, productid, id int) ProductUser
 	DeleteProductData(productid, id int) (err string)
-	SearchRestoData(search string) (result []ProductUser, err error)
+	SearchRestoData(search string, idUser int) (result []ProductUser, err error)
 }

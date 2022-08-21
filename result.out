@@ -96,7 +96,7 @@ middleman-capstone/feature/carts/usecase/logic.go:42.13,44.48 2 0
 middleman-capstone/feature/carts/usecase/logic.go:47.3,49.89 3 0
 middleman-capstone/feature/carts/usecase/logic.go:44.48,46.4 1 0
 middleman-capstone/feature/carts/usecase/logic.go:50.8,53.3 2 0
-middleman-capstone/feature/carts/usecase/logic.go:58.86,63.2 4 0
+middleman-capstone/feature/carts/usecase/logic.go:58.86,63.2 4 1
 middleman-capstone/feature/carts/usecase/logic.go:64.81,67.2 2 1
 middleman-capstone/feature/inventories/usecase/logic.go:17.83,22.2 1 1
 middleman-capstone/feature/inventories/usecase/logic.go:24.109,29.23 3 1
@@ -164,7 +164,7 @@ middleman-capstone/feature/productusers/usecase/logic.go:94.2,94.30 1 1
 middleman-capstone/feature/productusers/usecase/logic.go:98.2,98.12 1 1
 middleman-capstone/feature/productusers/usecase/logic.go:90.33,93.3 2 1
 middleman-capstone/feature/productusers/usecase/logic.go:94.30,97.3 2 1
-middleman-capstone/feature/productusers/usecase/logic.go:101.109,105.2 2 1
+middleman-capstone/feature/productusers/usecase/logic.go:101.121,105.2 2 1
 middleman-capstone/feature/users/usecase/logic.go:22.72,27.2 1 1
 middleman-capstone/feature/users/usecase/logic.go:29.74,32.23 3 1
 middleman-capstone/feature/users/usecase/logic.go:35.2,37.23 3 1
