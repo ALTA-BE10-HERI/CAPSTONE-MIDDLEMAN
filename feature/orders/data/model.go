@@ -77,7 +77,7 @@ func (ip *Items) ToPU() domain.Items {
 
 func (o *Order) ToDomain() domain.Order {
 	return domain.Order{
-		ID:         int(o.ID),
+		OrderName:  o.OrderName,
 		GrandTotal: o.GrandTotal,
 		Status:     o.Status,
 		CreatedAt:  o.CreatedAt,
@@ -116,14 +116,14 @@ func FromDomainItems(data domain.Items) Items {
 
 func (od *Order) ToDomainDetail() domain.Order {
 	return domain.Order{
-		ID:         int(od.ID),
+		OrderName:  od.OrderName,
 		Status:     od.Status,
 		GrandTotal: od.GrandTotal,
 		CreatedAt:  od.CreatedAt,
 	}
 }
 
-func ParseToArrDetail(arr []domain.Items, grandTotal, idOrder int) map[string]interface{} {
+func ParseToArrDetail(arr []domain.Items, grandTotal int, idOrder string) map[string]interface{} {
 	var arrmap []map[string]interface{}
 	var res2 = map[string]interface{}{}
 	for i := 0; i < len(arr); i++ {

@@ -83,7 +83,7 @@ func ParsePUToArr2(arr []domain.Order) []map[string]interface{} {
 	var arrmap []map[string]interface{}
 	for i := 0; i < len(arr); i++ {
 		var res = map[string]interface{}{}
-		res["id"] = arr[i].ID
+		res["order_id"] = arr[i].OrderName
 		res["status"] = arr[i].Status
 		res["date"] = arr[i].CreatedAt
 		res["grand_total"] = arr[i].GrandTotal
