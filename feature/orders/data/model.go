@@ -123,7 +123,7 @@ func (od *Order) ToDomainDetail() domain.Order {
 	}
 }
 
-func ParseToArrDetail(arr []domain.Items, grandTotal, idOrder int) map[string]interface{} {
+func ParseToArrDetail(arr []domain.Items, grandTotal int, orderName string) map[string]interface{} {
 	var arrmap []map[string]interface{}
 	var res2 = map[string]interface{}{}
 	for i := 0; i < len(arr); i++ {
@@ -135,7 +135,7 @@ func ParseToArrDetail(arr []domain.Items, grandTotal, idOrder int) map[string]in
 
 		arrmap = append(arrmap, res)
 	}
-	res2["id_order"] = idOrder
+	res2["id_order"] = orderName
 	res2["grand_total"] = grandTotal
 	res2["items"] = arrmap
 	return res2
