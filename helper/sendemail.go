@@ -42,7 +42,7 @@ func SendEmail(data Recipient) {
 		</tr>
 		<tr>
 			<td>
-				No Hanpdhone 
+				Phone Number
 			</td>
 			<td>
 				: %s

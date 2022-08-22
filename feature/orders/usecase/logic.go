@@ -48,17 +48,17 @@ func (oc *orderUseCase) GetAllUser(limit, offset, idUser int) (data []domain.Ord
 
 	return data, err
 }
-func (oc *orderUseCase) GetDetail(idUser, idOrder int) (grandTotal int, err error) {
-	grandTotal, err = oc.orderData.GetDetailData(idUser, idOrder)
+func (oc *orderUseCase) GetDetail(idUser int, orderName string) (grandTotal, idOrder int, err error) {
+	grandTotal, idOrder, err = oc.orderData.GetDetailData(idUser, orderName)
 	if grandTotal == 0 {
 		log.Println("error get data")
-		return -1, nil
+		return -1, 0, nil
 	}
 	if err != nil {
 		log.Println("failed to get data")
-		return 400, nil
+		return 400, 0, nil
 	}
-	return grandTotal, nil
+	return grandTotal, idOrder, nil
 }
 func (oc *orderUseCase) GetItems(idOrder int) (data []domain.Items, err error) {
 	data, err = oc.orderData.GetDetailItems(idOrder)
@@ -102,6 +102,12 @@ func (oc *orderUseCase) CreateOrder(dataOrder domain.Order, idUser int) int {
 	create := oc.orderData.InsertData(dataOrder.Items, idOrder)
 	if len(create) == 0 {
 		log.Println("error after creating data")
+		return 500
+	}
+
+	delete := oc.orderData.DeleteCart(idUser)
+	if !delete {
+		log.Println("failed delete data")
 		return 500
 	}
 
@@ -200,12 +206,6 @@ func (oc *orderUseCase) DoneOrder(ordername string) (domain.Order, int) {
 	if order.ID == 0 {
 		log.Println("Empty Data")
 		return domain.Order{}, 404
-	}
-
-	delete := oc.orderData.DeleteCart(order.UserID)
-	if !delete {
-		log.Println("failed delete data")
-		return domain.Order{}, 500
 	}
 
 	updateadminstok := oc.orderData.UpdateStokAdmin(ordername)

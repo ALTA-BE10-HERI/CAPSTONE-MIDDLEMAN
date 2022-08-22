@@ -38,7 +38,7 @@ type OrderUseCase interface {
 	CreateOrder(dataOrder Order, idUser int) int
 	// CreateItems(data []Items) (row int, err error)
 	GetAllUser(limit, offset, idUser int) (data []Order, err error)
-	GetDetail(idUser, idOrder int) (grandTotal int, err error)
+	GetDetail(idUser int, orderName string) (grandTotal, idOrder int, err error)
 	GetItems(idOrder int) (data []Items, err error)
 	GetIncoming(limit, offset int, role string) (data []Order, err error)
 	Payment(grandTotal, idUser int) (orderName, url, token string, dataUser User)
@@ -56,7 +56,7 @@ type OrderData interface {
 	Insert(data Order) (idOrder int, err error)
 	GetUser(idUser int) (data User, err error)
 	GetUserByOrderName(orderName string) (data Order, err error)
-	GetDetailData(idUser, idOrder int) (grandTotal int, err error)
+	GetDetailData(idUser int, orderName string) (grandTotal, idOrder int, err error)
 	GetDetailItems(idOrder int) (data []Items, err error)
 	GetIncomingData(limit, offset int) (data []Order, err error)
 	AcceptPaymentData(data PaymentWeb) (row int, err error)
