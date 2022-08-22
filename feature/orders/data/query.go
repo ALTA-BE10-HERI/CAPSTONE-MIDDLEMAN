@@ -84,14 +84,14 @@ func (od *orderData) SelectDataUserAll(limit, offset, idUser int) (data []domain
 	return ParseToArr(dataOrder), nil
 }
 
-func (od *orderData) GetDetailData(idUser int, orderName string) (grandTotal, idOrder int, err error) {
+func (od *orderData) GetDetailData(orderName string) (grandTotal, idOrder int, err error) {
 	dataOrder := Order{}
-	result := od.db.Where("user_id =? AND order_name = ?", idUser, orderName).Preload("Items").First(&dataOrder)
+	result := od.db.Where("order_id = ?", orderName).Preload("Items").First(&dataOrder)
 
 	if result.Error != nil {
-		return 0, 0, result.Error
+		return 0, 0, 0, result.Error
 	}
-	return dataOrder.GrandTotal, int(dataOrder.ID), nil
+	return dataOrder.GrandTotal, int(dataOrder.ID), int(dataOrder.ID), nil
 }
 
 func (od *orderData) GetDetailItems(idOrder int) (data []domain.Items, err error) {

@@ -48,8 +48,8 @@ func (oc *orderUseCase) GetAllUser(limit, offset, idUser int) (data []domain.Ord
 
 	return data, err
 }
-func (oc *orderUseCase) GetDetail(idUser int, orderName string) (grandTotal, idOrder int, err error) {
-	grandTotal, idOrder, err = oc.orderData.GetDetailData(idUser, orderName)
+func (oc *orderUseCase) GetDetail(orderName string) (grandTotal, idOrder int, err error) {
+	grandTotal, idOrder, err = oc.orderData.GetDetailData(orderName)
 	if grandTotal == 0 {
 		log.Println("error get data")
 		return -1, 0, nil
