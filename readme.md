@@ -144,28 +144,6 @@ In Inventories feature to record stok in and out from inventory user admin
 
 </details>
 
-<div>
-      <details>
-<summary>📗 Open Api</summary>
-if you want to consume our api,
-here's the way !
-
-```bash
-https://app.swaggerhub.com/apis-docs/vaniliacahya/capstone/1.0.0#/
-```
-
-<div>
-
-</details>
-
-<div>
-      <details>
-<summary>🧪 Unit Test</summary>
-<img src="unit_test.jpg">
-<div>
-
-</details>
-
 ### 🛠 &nbsp;Build App & Database
 
 ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
@@ -184,18 +162,31 @@ https://app.swaggerhub.com/apis-docs/vaniliacahya/capstone/1.0.0#/
 
 <img src="ERD.png">
 
+## Unit Test
+
+<img src="unit_test.jpg">
+
+## Open Api
+
+if you want to consume our api,
+here's the way !
+
+```bash
+https://app.swaggerhub.com/apis-docs/vaniliacahya/capstone/1.0.0#/
+```
+
 ## Run Locally
 
 Clone the project
 
 ```bash
-      https://github.com/ALTA-BE10-HERI/CAPSTONE-MIDDLEMAN
+https://github.com/ALTA-BE10-HERI/CAPSTONE-MIDDLEMAN
 ```
 
 Go to the project directory
 
 ```bash
-      cd CAPSTONE-MIDDLEMAN
+cd CAPSTONE-MIDDLEMAN
 ```
 
 [![GitHub Hilmi](https://img.shields.io/badge/-Heri-white?style=flat&logo=github&logoColor=black)](https://github.com/darmon17)
