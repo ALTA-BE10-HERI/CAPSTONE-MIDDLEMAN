@@ -89,9 +89,9 @@ func (od *orderData) GetDetailData(orderName string) (grandTotal, idOrder int, e
 	result := od.db.Where("order_id = ?", orderName).Preload("Items").First(&dataOrder)
 
 	if result.Error != nil {
-		return 0, 0, result.Error
+		return 0, 0, 0, result.Error
 	}
-	return dataOrder.GrandTotal, int(dataOrder.ID), nil
+	return dataOrder.GrandTotal, int(dataOrder.ID), int(dataOrder.ID), nil
 }
 
 func (od *orderData) GetDetailItems(idOrder int) (data []domain.Items, err error) {
@@ -137,7 +137,7 @@ func (od *orderData) CancelPaymentData(data domain.PaymentWeb) (row int, err err
 
 func (od *orderData) GetIncomingData(limit, offset int) (data []domain.Order, err error) {
 	var dataOrder []Order
-	result := od.db.Limit(limit).Offset(offset).Table("orders").Where("status", "waiting confirmation")
+	result := od.db.Limit(limit).Offset(offset).Where("status = ?", "waiting confirmation").Find(&dataOrder)
 	if result.Error != nil {
 		log.Println("error get data")
 		return []domain.Order{}, nil

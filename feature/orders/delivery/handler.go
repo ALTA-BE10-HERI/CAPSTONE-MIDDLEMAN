@@ -60,15 +60,17 @@ func (oh *OrderHandler) GetAllUser() echo.HandlerFunc {
 
 func (oh *OrderHandler) GetDetail() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		idParam := c.Param("idorder")
-		idOrder, _ := strconv.Atoi(idParam)
+		idOrder := c.Param("idorder")
 		idUser, _ := _middleware.ExtractData(c)
 
-		grandTotal, _ := oh.orderUseCase.GetDetail(idUser, idOrder)
+		grandTotal, id, _ := oh.orderUseCase.GetDetail(idUser, idOrder)
 		if grandTotal == -1 {
 			return c.JSON(http.StatusInternalServerError, _helper.ResponseInternalServerError("there is an internal server error"))
 		}
-		result, err := oh.orderUseCase.GetItems(idOrder)
+		if grandTotal == 401 {
+			return c.JSON(http.StatusUnauthorized, _helper.ResponseNoAccess("you dont have access"))
+		}
+		result, err := oh.orderUseCase.GetItems(id)
 		data := _data.ParseToArrDetail(result, grandTotal, idOrder)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
@@ -86,6 +88,7 @@ func (oh *OrderHandler) GetIncoming() echo.HandlerFunc {
 		_, role := _middleware.ExtractData(c)
 
 		result, err := oh.orderUseCase.GetIncoming(limit, offset, role)
+		fmt.Println("hasil dari result:", result)
 		data := ParsePUToArr2(result)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
@@ -157,8 +160,6 @@ func (oh *OrderHandler) Payment() echo.HandlerFunc {
 		}
 
 		dataWeb := FromWeb(data)
-		fmt.Println("isi dataWeb :", dataWeb)
-		fmt.Println("isi data :", data)
 		response, err := oh.orderUseCase.AcceptPayment(dataWeb)
 
 		if response == -1 {
