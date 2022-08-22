@@ -19,8 +19,5 @@ jobs:
           script: |
             cd /home/ubuntu/CAPSTONE-MIDDLEMAN
             git pull origin main
-            docker stop middlemanContainer
-            docker rm middlemanContainer
-            docker rmi middleman-api
             docker build -t middleman-api:latest .
             docker run -d -p 80:80 --name middlemanContainer middleman-api:latest
