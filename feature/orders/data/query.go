@@ -86,7 +86,7 @@ func (od *orderData) SelectDataUserAll(limit, offset, idUser int) (data []domain
 
 func (od *orderData) GetDetailData(orderName string) (grandTotal, idOrder int, err error) {
 	dataOrder := Order{}
-	result := od.db.Where("order_id = ?", orderName).Preload("Items").First(&dataOrder)
+	result := od.db.Where("order_name = ?", orderName).Preload("Items").First(&dataOrder)
 
 	if result.Error != nil {
 		return 0, 0, result.Error
