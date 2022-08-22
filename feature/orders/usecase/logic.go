@@ -52,13 +52,13 @@ func (oc *orderUseCase) GetDetail(orderName string) (grandTotal, idOrder int, er
 	grandTotal, idOrder, err = oc.orderData.GetDetailData(orderName)
 	if grandTotal == 0 {
 		log.Println("error get data")
-		return -1, 0, 0, nil
+		return -1, 0, nil
 	}
 	if err != nil {
 		log.Println("failed to get data")
-		return 400, 0, 0, nil
+		return 400, 0, nil
 	}
-	return grandTotal, idOrder, idOrder, nil
+	return grandTotal, idOrder, nil
 }
 func (oc *orderUseCase) GetItems(idOrder int) (data []domain.Items, err error) {
 	data, err = oc.orderData.GetDetailItems(idOrder)
