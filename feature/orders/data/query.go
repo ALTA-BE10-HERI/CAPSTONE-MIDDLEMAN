@@ -89,9 +89,9 @@ func (od *orderData) GetDetailData(orderName string) (grandTotal, idOrder int, e
 	result := od.db.Where("order_id = ?", orderName).Preload("Items").First(&dataOrder)
 
 	if result.Error != nil {
-		return 0, 0, 0, result.Error
+		return 0, 0, result.Error
 	}
-	return dataOrder.GrandTotal, int(dataOrder.ID), int(dataOrder.ID), nil
+	return dataOrder.GrandTotal, int(dataOrder.ID), nil
 }
 
 func (od *orderData) GetDetailItems(idOrder int) (data []domain.Items, err error) {
