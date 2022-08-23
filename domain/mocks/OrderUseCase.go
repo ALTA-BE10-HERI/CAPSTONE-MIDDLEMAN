@@ -136,25 +136,32 @@ func (_m *OrderUseCase) GetAllUser(limit int, offset int, idUser int) ([]domain.
 	return r0, r1
 }
 
-// GetDetail provides a mock function with given fields: idUser, idOrder
-func (_m *OrderUseCase) GetDetail(idUser int, idOrder int) (int, error) {
-	ret := _m.Called(idUser, idOrder)
+// GetDetail provides a mock function with given fields: idUser, orderName
+func (_m *OrderUseCase) GetDetail(idUser int, orderName string) (int, int, error) {
+	ret := _m.Called(idUser, orderName)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, int) int); ok {
-		r0 = rf(idUser, idOrder)
+	if rf, ok := ret.Get(0).(func(int, string) int); ok {
+		r0 = rf(idUser, orderName)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(idUser, idOrder)
+	var r1 int
+	if rf, ok := ret.Get(1).(func(int, string) int); ok {
+		r1 = rf(idUser, orderName)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int)
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(int, string) error); ok {
+		r2 = rf(idUser, orderName)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // GetIncoming provides a mock function with given fields: limit, offset, role

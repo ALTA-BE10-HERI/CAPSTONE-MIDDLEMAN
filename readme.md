@@ -2,9 +2,17 @@
 
 <!-- ABOUT THE PROJECT -->
 
+<h1>
+<p align="center">
+<a href="https://middleman-alta.vercel.app/auth/welcome">
+  <img src="https://middleman-alta.vercel.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo.f4fa4ef1.png&w=640&q=75" alt="Logo" height="60">
+  </a>
+  <br>BE TEAM
+</h1>
+
 ## 💻 About The Project
 
-Middleman built to help between stores and wholesalers.
+Middleman is a project for helping each store for buying some products for stock on distributor via online. In real case, many store that still doing manual for listing stock product, add / reduce for in/out stock product, take a notes for stock of their products. So therefore, Middleman is developed here trying for handle that behaviour user which changing from manual to all stock activity in online.
 
 Feature in Middleman
 
@@ -154,19 +162,9 @@ In Inventories feature to record stok in and out from inventory user admin
 
 <img src="ERD.png">
 
-## Run Locally
+## Unit Test
 
-Clone the project
-
-```bash
-      https://github.com/ALTA-BE10-HERI/CAPSTONE-MIDDLEMAN
-```
-
-Go to the project directory
-
-```bash
-      cd CAPSTONE-MIDDLEMAN
-```
+<img src="unit_test.jpg">
 
 ## Open Api
 
@@ -177,7 +175,19 @@ here's the way !
 https://app.swaggerhub.com/apis-docs/vaniliacahya/capstone/1.0.0#/
 ```
 
-## Authors
+## Run Locally
+
+Clone the project
+
+```bash
+https://github.com/ALTA-BE10-HERI/CAPSTONE-MIDDLEMAN
+```
+
+Go to the project directory
+
+```bash
+cd CAPSTONE-MIDDLEMAN
+```
 
 [![GitHub Hilmi](https://img.shields.io/badge/-Heri-white?style=flat&logo=github&logoColor=black)](https://github.com/darmon17)
 [![GitHub Hilmi](https://img.shields.io/badge/-Ivan-white?style=flat&logo=github&logoColor=black)](https://github.com/ivands26)

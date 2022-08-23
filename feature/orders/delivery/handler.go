@@ -60,15 +60,13 @@ func (oh *OrderHandler) GetAllUser() echo.HandlerFunc {
 
 func (oh *OrderHandler) GetDetail() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		idParam := c.Param("idorder")
-		idOrder, _ := strconv.Atoi(idParam)
-		idUser, _ := _middleware.ExtractData(c)
+		idOrder := c.Param("idorder")
 
-		grandTotal, _ := oh.orderUseCase.GetDetail(idUser, idOrder)
+		grandTotal, id, _ := oh.orderUseCase.GetDetail(idOrder)
 		if grandTotal == -1 {
 			return c.JSON(http.StatusInternalServerError, _helper.ResponseInternalServerError("there is an internal server error"))
 		}
-		result, err := oh.orderUseCase.GetItems(idOrder)
+		result, err := oh.orderUseCase.GetItems(id)
 		data := _data.ParseToArrDetail(result, grandTotal, idOrder)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
