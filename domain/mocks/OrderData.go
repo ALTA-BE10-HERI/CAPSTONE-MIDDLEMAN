@@ -148,7 +148,7 @@ func (_m *OrderData) DoneOrderData(orderid string) domain.Order {
 	return r0
 }
 
-// GetDetailData provides a mock function with given fields: idUser, orderName
+// GetDetailData provides a mock function with given fields: orderName
 func (_m *OrderData) GetDetailData(orderName string) (int, int, error) {
 	ret := _m.Called(orderName)
 

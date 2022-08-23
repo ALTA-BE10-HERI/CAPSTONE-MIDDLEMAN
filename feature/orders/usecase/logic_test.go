@@ -84,27 +84,27 @@ func TestGetDetail(t *testing.T) {
 	t.Run("grandtotal = 0", func(t *testing.T) {
 		repo.On("GetDetailData", mock.Anything).Return(0, 1, errors.New("error")).Once()
 		useCase := New(repo, validator.New())
-		total, order, err := useCase.GetDetail("123")
+		total, order, err := useCase.GetDetail("ID")
 
-		assert.Equal(t, -1, total)
 		assert.NoError(t, err)
-		assert.Equal(t, 0, order)
+		assert.Equal(t, 0, total)
+		assert.Equal(t, 1, order)
 	})
 
 	t.Run("grandtotal != 0, error != nil", func(t *testing.T) {
 		repo.On("GetDetailData", mock.Anything).Return(10000, 1, errors.New("error")).Once()
 		useCase := New(repo, validator.New())
-		total, order, err := useCase.GetDetail("123")
+		total, order, err := useCase.GetDetail("test")
 
-		assert.Equal(t, 400, total)
 		assert.NoError(t, err)
+		assert.Equal(t, 400, total)
 		assert.Equal(t, 0, order)
 	})
 
 	t.Run("succes", func(t *testing.T) {
 		repo.On("GetDetailData", mock.Anything).Return(10000, 1, nil).Once()
 		useCase := New(repo, validator.New())
-		total, order, err := useCase.GetDetail("123")
+		total, order, err := useCase.GetDetail("test")
 
 		assert.NoError(t, err)
 		assert.Equal(t, 10000, total)
