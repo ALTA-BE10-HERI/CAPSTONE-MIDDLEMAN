@@ -9,7 +9,7 @@ import (
 type ProductUser struct {
 	gorm.Model
 	IdUser int
-	Name   string `json:"product_name" form:"product_name" validate:"required"`
+	Name   string `json:"product_name" form:"product_name" validate:"required" gorm:"unique"`
 	Unit   string `json:"unit" form:"unit" validate:"required"`
 	Stock  int    `json:"stock" form:"stock" validate:"required"`
 	Price  int    `json:"price" form:"price" validate:"required"`

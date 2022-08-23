@@ -32,7 +32,7 @@ func (oh *OrderHandler) GetAllAdmin() echo.HandlerFunc {
 		_, role := _middleware.ExtractData(c)
 
 		result, err := oh.orderUseCase.GetAllAdmin(limit, offset, role)
-		data := ParsePUToArr2(result)
+		data := FromModelListUser(result)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("failed to get all data"))
 		}
@@ -49,7 +49,7 @@ func (oh *OrderHandler) GetAllUser() echo.HandlerFunc {
 		id, _ := _middleware.ExtractData(c)
 
 		result, err := oh.orderUseCase.GetAllUser(limit, offset, id)
-		data := ParsePUToArr2(result)
+		data := FromModelListUser(result)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
 		}
@@ -62,12 +62,12 @@ func (oh *OrderHandler) GetDetail() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		idOrder := c.Param("idorder")
 
-		grandTotal, id, _ := oh.orderUseCase.GetDetail(idOrder)
+		grandTotal, id, status, _ := oh.orderUseCase.GetDetail(idOrder)
 		if grandTotal == -1 {
 			return c.JSON(http.StatusInternalServerError, _helper.ResponseInternalServerError("there is an internal server error"))
 		}
 		result, err := oh.orderUseCase.GetItems(id)
-		data := _data.ParseToArrDetail(result, grandTotal, idOrder)
+		data := FromModel2(result, grandTotal, status, idOrder)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
 		}
@@ -84,7 +84,7 @@ func (oh *OrderHandler) GetIncoming() echo.HandlerFunc {
 		_, role := _middleware.ExtractData(c)
 
 		result, err := oh.orderUseCase.GetIncoming(limit, offset, role)
-		data := ParsePUToArr2(result)
+		data := FromModelListUser(result)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
 		}
