@@ -82,30 +82,33 @@ func TestGetDetail(t *testing.T) {
 	repo := new(mocks.OrderData)
 
 	t.Run("grandtotal = 0", func(t *testing.T) {
-		repo.On("GetDetailData", mock.Anything, mock.Anything).Return(0, errors.New("error")).Once()
+		repo.On("GetDetailData", mock.Anything).Return(0, 1, errors.New("error")).Once()
 		useCase := New(repo, validator.New())
-		order, err := useCase.GetDetail(1, 1)
+		total, order, err := useCase.GetDetail("123")
 
+		assert.Equal(t, -1, total)
 		assert.NoError(t, err)
-		assert.Equal(t, -1, order)
+		assert.Equal(t, 0, order)
 	})
 
 	t.Run("grandtotal != 0, error != nil", func(t *testing.T) {
-		repo.On("GetDetailData", mock.Anything, mock.Anything).Return(10000, errors.New("error")).Once()
+		repo.On("GetDetailData", mock.Anything).Return(10000, 1, errors.New("error")).Once()
 		useCase := New(repo, validator.New())
-		order, err := useCase.GetDetail(1, 1)
+		total, order, err := useCase.GetDetail("123")
 
+		assert.Equal(t, 400, total)
 		assert.NoError(t, err)
-		assert.Equal(t, 400, order)
+		assert.Equal(t, 0, order)
 	})
 
 	t.Run("succes", func(t *testing.T) {
-		repo.On("GetDetailData", mock.Anything, mock.Anything).Return(10000, nil).Once()
+		repo.On("GetDetailData", mock.Anything).Return(10000, 1, nil).Once()
 		useCase := New(repo, validator.New())
-		order, err := useCase.GetDetail(1, 1)
+		total, order, err := useCase.GetDetail("123")
 
 		assert.NoError(t, err)
-		assert.Equal(t, 10000, order)
+		assert.Equal(t, 10000, total)
+		assert.Equal(t, 1, order)
 	})
 }
 
