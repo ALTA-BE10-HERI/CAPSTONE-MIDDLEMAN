@@ -149,7 +149,7 @@ func (_m *OrderData) DoneOrderData(orderid string) domain.Order {
 }
 
 // GetDetailData provides a mock function with given fields: orderName
-func (_m *OrderData) GetDetailData(orderName string) (int, int, error) {
+func (_m *OrderData) GetDetailData(orderName string) (int, int, string, error) {
 	ret := _m.Called(orderName)
 
 	var r0 int
@@ -165,15 +165,23 @@ func (_m *OrderData) GetDetailData(orderName string) (int, int, error) {
 	} else {
 		r1 = ret.Get(1).(int)
 	}
-
-	var r2 error
-	if rf, ok := ret.Get(2).(func(string) error); ok {
+	
+	var r2 string
+	if rf, ok := ret.Get(2).(func(string) string); ok {
 		r2 = rf(orderName)
 	} else {
-		r2 = ret.Error(2)
+		r2 = ret.Get(2).(string)
 	}
 
-	return r0, r1, r2
+	var r3 error
+	if rf, ok := ret.Get(3).(func(string) error); ok {
+		r3 = rf(orderName)
+	} else {
+		r3 = ret.Error(3)
+	}
+
+
+	return r0, r1, r2, r3
 }
 
 // GetDetailItems provides a mock function with given fields: idOrder
