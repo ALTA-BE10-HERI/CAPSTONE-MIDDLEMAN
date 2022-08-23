@@ -62,12 +62,12 @@ func (oh *OrderHandler) GetDetail() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		idOrder := c.Param("idorder")
 
-		grandTotal, id, _ := oh.orderUseCase.GetDetail(idOrder)
+		grandTotal, id, status, _ := oh.orderUseCase.GetDetail(idOrder)
 		if grandTotal == -1 {
 			return c.JSON(http.StatusInternalServerError, _helper.ResponseInternalServerError("there is an internal server error"))
 		}
 		result, err := oh.orderUseCase.GetItems(id)
-		data := _data.ParseToArrDetail(result, grandTotal, idOrder)
+		data := _data.ParseToArrDetail(result, grandTotal, status, idOrder)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, _helper.ResponseBadRequest("wrong input"))
 		}
