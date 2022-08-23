@@ -143,6 +143,7 @@ func ParseToArrDetail(arr []domain.Items, grandTotal int, orderName string) map[
 
 func (od *Order) ToOD() domain.Order {
 	return domain.Order{
+		ID:         int(od.ID),
 		OrderName:  od.OrderName,
 		GrandTotal: od.GrandTotal,
 		Status:     od.Status,

@@ -174,6 +174,7 @@ func TestCreateOrder(t *testing.T) {
 	input := []domain.Items{{ID: 1, OrderID: 1, ProductID: 1, ProductName: "beras", Subtotal: 50000, Unit: "kg", Qty: 1}}
 	input3 := []domain.Items{}
 	input4 := domain.Order{ID: 0, UserID: 0, GrandTotal: 0, Status: "", PaymentLink: "", OrderName: "", Items: []domain.Items{{ID: 0, OrderID: 0, ProductID: 0, ProductName: "", Subtotal: 0, Unit: "", Qty: 0}}}
+	input5 := domain.Order{ID: 1, UserID: 1, GrandTotal: 100000, Status: "waiting", PaymentLink: "apapa", OrderName: "123", Items: []domain.Items{{}}}
 
 	t.Run("failed to insert", func(t *testing.T) {
 		repo.On("Insert", mock.Anything).Return(1, errors.New("error")).Once()
@@ -187,16 +188,25 @@ func TestCreateOrder(t *testing.T) {
 		repo.On("Insert", mock.Anything).Return(1, nil).Once()
 		repo.On("InsertData", mock.Anything, mock.Anything).Return(input3).Once()
 		useCase := New(repo, validator.New())
-		status := useCase.CreateOrder(input4, 1)
+		status := useCase.CreateOrder(input5, 1)
+		assert.Equal(t, 500, status)
+	})
 
+	t.Run("failed to delete", func(t *testing.T) {
+		repo.On("Insert", mock.Anything).Return(1, nil).Once()
+		repo.On("InsertData", mock.Anything, mock.Anything).Return(input).Once()
+		repo.On("DeleteCart", mock.Anything).Return(false).Once()
+		useCase := New(repo, validator.New())
+		status := useCase.CreateOrder(input5, 1)
 		assert.Equal(t, 500, status)
 	})
 
 	t.Run("succes to create", func(t *testing.T) {
 		repo.On("Insert", mock.Anything).Return(1, nil).Once()
 		repo.On("InsertData", mock.Anything, mock.Anything).Return(input).Once()
+		repo.On("DeleteCart", mock.Anything).Return(true).Once()
 		useCase := New(repo, validator.New())
-		status := useCase.CreateOrder(input4, 1)
+		status := useCase.CreateOrder(input5, 1)
 
 		assert.Equal(t, 201, status)
 	})
