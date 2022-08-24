@@ -162,18 +162,13 @@ In Inventories feature to record stok in and out from inventory user admin
 
 <img src="ERD.png">
 
+## Open Api
+
+If you want to consume open api <a href="https://app.swaggerhub.com/apis-docs/vaniliacahya/capstone/1.0.0#/"> here </a>
+
 ## Unit Test
 
 <img src="unit_test.jpg">
-
-## Open Api
-
-if you want to consume our api,
-here's the way !
-
-```bash
-https://app.swaggerhub.com/apis-docs/vaniliacahya/capstone/1.0.0#/
-```
 
 ## Run Locally
 
